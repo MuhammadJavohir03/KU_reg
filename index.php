@@ -37,6 +37,19 @@
                     </div>
                 </div>
 
+                <div class="carousel-item active">
+                    <div class="position-relative bg-dark opacity-50">
+                        <a href="elon2.php">
+                            <img src="Logos/2.jpg" class="d-block w-100" style="height:400px; object-fit:cover;" alt="...">
+                        </a>
+                    </div>
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Qoʻqon universitetida amalga oshirilayotgan ijtimoiy hamkorlik loyihalari, ehtiyojmand oilalar farzandlarini oʻqitish tajribasi va uni joriy etish mexanizmlariga bagʻishlangan seminar oʻtkazildi</h5>
+                        <p>2-mart kuni Qoʻqon shahridagi Qoʻqon universitetida yoshlar siyosati, zamonaviy taʼlim va ijtimoiy qoʻllab-quvvatlash mexanizmlarini kengaytirishga bagʻishlangan seminar boʻlib oʻtdi.
+                            Yigʻilishda 24-fevral kuni Prezident Shavkat Mirziyoyev raisligida oʻtkazilgan yoshlarning tashabbuslarini qoʻllab-quvvatlash boʻyicha qoʻshimcha imkoniyatlarga bagʻishlangan yigʻilishda belgilangan vazifalar ijrosi muhokama qilindi.</p>
+                    </div>
+                </div>
+
 
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
