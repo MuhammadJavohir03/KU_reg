@@ -22,11 +22,11 @@
                         alert("Maksimal 15 ta mavzu kiritish mumkin!");
                         return;
                     }
-
+                
                     count++;
                     const div = document.createElement("div");
                     div.classList.add("topshiriqlar");
-                    div.innerHTML = `<input type="number" name="mavzu[]" placeholder="${count}-Topshiriq" class="btn btn-outline-danger" min="0" max="100">`;
+                    div.innerHTML = `<input type="number" name="mavzu[]" placeholder="${count}-Topshiriq" class="btn bg-danger" min="0" max="100">`;
                     document.getElementById("mavzular").appendChild(div);
                 }
             </script>
