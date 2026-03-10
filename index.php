@@ -47,6 +47,12 @@
                 </button>
             </div>
         </div>
+
+        <div class="container">
+            <button class="btn bg-danger">
+                <h1>KU</h1>
+            </button>
+        </div>
         
         
         <?php require "yonalishlar.php"; ?>
