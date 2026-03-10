@@ -49,7 +49,7 @@
         </div>
 
         <div class="container">
-            <button class="btn bg-danger">
+            <button class="btn bg-danger text-white">
                 <h1>KU</h1>
             </button>
         </div>
