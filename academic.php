@@ -5,7 +5,7 @@
     <?php require "Includes/navbar.php"; ?>
 
     <div class="container position-relative">
-        <button onclick="topFunction()" id="topBtn" class=" btn btn-danger">
+        <button onclick="topFunction()" id="topBtn" class=" btn btn-outline-danger">
             <h1>Top</h1>
         </button>
         <script>
