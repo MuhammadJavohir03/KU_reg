@@ -36,7 +36,7 @@
                             Yigʻilishda 24-fevral kuni Prezident Shavkat Mirziyoyev raisligida oʻtkazilgan yoshlarning tashabbuslarini qoʻllab-quvvatlash boʻyicha qoʻshimcha imkoniyatlarga bagʻishlangan yigʻilishda belgilangan vazifalar ijrosi muhokama qilindi.</p>
                     </div>
                 </div>
-                
+
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Previous</span>
@@ -48,7 +48,7 @@
             </div>
         </div>
         <?php require "yonalishlar.php"; ?>
-       
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
 
