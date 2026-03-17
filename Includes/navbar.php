@@ -22,12 +22,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="tekshiruv.php"
                     class="nav-link shadow-sm <?= ($current_page == 'tekshiruv.php') ? 'active' : '' ?>">
                     Tekshiruv
                 </a>
-            </li>
+            </li> -->
 
             <li class="nav-item">
                 <a href="academic.php"
@@ -40,6 +40,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="about.php"
                     class="nav-link shadow-sm <?= ($current_page == 'about.php') ? 'active' : '' ?>">
                     Biz Haqimizda
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="ariza.php"
+                    class="nav-link shadow-sm <?= ($current_page == 'ariza.php') ? 'active' : '' ?>">
+                    Ariza
                 </a>
             </li>
 
