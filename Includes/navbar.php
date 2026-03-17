@@ -7,7 +7,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
             <span class="fs-4 text-black">
-                <h1><img class="" style="height:60px; with:60px;" src="Logos/Logo.jpg" alt="">-Registrator</h1>
+                <h1><img class="" style="height:60px; width:60px;" src="Logos/Logo.jpg" alt="">-Registrator</h1>
             </span>
         </a>
 
