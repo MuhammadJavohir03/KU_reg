@@ -12,14 +12,14 @@
             </div>
 
             <div class="input-group mb-3">
-                <input type="text" class="form-control border-danger text-danger" placeholder="Guruhingiz (3-22)" aria-label="Username">
-                <input type="text" class="form-control border-danger text-danger" placeholder="Yo'nalishingiz (XT, XTR..ML)" aria-label="Username">
-                <input type="text" class="form-control border-danger text-danger" placeholder="TalabaID" aria-label="Username">
+                <input type="text" class="form-control border-danger text-danger" placeholder="Guruhingiz (EK-3-22..)" aria-label="Username">
+                <input type="text" class="form-control border-danger text-danger" placeholder="Yo'nalishingiz (Iqtisodiyot..)" aria-label="Username">
+                <input type="text" class="form-control border-danger text-danger" placeholder="O'qiyotgan kursingiz" aria-label="Username">
             </div>
 
             <div class="input-group mb-3">
                 <input type="text" class="form-control border-danger text-danger" placeholder="HEMIS parolingiz" aria-label="Username">
-                <input type="text" class="form-control border-danger text-danger" placeholder="O'qiyotgan kursingiz" aria-label="Username">
+                <input type="text" class="form-control border-danger text-danger" placeholder="Talaba ID" aria-label="Username">
             </div>
 
             <div id="fan-container">
