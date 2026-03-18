@@ -7,7 +7,7 @@
 
     <div class="bg-body-tertiary container p-3">
         <a class="btn btn-outline-success" href="ariza.php">
-            Bepul Imkoniyat
+           Qayta topshirish (Bepul imkoniyat)
         </a>
     </div>
 </body>

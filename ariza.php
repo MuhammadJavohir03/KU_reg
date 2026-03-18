@@ -1,14 +1,12 @@
 <?php require "Includes/header.php"; ?>
 
 <?php
-require "Includes/header.php";
 require "database.php";
 
 $error = "";
 $success = false;
 
 if (isset($_POST['submit'])) {
-
     $familiya = $_POST['familiya'];
     $ism = $_POST['ism'];
     $otasining_ismi = $_POST['otasi'];
@@ -18,10 +16,15 @@ if (isset($_POST['submit'])) {
     $hemis_parol = $_POST['parol'];
     $talaba_id_manual = $_POST['id'];
 
-    try {
+    // fanlar arrayini olish
+    $fanlar = $_POST['fanlar'] ?? [];
+    $fan1 = $fanlar[0] ?? null;
+    $fan2 = $fanlar[1] ?? null;
+    $fan3 = $fanlar[2] ?? null;
 
-        $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol)
-                VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol)";
+    try {
+        $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol, fan1, fan2, fan3)
+                VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol, :fan1, :fan2, :fan3)";
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -32,29 +35,14 @@ if (isset($_POST['submit'])) {
             ':guruh' => $guruh,
             ':yonalish' => $yonalish,
             ':kurs' => $kurs,
-            ':parol' => $hemis_parol
+            ':parol' => $hemis_parol,
+            ':fan1' => $fan1,
+            ':fan2' => $fan2,
+            ':fan3' => $fan3,
         ]);
-
-        $bepul_id = $conn->lastInsertId();
-
-        // FANLAR SAQLASH
-        if (!empty($_POST['fanlar'])) {
-            foreach ($_POST['fanlar'] as $fan) {
-                $fan = trim($fan);
-                if ($fan == '') continue;
-
-                $sql = "INSERT INTO fanlar (bepul_id, fan_nomi) VALUES (:bepul_id, :fan)";
-                $stmt = $conn->prepare($sql);
-                $stmt->execute([
-                    ':bepul_id' => $bepul_id,
-                    ':fan' => $fan
-                ]);
-            }
-        }
 
         $success = true;
     } catch (PDOException $e) {
-
         if ($e->errorInfo[1] == 1062) {
             $error = "❌ Bu Talaba ID allaqachon mavjud!";
         } else {
@@ -88,7 +76,6 @@ if (isset($_POST['submit'])) {
                 if (alertBox) alertBox.style.display = 'none';
             }, 2000);
         </script>
-        
         <form action="" method="POST">
             <div class="input-group mb-3">
                 <input name="familiya" type="text" class="form-control border-danger" placeholder="Familiyangiz">
@@ -143,12 +130,12 @@ if (isset($_POST['submit'])) {
         </form>
 
         <script>
-            let maxFans = 10;
+            let maxFans = 3;
             let count = 1;
 
             document.getElementById("addFan").addEventListener("click", function() {
                 if (count >= maxFans) {
-                    alert("Maximum 10 ta fan qo‘shish mumkin!");
+                    alert("Maximum 3 ta fan qo‘shish mumkin!");
                     return;
                 }
 
