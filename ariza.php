@@ -2,6 +2,9 @@
 
 <?php
 require "Includes/header.php";
+require "database.php";
+
+$success = false; // shu qo‘shiladi
 
 if (isset($_POST['submit'])) {
 
@@ -12,12 +15,13 @@ if (isset($_POST['submit'])) {
     $yonalish = $_POST['yonalish'];
     $kurs = $_POST['kurs'];
     $hemis_parol = $_POST['parol'];
-    $talaba_id_manual = $_POST['id']; // HEMIS ID
+    $talaba_id_manual = $_POST['id'];
 
     $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol)
             VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol)";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([
+
+    if ($stmt->execute([
         ':talaba_id' => $talaba_id_manual,
         ':familiya' => $familiya,
         ':ism' => $ism,
@@ -26,22 +30,24 @@ if (isset($_POST['submit'])) {
         ':yonalish' => $yonalish,
         ':kurs' => $kurs,
         ':parol' => $hemis_parol
-    ]);
+    ])) {
 
-    $bepul_id = $conn->lastInsertId();
+        $bepul_id = $conn->lastInsertId();
 
-    if (!empty($_POST['fanlar'])) {
-        foreach ($_POST['fanlar'] as $fan) {
-            $fan = trim($fan);
-            if ($fan == '') continue; // bo‘sh inputlarni o‘tkazib yuboradi
+        if (!empty($_POST['fanlar'])) {
+            foreach ($_POST['fanlar'] as $fan) {
+                $fan = trim($fan);
+                if ($fan == '') continue;
 
-            $sql = "INSERT INTO fanlar (bepul_id, fan_nomi) VALUES (:bepul_id, :fan)";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
-                ':bepul_id' => $bepul_id,
-                ':fan' => $fan
-            ]);
+                $sql = "INSERT INTO fanlar (bepul_id, fan_nomi) VALUES (:bepul_id, :fan)";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute([
+                    ':bepul_id' => $bepul_id,
+                    ':fan' => $fan
+                ]);
+            }
         }
+
         $success = true; // MUVAFFAQIYAT belgisi
     }
 }
@@ -54,6 +60,21 @@ if (isset($_POST['submit'])) {
         <a class="btn btn-outline-danger " href="arizalar.php">
             <h5><- Orqaga</h5>
         </a>
+
+        <?php if ($success): ?>
+            <div class="container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+                <div class="alert alert-success">
+                    ✅ Ma'lumot saqlandi!
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <script>
+            setTimeout(() => {
+                let alertBox = document.querySelector('.alert');
+                if (alertBox) alertBox.style.display = 'none';
+            }, 2000);
+        </script>
 
         <form action="" method="POST">
             <div class="input-group mb-3">
@@ -77,8 +98,7 @@ if (isset($_POST['submit'])) {
                     placeholder="Talaba ID"
                     pattern="\d{12}"
                     title="Talaba ID aniq 12 raqamdan iborat bo'lishi kerak"
-                    required
-                >
+                    required>
 
                 <script>
                     const talabaInput = document.querySelector('input[name="id"]');
@@ -129,6 +149,10 @@ if (isset($_POST['submit'])) {
                 count++;
             });
         </script>
+        <?php $success;
+
+        ?>
+
     </div>
 
 </body>
