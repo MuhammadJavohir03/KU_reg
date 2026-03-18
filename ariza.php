@@ -1,9 +1,7 @@
 <?php require "Includes/header.php"; ?>
-<?php require "database.php"; ?>
 
 <?php
 require "Includes/header.php";
-require "database.php";
 
 if (isset($_POST['submit'])) {
 
@@ -44,8 +42,8 @@ if (isset($_POST['submit'])) {
                 ':fan' => $fan
             ]);
         }
+        $success = true; // MUVAFFAQIYAT belgisi
     }
-
 }
 ?>
 
@@ -71,8 +69,29 @@ if (isset($_POST['submit'])) {
             </div>
 
             <div class="input-group mb-3">
-                <input name="parol" type="text" class="form-control border-danger" placeholder="HEMIS parolingiz">
-                <input name="id" type="text" class="form-control border-danger" placeholder="Talaba ID">
+                <input name="parol" type="password" class="form-control border-danger" placeholder="HEMIS parolingiz">
+                <input
+                    name="id"
+                    type="text"
+                    class="form-control border-danger"
+                    placeholder="Talaba ID"
+                    pattern="\d{12}"
+                    title="Talaba ID aniq 12 raqamdan iborat bo'lishi kerak"
+                    required
+                >
+
+                <script>
+                    const talabaInput = document.querySelector('input[name="id"]');
+
+                    talabaInput.addEventListener('input', () => {
+                        const val = talabaInput.value;
+                        if (/^\d{12}$/.test(val)) {
+                            talabaInput.style.borderColor = 'green';
+                        } else {
+                            talabaInput.style.borderColor = 'red';
+                        }
+                    });
+                </script>
             </div>
 
             <div id="fan-container">
