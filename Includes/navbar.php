@@ -44,9 +44,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </li>
 
             <li class="nav-item">
-                <a href="ariza.php"
-                    class="nav-link shadow-sm <?= ($current_page == 'ariza.php') ? 'active' : '' ?>">
-                    Ariza
+                <a href="arizalar.php"
+                    class="nav-link shadow-sm <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>">
+                    Arizalar
                 </a>
             </li>
 

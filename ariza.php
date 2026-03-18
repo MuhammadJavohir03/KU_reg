@@ -7,7 +7,6 @@ require "database.php";
 
 if (isset($_POST['submit'])) {
 
-    // 1️⃣ Talaba ma'lumotlari
     $familiya = $_POST['familiya'];
     $ism = $_POST['ism'];
     $otasining_ismi = $_POST['otasi'];
@@ -17,7 +16,6 @@ if (isset($_POST['submit'])) {
     $hemis_parol = $_POST['parol'];
     $talaba_id_manual = $_POST['id']; // HEMIS ID
 
-    // 2️⃣ Talabani “bepul” jadvaliga qo‘shish
     $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol)
             VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol)";
     $stmt = $conn->prepare($sql);
@@ -32,10 +30,8 @@ if (isset($_POST['submit'])) {
         ':parol' => $hemis_parol
     ]);
 
-    // 3️⃣ AUTO_INCREMENT ichki ID sini olish
     $bepul_id = $conn->lastInsertId();
 
-    // 4️⃣ Fanlarni alohida jadvalga qo‘shish
     if (!empty($_POST['fanlar'])) {
         foreach ($_POST['fanlar'] as $fan) {
             $fan = trim($fan);
@@ -56,9 +52,12 @@ if (isset($_POST['submit'])) {
 
 <body>
 
-    <?php require "Includes/navbar.php"; ?>
-
     <div class="container bg-body-tertiary p-3">
+
+        <a class="btn btn-outline-danger m-3" href="arizalar.php">
+            <h5><- Orqaga</h5>
+        </a>
+
         <form action="" method="POST">
             <div class="input-group mb-3">
                 <input name="familiya" type="text" class="form-control border-danger" placeholder="Familiyangiz">
