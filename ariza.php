@@ -37,7 +37,6 @@ if (isset($_POST['submit'])) {
             $fan = trim($fan);
             if ($fan == '') continue; // bo‘sh inputlarni o‘tkazib yuboradi
 
-            // Shu yerda qo‘shiladi ✅
             $sql = "INSERT INTO fanlar (bepul_id, fan_nomi) VALUES (:bepul_id, :fan)";
             $stmt = $conn->prepare($sql);
             $stmt->execute([
@@ -54,7 +53,7 @@ if (isset($_POST['submit'])) {
 
     <div class="container bg-body-tertiary p-3">
 
-        <a class="btn btn-outline-danger m-3" href="arizalar.php">
+        <a class="btn btn-outline-danger " href="arizalar.php">
             <h5><- Orqaga</h5>
         </a>
 
