@@ -4,7 +4,8 @@
 require "Includes/header.php";
 require "database.php";
 
-$success = false; // shu qo‘shiladi
+$error = "";
+$success = false;
 
 if (isset($_POST['submit'])) {
 
@@ -17,23 +18,26 @@ if (isset($_POST['submit'])) {
     $hemis_parol = $_POST['parol'];
     $talaba_id_manual = $_POST['id'];
 
-    $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol)
-            VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol)";
-    $stmt = $conn->prepare($sql);
+    try {
 
-    if ($stmt->execute([
-        ':talaba_id' => $talaba_id_manual,
-        ':familiya' => $familiya,
-        ':ism' => $ism,
-        ':otasi' => $otasining_ismi,
-        ':guruh' => $guruh,
-        ':yonalish' => $yonalish,
-        ':kurs' => $kurs,
-        ':parol' => $hemis_parol
-    ])) {
+        $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol)
+                VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol)";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            ':talaba_id' => $talaba_id_manual,
+            ':familiya' => $familiya,
+            ':ism' => $ism,
+            ':otasi' => $otasining_ismi,
+            ':guruh' => $guruh,
+            ':yonalish' => $yonalish,
+            ':kurs' => $kurs,
+            ':parol' => $hemis_parol
+        ]);
 
         $bepul_id = $conn->lastInsertId();
 
+        // FANLAR SAQLASH
         if (!empty($_POST['fanlar'])) {
             foreach ($_POST['fanlar'] as $fan) {
                 $fan = trim($fan);
@@ -48,7 +52,14 @@ if (isset($_POST['submit'])) {
             }
         }
 
-        $success = true; // MUVAFFAQIYAT belgisi
+        $success = true;
+    } catch (PDOException $e) {
+
+        if ($e->errorInfo[1] == 1062) {
+            $error = "❌ Bu Talaba ID allaqachon mavjud!";
+        } else {
+            $error = "❌ Xatolik yuz berdi!";
+        }
     }
 }
 ?>
@@ -61,12 +72,14 @@ if (isset($_POST['submit'])) {
             <h5><- Orqaga</h5>
         </a>
 
+
+
+        <?php if ($error): ?>
+            <div class="alert alert-danger text-center"><?= $error ?></div>
+        <?php endif; ?>
+
         <?php if ($success): ?>
-            <div class="container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-                <div class="alert alert-success">
-                    ✅ Ma'lumot saqlandi!
-                </div>
-            </div>
+            <div class="alert alert-success text-center">✅ Ma'lumot saqlandi!</div>
         <?php endif; ?>
 
         <script>
@@ -75,7 +88,7 @@ if (isset($_POST['submit'])) {
                 if (alertBox) alertBox.style.display = 'none';
             }, 2000);
         </script>
-
+        
         <form action="" method="POST">
             <div class="input-group mb-3">
                 <input name="familiya" type="text" class="form-control border-danger" placeholder="Familiyangiz">
