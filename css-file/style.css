@@ -13926,4 +13926,7 @@ object-fit:cover;
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
-/*# sourceMappingURL=bootstrap.min.css.map */
+.blur45 {
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(10px); /* Safari uchun */
+}
