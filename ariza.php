@@ -56,9 +56,49 @@ if (isset($_POST['submit'])) {
 
     <div class="container bg-body-tertiary p-3">
 
-        <a class="btn btn-outline-danger " href="arizalar.php">
-            <h5><- Orqaga</h5>
+        <a class="back-btn mb-3" href="arizalar.php">
+            <span class="arrow">←</span>
+            <span class="text">Orqaga</span>
         </a>
+
+        <style>
+            .back-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                border: 2px solid #dc3545;
+                color: #dc3545;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .back-btn:hover {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            /* strelka animatsiyasi */
+            .back-btn .arrow {
+                font-size: 20px;
+                transition: transform 0.3s ease;
+            }
+
+            .back-btn:hover .arrow {
+                transform: translateX(-5px);
+            }
+
+            /* text ham ozgina siljiydi */
+            .back-btn .text {
+                transition: transform 0.3s ease;
+            }
+
+            .back-btn:hover .text {
+                transform: translateX(-3px);
+            }
+        </style>
 
 
 
@@ -117,6 +157,7 @@ if (isset($_POST['submit'])) {
             <div id="fan-container">
                 <div class="input-group mb-3">
                     <input name="fanlar[]" type="text" class="form-control border-danger" placeholder="Fan nomi">
+                    <button type="button" class="btn btn-danger removeFan">- Olib tashlash</button>
                 </div>
             </div>
 
@@ -188,12 +229,32 @@ if (isset($_POST['submit'])) {
 
                 let div = document.createElement("div");
                 div.className = "input-group mb-3";
-                div.innerHTML = `<input name="fanlar[]" type="text" class="form-control border-danger" placeholder="Fan nomi">`;
+                div.innerHTML = `
+        <input name="fanlar[]" type="text" class="form-control border-danger" placeholder="Fan nomi">
+        <button type="button" class="btn btn-danger removeFan">- Olib tashlash</button>
+    `;
 
                 container.appendChild(div);
                 count++;
             });
         </script>
+
+        <script>
+            document.addEventListener("click", function(e) {
+                if (e.target.classList.contains("removeFan")) {
+                    let container = document.getElementById("fan-container");
+
+                    // kamida 1 ta fan qolishi kerak
+                    if (container.children.length > 1) {
+                        e.target.parentElement.remove();
+                        count--;
+                    } else {
+                        alert("Kamida 1 ta fan bo‘lishi kerak!");
+                    }
+                }
+            });
+        </script>
+
         <?php $success;
 
         ?>
