@@ -76,21 +76,21 @@ if (isset($_POST['submit'])) {
                 if (alertBox) alertBox.style.display = 'none';
             }, 2000);
         </script>
-        <form action="" method="POST">
+        <form id="myForm" action="" method="POST">
             <div class="input-group mb-3">
-                <input name="familiya" type="text" class="form-control border-danger" placeholder="Familiyangiz">
-                <input name="ism" type="text" class="form-control border-danger" placeholder="Ismingiz">
-                <input name="otasi" type="text" class="form-control border-danger" placeholder="Otangizni ismi">
+                <input required name="familiya" type="text" class="form-control border-danger" placeholder="Familiyangiz">
+                <input required name="ism" type="text" class="form-control border-danger" placeholder="Ismingiz">
+                <input required name="otasi" type="text" class="form-control border-danger" placeholder="Otangizni ismi">
             </div>
 
             <div class="input-group mb-3">
-                <input name="guruh" type="text" class="form-control border-danger" placeholder="Guruhingiz">
-                <input name="yonalish" type="text" class="form-control border-danger" placeholder="Yo'nalishingiz">
-                <input name="kurs" type="text" class="form-control border-danger" placeholder="Kursingiz">
+                <input required name="guruh" type="text" class="form-control border-danger" placeholder="Guruhingiz">
+                <input required name="yonalish" type="text" class="form-control border-danger" placeholder="Yo'nalishingiz">
+                <input required name="kurs" type="text" class="form-control border-danger" placeholder="Kursingiz">
             </div>
 
             <div class="input-group mb-3">
-                <input name="parol" type="password" class="form-control border-danger" placeholder="HEMIS parolingiz">
+                <input required name="parol" type="password" class="form-control border-danger" placeholder="HEMIS parolingiz">
                 <input
                     name="id"
                     type="text"
@@ -120,6 +120,29 @@ if (isset($_POST['submit'])) {
                 </div>
             </div>
 
+            <script>
+                document.getElementById("myForm").addEventListener("submit", function(e) {
+                    let inputs = document.querySelectorAll("#myForm input");
+                    let isValid = true;
+
+                    inputs.forEach(input => {
+                        if (input.type !== "button" && input.type !== "submit") {
+                            if (input.value.trim() === "") {
+                                input.style.borderColor = "red";
+                                isValid = false;
+                            } else {
+                                input.style.borderColor = "green";
+                            }
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert("❗ Barcha maydonlarni to‘ldiring!");
+                    }
+                });
+            </script>
+
             <button type="button" id="addFan" class="btn bg-danger text-white">
                 FAN QO'SHISH
             </button>
@@ -127,6 +150,28 @@ if (isset($_POST['submit'])) {
             <button name="submit" type="submit" class="btn bg-success text-white">
                 Saqlash va Jo'natish
             </button>
+
+            <script>
+                document.getElementById("myForm").addEventListener("submit", function(e) {
+                    let inputs = document.querySelectorAll("#myForm input[type='text'], #myForm input[type='password']");
+                    let isValid = true;
+
+                    inputs.forEach(input => {
+                        if (input.value.trim() === "") {
+                            input.style.borderColor = "red";
+                            isValid = false;
+                        } else {
+                            input.style.borderColor = "green";
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault(); // submitni to‘xtatadi
+                        alert("❗ Iltimos, barcha maydonlarni to‘ldiring!");
+                    }
+                });
+            </script>
+
         </form>
 
         <script>
