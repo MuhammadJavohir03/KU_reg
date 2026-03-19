@@ -255,10 +255,6 @@ if (isset($_POST['submit'])) {
             });
         </script>
 
-        <?php $success;
-
-        ?>
-
     </div>
 
 </body>
