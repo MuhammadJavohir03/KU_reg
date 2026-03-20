@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <?php $title = "Bosh Sahifa"; ?>
 <?php require "Includes/header.php"; ?>
 
@@ -64,7 +65,7 @@
 
                 <div class="col">
                     <img class="shadow rounded-circle profile-img" src="Reg_office/Diyorbek_Hero.jpg" alt="">
-                    <h3 class="fw-normal">Saydaliyev Abdulazizxon</h3>
+                    <h3 class="fw-normal">Saydaliyev Abdulazizxon Ilxomjon o'g'li</h3>
                     <h5>Registrator ofisi Hero Mutaxasisi</h5>
                 </div><!-- /.col-lg-4 -->
 

@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <?php $title = "Bosh Sahifa"; ?>
 <?php require "Includes/header.php"; ?>
 
