@@ -37,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_admin'])) {
 </head>
 
 <body>
+
+    <a href="admin_panel.php" class="nav-link">Orqaga</a>
+
     <h2>Adminni bo‘limga biriktirish</h2>
 
     <?php if ($message) echo "<p>$message</p>"; ?>

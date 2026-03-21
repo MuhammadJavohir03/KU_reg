@@ -21,6 +21,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="about.php" class="nav-link <?= ($current_page == 'about.php') ? 'active' : '' ?>">Biz Haqimizda</a>
             </li>
 
+            <li class="nav-item">
+                <a href="arizalar.php" class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>">Arizalar</a>
+            </li>
+
             <?php if (!isset($_SESSION['user_id'])): ?>
                 <li class="nav-item">
                     <a href="login.php" class="nav-link <?= ($current_page == 'login.php') ? 'active' : '' ?>">Kirish</a>
@@ -45,7 +49,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
                 <li class="nav-item">
                     <div class="p-2 shadow bg-danger text-white rounded-circle d-flex justify-content-center align-items-center"
-                        style="width:40px; height:40px; font-weight:bold;">
+                        style="width:50px; height:50px; font-weight:bold;">
                         <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
                     </div>
                 </li>
