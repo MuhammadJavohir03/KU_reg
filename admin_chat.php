@@ -28,6 +28,11 @@ $section_id = isset($_GET['section_id'])
     ? (int)$_GET['section_id']
     : (int)$sections[0]['id'];
 
+// Tanlangan user
+$chat_user_id = isset($_GET['user_id'])
+    ? (int)$_GET['user_id']
+    : ($users[0]['id'] ?? 0);
+
 // ================== USERLAR (UNREAD COUNT BILAN) ==================
 $stmt = $pdo->prepare("
     SELECT 
@@ -196,6 +201,7 @@ foreach ($sections as $s) {
         <!-- JAVOB FORM -->
         <form method="POST" enctype="multipart/form-data" class="mt-auto">
             <div class="input-group shadow-sm rounded-3" style="backdrop-filter: blur(8px); background: rgba(255,0,0,0.1);">
+                 <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
                 <input type="text" name="reply" class="form-control border-0" placeholder="Javob yozing...">
                 <input type="file" name="attachment" class="form-control border-0">
                 <button class="btn btn-danger" type="submit">Yuborish</button>
