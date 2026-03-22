@@ -62,10 +62,11 @@ $stmt = $pdo->prepare("
     LEFT JOIN users u ON m.user_id = u.id
     LEFT JOIN users a ON m.admin_id = a.id
     WHERE m.section_id = ?
-      AND (m.user_id = ? OR m.admin_id IS NOT NULL)
+      AND m.user_id = ?
     ORDER BY m.created_at ASC
 ");
 $stmt->execute([$section_id, $user_id]);
+$messages = $stmt->fetchAll();
 ?>
 
 <?php require "Includes/header.php"; ?>
@@ -111,7 +112,7 @@ $stmt->execute([$section_id, $user_id]);
 
     <form method="POST" enctype="multipart/form-data">
         <div class="input-group mb-3">
-            <textarea name="message" class="form-control" placeholder="Xabar yozing..." required></textarea>
+            <textarea name="message" class="form-control" placeholder="Xabar yozing..."></textarea>
             <input type="file" name="attachment" class="form-control">
             <button class="btn btn-success" type="submit">Yuborish</button>
         </div>
