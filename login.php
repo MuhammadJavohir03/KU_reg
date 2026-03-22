@@ -28,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
 
-            // Rolga qarab yo‘naltirish
             if ($user['role'] === 'admin') {
                 header("Location: admin_chat.php");
                 exit;
@@ -48,49 +47,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <?php require "Includes/navbar.php"; ?>
 
-    <div class="container mt-5">
-        <h2>Kirish</h2>
-        <?php if ($error) echo "<div class='alert alert-danger'>$error</div>"; ?>
+    <section class="vh-100">
+        <div class="container-fluid h-custom">
+            <div class="row d-flex justify-content-center align-items-center h-100">
 
-        <form method="POST" action="login.php">
-            <div class="mb-3">
-                <label for="Email">Email:</label>
-                <input require type="email" id="Email" name="email" class="form-control" placeholder="user@kumail.uz" required>
+                <!-- RASM -->
+                <div class="col-md-9 col-lg-6 col-xl-5 d-none d-md-block">
+                    <img src="images/login-background.png"
+                        class="img-fluid custom-shadow"
+                        alt="image">
+                </div>
+
+                <!-- FORM -->
+                <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+
+                    <form class="custom-shadow" method="POST" action="login.php">
+
+                        <h3 class="mb-4 custom-shadow text-dangers">Tizimga kirish</h3>
+
+                        <?php if ($error): ?>
+                            <div class="alert alert-danger"><?php echo $error; ?></div>
+                        <?php endif; ?>
+
+                        <!-- EMAIL -->
+                        <div class="form-outline mb-4">
+                            <input type="email" name="email" class="form-control form-control-lg"
+                                placeholder="user@kumail.uz" required />
+                            <label class="form-label"></label>
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div class="form-outline mb-3 position-relative">
+                            <input type="password" id="password" name="password"
+                                class="form-control form-control-lg"
+                                placeholder="Parol" required />
+
+                            <span onclick="togglePassword()"
+                                style="position:absolute; right:15px; top:12px; cursor:pointer;">
+                                👁
+                            </span>
+                        </div>
+
+                        <!-- TALABA ID -->
+                        <div class="form-outline mb-3">
+                            <input type="text" name="talaba_id"
+                                class="form-control form-control-lg"
+                                placeholder="Talaba ID" required />
+                            <label class="form-label"></label>
+                        </div>
+
+                        <!-- OPTIONS -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="forgot_password.php" class="text-body">Parolni unutdingizmi?</a>
+                        </div>
+
+                        <!-- BUTTON -->
+                        <div class="text-center text-lg-start mt-4 pt-2">
+                            <button type="submit" class="btn btn-danger btn-lg"
+                                style="padding-left: 2.5rem; padding-right: 2.5rem;">
+                                Kirish
+                            </button>
+
+                            <p class="small fw-bold mt-2 pt-1 mb-0">
+                                Ro'yxatdan o'tmaganmisiz?
+                                <a href="create_user.php" class="link-danger">Ro‘yxatdan o‘tish</a>
+                            </p>
+                        </div>
+
+                    </form>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <div class="mb-3 position-relative">
-                <label>Parol:</label>
-                <input require type="password" id="password" name="password" class="form-control" required>
-
-                <span onclick="togglePassword()"
-                    style="position:absolute; right:15px; top:30px; cursor:pointer;">
-                    👁
-                </span>
-            </div>
-
-            <script>
-                function togglePassword() {
-                    const pass = document.getElementById("password");
-
-                    if (pass.type === "password") {
-                        pass.type = "text";
-                    } else {
-                        pass.type = "password";
-                    }
-                }
-            </script>
-
-            <div class="mb-3">
-                <label for="Talaba_ID">Talaba ID:</label>
-                <input require type="text" id="Talaba_ID" name="talaba_id" class="form-control" placeholder="12 raqam" required>
-            </div>
-
-            <button type="submit" class="btn btn-danger btn-lg btn-block">Kirish</button>
-        </form>
-
-        <p class="mt-3">Ro'yxatdan o'tmaganmisiz? <a class="text-danger" href="create_user.php">Ro'yxatdan o'tish</a></p>
-        <p class="mt-3">Forgot Password?<a class="text-danger" href="forgot_password.php">Passwordni Tiklash</a></p>
-    </div>
+    <script>
+        function togglePassword() {
+            const pass = document.getElementById("password");
+            pass.type = pass.type === "password" ? "text" : "password";
+        }
+    </script>
 
     <?php require "Includes/footer.php"; ?>
 </body>

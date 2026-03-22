@@ -2,62 +2,75 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
-<div class="container">
-    <header class="sticky-top d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-        <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
-            <h1 class="fs-4 text-black">
-                <img style="height:60px; width:60px;" src="Logos/Logo.jpg" alt=""> - Registrator
-            </h1>
+<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="background: rgba(255, 255, 255, 0.11);">
+    <div class="container container-fluid">
+        <!-- Logo va nom -->
+        <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <img src="https://hrd.kokanduni.uz/assets/logo-DMIx8MBS.png" alt="" height="40" width="133" class="me-2">
+            Registrator
         </a>
 
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a href="index.php" class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>">Bosh Sahifa</a>
-            </li>
-            <li class="nav-item">
-                <a href="academic.php" class="nav-link <?= ($current_page == 'academic.php') ? 'active' : '' ?>">Academic Policy</a>
-            </li>
-            <li class="nav-item">
-                <a href="about.php" class="nav-link <?= ($current_page == 'about.php') ? 'active' : '' ?>">Biz Haqimizda</a>
-            </li>
+        <!-- Hamburger toggle button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <li class="nav-item">
-                <a href="arizalar.php" class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>">Arizalar</a>
-            </li>
-
-            <?php if (!isset($_SESSION['user_id'])): ?>
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a href="login.php" class="nav-link <?= ($current_page == 'login.php') ? 'active' : '' ?>">Kirish</a>
+                    <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php">Bosh Sahifa</a>
                 </li>
-            <?php else: ?>
-                <?php if ($_SESSION['role'] === 'admin'): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'academic.php') ? 'active' : '' ?>" href="academic.php">Academic Policy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'about.php') ? 'active' : '' ?>" href="about.php">Biz Haqimizda</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>" href="arizalar.php">Arizalar</a>
+                </li>
+
+                <?php if (!isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">
-                        <a href="admin_chat.php" class="nav-link <?= ($current_page == 'admin_chat.php') ? 'active' : '' ?>">Admin Chat</a>
-                    </li>
-                <?php elseif ($_SESSION['role'] === 'super_admin'): ?>
-                    <li class="nav-item">
-                        <a href="admin_panel.php" class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>">Admin Panel</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="chat.php" class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>">Chat</a>
+                        <a class="nav-link <?= ($current_page == 'login.php') ? 'active' : '' ?>" href="login.php">Kirish</a>
                     </li>
                 <?php else: ?>
-                    <li class="nav-item">
-                        <a href="chat.php" class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>">Chat</a>
-                    </li>
+                    <?php if ($_SESSION['role'] === 'admin'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= ($current_page == 'admin_chat.php') ? 'active' : '' ?>" href="admin_chat.php">Admin Chat</a>
+                        </li>
+                    <?php elseif ($_SESSION['role'] === 'super_admin'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>" href="admin_panel.php">Admin Panel</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
+                        </li>
+                    <?php endif; ?>
                 <?php endif; ?>
+            </ul>
 
-                <li class="nav-item">
-                    <div class="p-2 shadow bg-danger text-white rounded-circle d-flex justify-content-center align-items-center"
+            <!-- User initials va logout -->
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="d-flex align-items-center">
+                    <div class="bg-danger text-white rounded-circle d-flex justify-content-center align-items-center me-3"
                         style="width:50px; height:50px; font-weight:bold;">
                         <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
                     </div>
-                </li>
-
-                <li class="nav-item">
-                    <a href="logout.php" class="nav-link" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Chiqish</a>
-                </li>
+                    <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a>
+                </div>
             <?php endif; ?>
-        </ul>
-    </header>
-</div>
+        </div>
+    </div>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS bundle (Popper bilan) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</nav>

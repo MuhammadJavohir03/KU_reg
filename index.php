@@ -2,7 +2,7 @@
 <?php $title = "Bosh Sahifa"; ?>
 <?php require "Includes/header.php"; ?>
 
-<body>
+<body class="gradient-custom">
     <?php require "Includes/navbar.php"; ?>
     <div class="container">
         <div id="carouselExampleCaptions" class="carousel slide bg-dark" data-bs-ride="carousel">

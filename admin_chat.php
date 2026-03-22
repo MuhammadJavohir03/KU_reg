@@ -2,6 +2,27 @@
 session_start();
 require "database.php";
 
+if (isset($_GET['delete_id'])) {
+    $delete_id = (int)$_GET['delete_id'];
+
+    // Xabarni olish
+    $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
+    $stmt->execute([$delete_id]);
+    $msg = $stmt->fetch();
+
+    if ($msg) {
+        // 🔐 MUHIM XAVFSIZLIK SHU YERDA
+        if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']) {
+
+            $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ?");
+            $stmt->execute([$delete_id]);
+        }
+    }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit;
@@ -128,93 +149,110 @@ foreach ($sections as $s) {
 <?php require "Includes/header.php"; ?>
 <?php require "Includes/navbar.php"; ?>
 
-<div class="container mt-4 d-flex flex-column flex-lg-row gap-3">
+<body class="gradient-custom">
 
-    <!-- CHAP PANEL -->
-    <div class="col-12 col-lg-4 col-xl-3 mb-3 mb-lg-0">
-        <h5 class="mb-3">Users</h5>
+    <div class="container py-5">
+        <div class="row">
 
-        <div class="list-group shadow-sm rounded-3" style="backdrop-filter: blur(8px); background: rgba(255,0,0,0.1);">
-            <?php foreach ($users as $u): ?>
-                <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
-                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center 
-                   <?= ($u['id'] == $chat_user_id) ? 'active bg-danger text-white' : 'bg-light text-dark' ?> rounded-2 mb-1">
+            <!-- USER PANEL -->
+            <div class="col-12 col-lg-4 col-xl-3 mb-3 mb-lg-0">
+                <h5 class="mb-3">Users</h5>
 
-                    <span><?= htmlspecialchars($u['email']) ?></span>
+                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.28); min-height: 550px;">
 
-                    <?php if ($u['unread'] > 0): ?>
-                        <span class="badge bg-danger rounded-pill px-2 py-1">
-                            <?= $u['unread'] ?>
-                        </span>
-                    <?php endif; ?>
+                    <?php foreach ($users as $u): ?>
+                        <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
+                            style="background: rgba(255, 255, 255, 0.44);"
+                            class="border-white shadow-sm list-group-item list-group-item-action d-flex justify-content-between align-items-center 
+                            <?= ($u['id'] == $chat_user_id) ? 'active text-dark' : 'bg-light text-dark' ?> rounded-2 mb-1">
 
-                </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
+                            <span><?= htmlspecialchars($u['email']) ?></span>
 
-    <!-- CHAT PANEL -->
-    <div class="col-12 col-lg-8 col-xl-9 d-flex flex-column">
-        <h5 class="mb-3">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h5>
+                            <?php if ($u['unread'] > 0): ?>
+                                <span class="badge bg-danger rounded-pill px-2 py-1">
+                                    <?= $u['unread'] ?>
+                                </span>
+                            <?php endif; ?>
 
-        <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow-sm overflow-auto" style="
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- CHAT PANEL -->
+            <div class="col-12 col-lg-8 col-xl-9 d-flex flex-column">
+                <h5 class="mb-3">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h5>
+
+                <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow overflow-auto" style="
             backdrop-filter: blur(8px); 
-            background: rgba(220,0,0,0.1); min-height: 400px;">
+            background: rgba(255, 255, 255, 0.28); 
+            min-height:550px;">
 
-            <?php foreach ($messages as $msg): ?>
+                    <?php foreach ($messages as $msg): ?>
 
-                <?php
-                $is_admin = $msg['admin_id'] == $admin_id;
-                $bubble_bg = $is_admin
-                    ? 'rgba(220,0,0,0.7)'
-                    : 'rgba(220,0,0,0.5)';
-                ?>
+                        <?php
+                        $is_admin = $msg['admin_id'] == $admin_id;
+                        $bubble_bg = $is_admin
+                            ? 'rgba(255, 255, 255, 0.5)'
+                            : 'rgba(255, 255, 255, 0.51)';
+                        ?>
 
-                <div class="d-flex <?= $is_admin ? 'justify-content-end' : 'justify-content-start' ?> mb-2">
-                    <div class="p-2 rounded-3 text-white" style="
-                        max-width:70%;
-                        background: <?= $bubble_bg ?>;
-                        backdrop-filter: blur(6px);
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.15);">
+                        <div class="d-flex <?= $is_admin ? 'justify-content-end' : 'justify-content-start' ?> mb-2">
+                            <div class="p-2 rounded-3 text-dark position-relative shadow-sm" style="
+                                max-width:70%;
+                                background: <?= $bubble_bg ?>;
+                                backdrop-filter: blur(6px);">
 
-                        <?php if (!$is_admin): ?>
-                            <strong><?= substr($msg['user_email'], 0, 5) ?>:</strong>
-                        <?php endif; ?>
+                                <?php if (!$is_admin): ?>
+                                    <strong><?= substr($msg['user_email'], 0, 5) ?>:</strong>
+                                <?php endif; ?>
 
-                        <?= htmlspecialchars($msg['message']) ?>
+                                <?= htmlspecialchars($msg['message']) ?>
 
-                        <?php if ($msg['attachment']): ?>
-                            <div class="mt-1">
-                                <a href="<?= htmlspecialchars($msg['attachment']) ?>" target="_blank" class="btn btn-sm btn-outline-light">
-                                    Yuklangan fayl
-                                </a>
+                                <?php if ($msg['attachment']): ?>
+                                    <div class="mt-1">
+                                        <a href="<?= htmlspecialchars($msg['attachment']) ?>" target="_blank" class="text-primary btn btn-sm btn-outline-primary">
+                                            Yuklangan fayl
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+
+                                <!-- 🗑 DELETE BUTTON SHU YERDA -->
+                                <?php if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']): ?>
+                                    <a href="?delete_id=<?= $msg['id'] ?>"
+                                        class="m-2 btn btn-sm btn-light text-danger"
+                                        style="top:5px; right:5px; padding:2px 6px;"
+                                        onclick="return confirm('O‘chirilsinmi?')">
+                                        -Olish
+                                    </a>
+                                <?php endif; ?>
+
+                                <div class="text-end small opacity-75"><?= $msg['created_at'] ?></div>
                             </div>
-                        <?php endif; ?>
+                        </div>
 
-                        <div class="text-end small opacity-75"><?= $msg['created_at'] ?></div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
 
-            <?php endforeach; ?>
+                <!-- JAVOB FORM -->
+                <form method="POST" enctype="multipart/form-data" class="mt-auto">
+                    <div class="input-group shadow-sm rounded-3" style="backdrop-filter: blur(8px); background: rgba(255,0,0,0.1);">
+                        <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
+                        <input type="text" name="reply" class="form-control border-0" placeholder="Javob yozing...">
+                        <input type="file" name="attachment" class="form-control border-0">
+                        <button class="btn border-white" style=" background: rgba(255, 255, 255, 0.51);" type="submit">Yuborish</button>
+                    </div>
+                </form>
+            </div>
+
         </div>
 
-        <!-- JAVOB FORM -->
-        <form method="POST" enctype="multipart/form-data" class="mt-auto">
-            <div class="input-group shadow-sm rounded-3" style="backdrop-filter: blur(8px); background: rgba(255,0,0,0.1);">
-                 <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
-                <input type="text" name="reply" class="form-control border-0" placeholder="Javob yozing...">
-                <input type="file" name="attachment" class="form-control border-0">
-                <button class="btn btn-danger" type="submit">Yuborish</button>
-            </div>
-        </form>
-    </div>
+        <script>
+            // Auto scroll oxirgi xabarga
+            var chatBox = document.querySelector('.chat-box');
+            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        </script>
 
-</div>
-
-<script>
-    // Auto scroll oxirgi xabarga
-    var chatBox = document.querySelector('.chat-box');
-    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-</script>
+</body>
 
 <?php require "Includes/footer.php"; ?>

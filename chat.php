@@ -2,6 +2,27 @@
 session_start();
 require "database.php";
 
+if (isset($_GET['delete_id'])) {
+    $delete_id = (int)$_GET['delete_id'];
+
+    // Xabarni tekshiramiz
+    $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
+    $stmt->execute([$delete_id]);
+    $msg = $stmt->fetch();
+
+    if ($msg) {
+        // Faqat o‘z xabari yoki admin o‘chira oladi
+        if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']) {
+
+            $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ?");
+            $stmt->execute([$delete_id]);
+        }
+    }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
