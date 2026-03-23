@@ -157,24 +157,42 @@ foreach ($sections as $s) {
             <!-- USER PANEL -->
             <div class="col-12 col-lg-4 col-xl-3 mb-3 mb-lg-0">
                 <h5 class="mb-3">Users</h5>
+                <input type="text" id="userSearch" class="form-control mb-2 border" placeholder="Foydalanuvchini qidirish...">
+                <script>
+                    document.getElementById('userSearch').addEventListener('keyup', function() {
+                        let search = this.value.toLowerCase();
+                        let users = document.querySelectorAll('.user-item');
 
-                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.28); min-height: 550px;">
+                        users.forEach(function(user) {
+                            let name = user.textContent.toLowerCase();
+
+                            if (name.includes(search)) {
+                                user.style.display = 'block';
+                            } else {
+                                user.style.display = 'none';
+                            }
+                        });
+                    });
+                </script>
+                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.28); min-height: 700px;">
 
                     <?php foreach ($users as $u): ?>
-                        <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
-                            style="background: rgba(255, 255, 255, 0.44);"
-                            class="border-white shadow-sm list-group-item list-group-item-action d-flex justify-content-between align-items-center 
-                            <?= ($u['id'] == $chat_user_id) ? 'active text-dark' : 'bg-light text-dark' ?> rounded-2 mb-1">
+                        <div class="user-item">
+                            <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
+                                style="background: rgba(255, 255, 255, 0.44);"
+                                class="border-white shadow-sm list-group-item list-group-item-action d-flex justify-content-between align-items-center 
+                                <?= ($u['id'] == $chat_user_id) ? 'active text-dark' : 'bg-light text-dark' ?> rounded-2 mb-1">
 
-                            <span><?= htmlspecialchars($u['email']) ?></span>
+                                <span><?= htmlspecialchars($u['email']) ?></span>
 
-                            <?php if ($u['unread'] > 0): ?>
-                                <span class="badge bg-danger rounded-pill px-2 py-1">
-                                    <?= $u['unread'] ?>
-                                </span>
-                            <?php endif; ?>
+                                <?php if ($u['unread'] > 0): ?>
+                                    <span class="badge bg-danger rounded-pill px-2 py-1">
+                                        <?= $u['unread'] ?>
+                                    </span>
+                                <?php endif; ?>
 
-                        </a>
+                            </a>
+                        </div>
                     <?php endforeach; ?>
                 </div>
             </div>
