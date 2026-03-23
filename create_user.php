@@ -7,11 +7,11 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password_plain = trim($_POST['password']);
-    $talaba_id = trim($_POST['talaba_id']);
+    $talaba_id = trim($_POST['talaba_id']); // majburiy NOT NULL
 
     // Tekshiruvlar
-    if (!preg_match('/@kumail\.uz$/', $email)) {
-        $error = "Email faqat @kumail.uz bilan tugashi kerak!";
+    if (!preg_match('/@kokanduni\.uz$/', $email)) {
+        $error = "Email faqat @kokanduni.uz bilan tugashi kerak!";
     } elseif (!preg_match('/^\d{12}$/', $talaba_id)) {
         $error = "Talaba ID 12 raqamdan iborat bo'lishi kerak!";
     } elseif (strlen($password_plain) < 4) {
@@ -20,14 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Parolni hash qilish
         $password_hashed = password_hash($password_plain, PASSWORD_DEFAULT);
 
-        // Role aniqlash
-        $role = ($talaba_id === '123456789012') ? 'super_admin' : 'user';
+        // Role = admin
+        $role = 'admin';
 
         // Foydalanuvchini qo‘shish
         try {
             $stmt = $pdo->prepare("INSERT INTO users (email, password, talaba_id, role) VALUES (?, ?, ?, ?)");
             $stmt->execute([$email, $password_hashed, $talaba_id, $role]);
-            $success = "Foydalanuvchi muvaffaqiyatli yaratildi!";
+            $success = "Admin muvaffaqiyatli yaratildi!";
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
                 $error = "Bunday email yoki Talaba ID allaqachon mavjud!";

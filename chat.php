@@ -135,7 +135,7 @@ $messages = $stmt->fetchAll();
         <div class="input-group mb-3">
             <textarea name="message" class="form-control" placeholder="Xabar yozing..."></textarea>
             <input type="file" name="attachment" class="form-control">
-            <button class="btn-success" type="submit">Yuborish</button>
+            <button class="btn btn-success" type="submit">Yuborish</button>
         </div>
     </form>
 </div>
