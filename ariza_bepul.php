@@ -55,7 +55,7 @@ if (isset($_POST['submit'])) {
 
 <body>
 
-    <div class="container bg-body-tertiary p-3">
+    <div class="container bg-body-tertiary p-5" style="height:100vh">
 
         <a class="back-btn mb-3" href="arizalar.php">
             <span class="arrow">←</span>
@@ -100,6 +100,8 @@ if (isset($_POST['submit'])) {
                 transform: translateX(-3px);
             }
         </style>
+
+        <h1 class="text-danger">Bepul Imkoniyat</h1>
 
 
 

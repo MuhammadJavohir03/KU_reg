@@ -48,7 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php require "Includes/navbar.php"; ?>
 
-    <div class="container">
+
+    <div class="container mt-5 p-5 shadow rounded-1 bg-white">
         <a class="back-btn mb-1" href="login.php">
             <span class="arrow">←</span>
             <span class="text">Orqaga</span>
@@ -92,9 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 transform: translateX(-3px);
             }
         </style>
-    </div>
-
-    <div class="container mt-5">
         <h2>Foydalanuvchi yaratish</h2>
         <?php if ($error) echo "<p class='text-danger'>$error</p>"; ?>
         <?php if ($success) echo "<p class='text-success'>$success</p>"; ?>

@@ -61,9 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- FORM -->
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
 
-                    <form class="custom-shadow" method="POST" action="login.php">
+                    <form class="p-5 rounded-1 shadow border text-white" style="background: rgba(61, 52, 139, 0.5); height: 70vh;" method="POST" action="login.php">
 
-                        <h3 class="mb-4 custom-shadow text-dangers">Tizimga kirish</h3>
+                        <h3 class="mb-4 text-dangers">Tizimga kirish</h3>
 
                         <?php if ($error): ?>
                             <div class="alert alert-danger"><?php echo $error; ?></div>
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- OPTIONS -->
                         <div class="d-flex justify-content-between align-items-center">
-                            <a href="forgot_password.php" class="text-body">Parolni unutdingizmi?</a>
+                            <a href="forgot_password.php" class="text-white link-danger">Parolni unutdingizmi?</a>
                         </div>
 
                         <!-- BUTTON -->
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <p class="small fw-bold mt-2 pt-1 mb-0">
                                 Ro'yxatdan o'tmaganmisiz?
-                                <a href="create_user.php" class="link-danger">Ro‘yxatdan o‘tish</a>
+                                <a href="create_user.php" class="text-white link-danger">Ro‘yxatdan o‘tish</a>
                             </p>
                         </div>
 

@@ -7,7 +7,7 @@
     padding: 10px 15px;
 }
 
-.active-bar{
+.active-bar {
     background: rgb(255, 255, 255);
     color: rgba(0, 0, 0, 0.8);
 }
@@ -107,18 +107,15 @@ body {
 }
 
 .custom-shadow {
-    filter: drop-shadow(0px 10px 20px rgba(165, 0, 0, 0.4));
+    filter: drop-shadow(0px 10px 20px rgb(247, 186, 1));
 }
 
-.gradient-custom {
-    /* fallback for old browsers */
-    background: #fccb90;
+body {
+    min-height: 100vh;
 
-    /* Chrome 10-25, Safari 5.1-6 */
-    background: -webkit-linear-gradient(to bottom right, rgb(252, 144, 144), rgb(109, 106, 255));
-
-    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    background: linear-gradient(to bottom right, rgb(252, 144, 144), rgb(109, 106, 255))
+    background: linear-gradient(to bottom right, rgb(118, 120, 237), rgb(241, 135, 1));
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 .mask-custom {

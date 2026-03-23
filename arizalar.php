@@ -6,11 +6,11 @@
 
     <?php require "Includes/navbar.php"; ?>
 
-    <div class="bg-body-tertiary container p-3">
-        <a class="btn btn-outline-success" href="ariza_bepul.php">
+    <div class="bg-white container p-5" style="height: 100vh;">
+        <a class="m-2 btn btn-outline-success" href="ariza_bepul.php">
             Qayta topshirish (Bepul imkoniyat)
         </a>
-        <a class="btn btn-outline-success" href="ariza_pullik.php">
+        <a class="m-2 btn btn-outline-success" href="ariza_pullik.php">
             Qayta topshirish (Pullik)
         </a>
     </div>

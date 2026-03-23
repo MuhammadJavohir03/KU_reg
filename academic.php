@@ -6,8 +6,8 @@
     <?php require "Includes/navbar.php"; ?>
 
     <div class="container position-relative">
-        <button onclick="topFunction()" id="topBtn" class=" btn btn-outline-danger">
-            <h1>↑</h1>
+        <button onclick="topFunction()" id="topBtn" class=" btn border" style="background: rgba(61, 52, 139, 0.53);">
+            <h1 class="text-white">↑</h1>
         </button>
         <script>
             function topFunction() {
@@ -21,58 +21,58 @@
 
     <div class="container">
 
-        <nav id="navbar-example2" class="navbar bg-body-tertiary px-3 mb-3">
+        <nav id="navbar-example2" class="rounded-1 navbar px-3 mb-3" style="background-color: rgb(255, 255, 255);;">
             <a class="navbar-brand text-danger" href="#">
                 <h3>Academic Policy Kokand University</h3>
             </a>
-            <ul class="nav nav-pills">
+            <ul class="nav  nav-pills">
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading1">QO'LLANISH SOHASI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading1">QO'LLANISH SOHASI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading2">QISTQARMALAR VA SHARTLI BELGILAR</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading2">QISTQARMALAR VA SHARTLI BELGILAR</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading3">AKADEMIK SIYOSATNING MAQSADI VA PRINSIPLARI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading3">AKADEMIK SIYOSATNING MAQSADI VA PRINSIPLARI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading4">UNIVERSITETGA O’QISHGA QABUL QILISH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading4">UNIVERSITETGA O’QISHGA QABUL QILISH SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading5">SIFATLI TA’LIM SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading5">SIFATLI TA’LIM SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading6">AKADEMIK HALOLLIK SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading6">AKADEMIK HALOLLIK SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading7">TA’LIM DASTURLARINI ISHLAB CHIQISH VA TASDIQLASH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading7">TA’LIM DASTURLARINI ISHLAB CHIQISH VA TASDIQLASH SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading8">TA’LIM JARAYONINI REJALASHTIRISH VA TASHKIL ETISH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading8">TA’LIM JARAYONINI REJALASHTIRISH VA TASHKIL ETISH SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading9">TALABALARNING BAHOLASH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading9">TALABALARNING BAHOLASH SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading10">TALABALARNI O’QISHINI KO’CHIRISH, TIKLASH, CHETLASHTIRISH VA AKADEMIK TA’TIL BERISH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading10">TALABALARNI O’QISHINI KO’CHIRISH, TIKLASH, CHETLASHTIRISH VA AKADEMIK TA’TIL BERISH SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading11">BITIRUVCHILARNING KASBIY YO‘NALISH, BANDLIK VA KARYERA (MANSAB) O‘SISH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading11">BITIRUVCHILARNING KASBIY YO‘NALISH, BANDLIK VA KARYERA (MANSAB) O‘SISH SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading12">OCHIQLIK VA OSHKORALIK SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading12">OCHIQLIK VA OSHKORALIK SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading13">AKADEMIK MOBILLIK VA HALQARO ALOQALAR SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading13">AKADEMIK MOBILLIK VA HALQARO ALOQALAR SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading14">DUAL TA’LIM ELEMENTLARINI AMALGA OSHIRISH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading14">DUAL TA’LIM ELEMENTLARINI AMALGA OSHIRISH SIYOSATI</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#scrollspyHeading15">PROFESSOR- O’QITUVCHILARNING MALAKA OSHIRISH SIYOSATI</a>
+                    <a class="text-danger nav-link" href="#scrollspyHeading15">PROFESSOR- O’QITUVCHILARNING MALAKA OSHIRISH SIYOSATI</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Sahifalar</a>
+                    <a class="text-white bg-danger nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Sahifalar</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#scrollspyHeading1">QO'LLANISH SOHASI</a></li>
                         <li><a class="dropdown-item" href="#scrollspyHeading2">QISTQARMALAR VA SHARTLI BELGILAR</a></li>

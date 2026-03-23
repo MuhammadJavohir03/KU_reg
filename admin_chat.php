@@ -193,12 +193,12 @@ foreach ($sections as $s) {
                         <?php
                         $is_admin = $msg['admin_id'] == $admin_id;
                         $bubble_bg = $is_admin
-                            ? 'rgba(255, 255, 255, 0.5)'
-                            : 'rgba(255, 255, 255, 0.51)';
+                            ? 'rgba(61, 52, 139, 0.6)'
+                            : 'rgba(247, 71, 1, 0.6)';
                         ?>
 
                         <div class="d-flex <?= $is_admin ? 'justify-content-end' : 'justify-content-start' ?> mb-2">
-                            <div class="p-2 rounded-3 text-dark position-relative shadow-sm" style="
+                            <div class="border shadow p-2 rounded-3 text-white position-relative shadow-sm" style="
                                 max-width:70%;
                                 background: <?= $bubble_bg ?>;
                                 backdrop-filter: blur(6px);">

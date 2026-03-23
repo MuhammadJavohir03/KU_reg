@@ -2,7 +2,7 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="background: rgba(255, 255, 255, 0.11);">
+<nav class="navbar navbar-expand-lg navbar-dark shadow-white sticky-top" style="background: rgba(61, 52, 139, 0.53);">
     <div class="container container-fluid">
         <!-- Logo va nom -->
         <a class="navbar-brand d-flex align-items-center" href="index.php">
@@ -58,8 +58,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <!-- User initials va logout -->
             <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="d-flex align-items-center">
-                    <div class="bg-danger text-white rounded-circle d-flex justify-content-center align-items-center me-3"
-                        style="width:50px; height:50px; font-weight:bold;">
+                    <div class="text-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm"
+                        style="background: rgba(61, 52, 139, 0.79);width:50px; height:50px; font-weight:bold;">
                         <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
                     </div>
                     <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a>

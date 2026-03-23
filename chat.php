@@ -104,15 +104,15 @@ $messages = $stmt->fetchAll();
         <?php endforeach; ?>
     </select>
 
-    <div class="chat-box p-3 mb-3 border rounded" style="height:500px; overflow-y:auto; background:#f8f9fa;">
+    <div class="chat-box p-3 mb-3 border rounded" style="height:500px; overflow-y:auto;background: rgba(255, 255, 255, 0.61);">
         <?php if (!empty($messages)): ?>
             <?php foreach ($messages as $msg): ?>
                 <?php
                 $is_admin = !is_null($msg['admin_id']);
-                $bubble_bg = $is_admin ? 'rgba(0, 175, 9, 0.8)' : 'rgba(0, 103, 220, 0.76)';
+                $bubble_bg = $is_admin ? 'rgba(247, 71, 1, 0.6)' : 'rgba(61, 52, 139, 0.6)';
                 ?>
                 <div class="d-flex <?= $is_admin ? 'justify-content-start' : 'justify-content-end' ?> mb-2">
-                    <div class="p-2 rounded-3 text-white" style="max-width:70%; background:<?= $bubble_bg ?>;">
+                    <div class="border shadow p-2 rounded-3 text-white" style="max-width:70%; background:<?= $bubble_bg ?>;">
                         <?php if ($is_admin): ?>
                             <strong><?= substr($msg['admin_email'], 0, 5) ?>:</strong>
                         <?php endif; ?>
