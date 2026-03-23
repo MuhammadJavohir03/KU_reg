@@ -66,6 +66,9 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                             <a class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>" href="admin_panel.php">Admin Panel</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?= ($current_page == 'import.php') ? 'active' : '' ?>" href="import.php">import talaba</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
                         </li>
                     <?php else: ?>

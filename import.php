@@ -1,4 +1,9 @@
 <?php
+set_time_limit(0); // Skriptni cheksiz ishlashga ruxsat beradi
+ini_set('memory_limit', '1024M'); // Zarur bo‘lsa xotirani oshirish
+?>
+
+<?php
 require "database.php"; // PDO bilan DB ulanish
 
 $response = null;
