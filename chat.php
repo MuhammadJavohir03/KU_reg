@@ -104,7 +104,7 @@ $messages = $stmt->fetchAll();
         <?php endforeach; ?>
     </select>
 
-    <div class="chat-box p-3 mb-3 border rounded" style="height:500px; overflow-y:auto;background: rgba(255, 255, 255, 0.61);">
+    <div class="chat-box p-3 mb-3 border rounded" style="height:550px; overflow-y:auto;background: rgba(255, 255, 255, 0.61);">
         <?php if (!empty($messages)): ?>
             <?php foreach ($messages as $msg): ?>
                 <?php
@@ -135,7 +135,7 @@ $messages = $stmt->fetchAll();
         <div class="input-group mb-3">
             <textarea name="message" class="form-control" placeholder="Xabar yozing..."></textarea>
             <input type="file" name="attachment" class="form-control">
-            <button class="btn btn-success" type="submit">Yuborish</button>
+            <button class="btn-success" type="submit">Yuborish</button>
         </div>
     </form>
 </div>

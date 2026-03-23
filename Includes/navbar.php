@@ -2,6 +2,21 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
+<?php
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
+    $admin_id = $_SESSION['user_id'];
+
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as total_unread
+        FROM messages
+        WHERE is_read = 0 
+          AND admin_id IS NULL
+    ");
+    $stmt->execute();
+    $total_unread = $stmt->fetch()['total_unread'] ?? 0;
+}
+?>
+
 <nav class="navbar navbar-expand-lg navbar-dark shadow-white sticky-top" style="background: rgba(61, 52, 139, 0.53);">
     <div class="container container-fluid">
         <!-- Logo va nom -->
@@ -37,9 +52,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </li>
                 <?php else: ?>
                     <?php if ($_SESSION['role'] === 'admin'): ?>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'admin_chat.php') ? 'active' : '' ?>" href="admin_chat.php">Admin Chat</a>
-                        </li>
+                        <a href="admin_chat.php" class="nav-link position-relative">
+                            Admin Chat
+
+                            <?php if (!empty($total_unread) && $total_unread > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    <?= $total_unread ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
                     <?php elseif ($_SESSION['role'] === 'super_admin'): ?>
                         <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>" href="admin_panel.php">Admin Panel</a>
