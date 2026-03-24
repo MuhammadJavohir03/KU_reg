@@ -69,19 +69,15 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                             <a class="nav-link <?= ($current_page == 'import.php') ? 'active' : '' ?>" href="import.php">import talaba</a>
                         </li>
                         <li class="nav-item">
-<<<<<<< HEAD
-=======
-                            <a class="nav-link <?= ($current_page == 'forgot_password.php') ? 'active' : '' ?>" href="forgot_password.php">Forgot Password</a>
+                            <a class="nav-link <?= ($current_page == 'forgot_password.php') ? 'active' : '' ?>" href="forgot_password.php">Password Tiklash</a>
                         </li>
                         <li class="nav-item">
->>>>>>> f1e53ac (update files)
                             <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
                         </li>
-<<<<<<< HEAD
                     <?php endif; ?>
                 <?php endif; ?>
             </ul>
@@ -102,29 +98,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-=======
-
-                    <?php endif; ?>
-                <?php endif; ?>
-            </ul>
-
-            <!-- User initials va logout -->
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <div class="d-flex align-items-center">
-                    <div class="text-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm"
-                        style="background: rgba(61, 52, 139, 0.79);width:50px; height:50px; font-weight:bold;">
-                        <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
-                    </div>
-                    <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
->>>>>>> f1e53ac (update files)
     <!-- Bootstrap JS bundle (Popper bilan) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </nav>
