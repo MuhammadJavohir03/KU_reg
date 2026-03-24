@@ -72,7 +72,9 @@
                     <a class="text-danger nav-link" href="#scrollspyHeading15">PROFESSOR- O’QITUVCHILARNING MALAKA OSHIRISH SIYOSATI</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="text-white bg-danger nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Sahifalar</a>
+                    <a class="nav-link text-white bg-danger dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sahifalar
+                    </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#scrollspyHeading1">QO'LLANISH SOHASI</a></li>
                         <li><a class="dropdown-item" href="#scrollspyHeading2">QISTQARMALAR VA SHARTLI BELGILAR</a></li>
