@@ -25,6 +25,7 @@
                     </div>
                 </div>
 
+
                 <!-- <div class="carousel-item active">
                     <div class="position-relative bg-dark opacity-50">
                         <a href="elon2.php">
@@ -48,7 +49,8 @@
                 </button>
             </div>
         </div>
-        <!-- <?php require "yonalishlar.php"; ?> -->
+
+        <?php require "yonalishlar.php"; ?>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>

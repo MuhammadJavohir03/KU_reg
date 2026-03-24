@@ -93,8 +93,8 @@ $messages = $stmt->fetchAll();
 <?php require "Includes/header.php"; ?>
 <?php require "Includes/navbar.php"; ?>
 
-<div class="container mt-4">
-    <h4>Chat - Bo‘lim:</h4>
+<div class="container mt-4 text-white">
+    <h4>Chat - Bo‘limni tanlang:</h4>
 
     <select class="form-select mb-3" onchange="window.location.href='chat.php?section_id='+this.value;">
         <?php foreach ($sections as $sec): ?>
@@ -104,7 +104,7 @@ $messages = $stmt->fetchAll();
         <?php endforeach; ?>
     </select>
 
-    <div class="chat-box p-3 mb-3 border rounded" style="height:550px; overflow-y:auto;background: rgba(255, 255, 255, 0.61);">
+    <div class="chat-box p-3 mb-3 border rounded" style="height:550px; overflow-y:auto;background: rgba(255, 255, 255, 0.8);">
         <?php if (!empty($messages)): ?>
             <?php foreach ($messages as $msg): ?>
                 <?php

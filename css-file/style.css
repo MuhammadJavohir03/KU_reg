@@ -107,13 +107,13 @@ body {
 }
 
 .custom-shadow {
-    filter: drop-shadow(0px 10px 20px rgb(247, 186, 1));
+    filter: drop-shadow(0px 10px 20px rgb(255, 190, 11));
 }
 
 body {
     min-height: 100vh;
 
-    background: linear-gradient(to bottom right, rgb(118, 120, 237), rgb(241, 135, 1));
+    background: linear-gradient(to bottom right, rgb(131, 56, 236), rgb(251, 84, 7));
     background-repeat: no-repeat;
     background-attachment: fixed;
 }

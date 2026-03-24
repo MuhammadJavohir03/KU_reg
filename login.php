@@ -97,9 +97,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <!-- OPTIONS -->
-                        <!-- <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center">
                             <a href="forgot_password.php" class="text-white link-danger">Parolni unutdingizmi?</a>
-                        </div> -->
+                        </div>
 
                         <!-- BUTTON -->
                         <div class="text-center text-lg-start mt-4 pt-2">

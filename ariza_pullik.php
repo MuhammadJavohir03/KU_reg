@@ -27,7 +27,7 @@ if (isset($_POST['submit'])) {
         $sql = "INSERT INTO pullik (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol, fan1, fan2, fan3)
                 VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol, :fan1, :fan2, :fan3)";
 
-        $stmt = $conn->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':talaba_id' => $talaba_id_manual,
             ':familiya' => $familiya,

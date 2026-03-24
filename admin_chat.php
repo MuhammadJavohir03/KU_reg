@@ -5,13 +5,11 @@ require "database.php";
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
 
-    // Xabarni olish
     $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
     $stmt->execute([$delete_id]);
     $msg = $stmt->fetch();
 
     if ($msg) {
-        // 🔐 MUHIM XAVFSIZLIK SHU YERDA
         if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']) {
 
             $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ?");
@@ -30,7 +28,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $admin_id = $_SESSION['user_id'];
 
-// ================== SECTIONLAR ==================
 $stmt = $pdo->prepare("
     SELECT s.* 
     FROM sections s
@@ -44,17 +41,14 @@ if (!$sections) {
     die("Sizga biriktirilgan bo‘lim yo‘q!");
 }
 
-// Tanlangan section
 $section_id = isset($_GET['section_id'])
     ? (int)$_GET['section_id']
     : (int)$sections[0]['id'];
 
-// Tanlangan user
 $chat_user_id = isset($_GET['user_id'])
     ? (int)$_GET['user_id']
     : ($users[0]['id'] ?? 0);
 
-// ================== USERLAR (UNREAD COUNT BILAN) ==================
 $stmt = $pdo->prepare("
     SELECT 
         u.id, 
@@ -70,12 +64,10 @@ $stmt = $pdo->prepare("
 $stmt->execute([$section_id, $admin_id]);
 $users = $stmt->fetchAll();
 
-// Tanlangan user
 $chat_user_id = isset($_GET['user_id'])
     ? (int)$_GET['user_id']
     : ($users[0]['id'] ?? 0);
 
-// ================== O‘QILDI QILISH ==================
 if ($chat_user_id > 0) {
     $pdo->prepare("
         UPDATE messages 
@@ -86,7 +78,6 @@ if ($chat_user_id > 0) {
     ")->execute([$section_id, $chat_user_id]);
 }
 
-// ================== XABARLAR ==================
 $stmt = $pdo->prepare("
     SELECT m.*, u.email AS user_email
     FROM messages m
@@ -99,13 +90,11 @@ $stmt = $pdo->prepare("
 $stmt->execute([$section_id, $chat_user_id, $admin_id]);
 $messages = $stmt->fetchAll();
 
-// ================== JAVOB YOZISH ==================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($chat_user_id > 0)) {
 
     $reply = trim($_POST['reply'] ?? '');
     $file_path = null;
 
-    // ===================== Faylni saqlash =====================
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = __DIR__ . '/uploads/';
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
@@ -123,7 +112,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($chat_user_id > 0)) {
         }
     }
 
-    // ===================== DB ga qo‘shish =====================
     if (!empty($reply) || $file_path) {
         $stmt = $pdo->prepare("
             INSERT INTO messages (section_id, user_id, admin_id, message, attachment, is_read)
@@ -132,12 +120,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($chat_user_id > 0)) {
         $stmt->execute([$section_id, $chat_user_id, $admin_id, $reply, $file_path]);
     }
 
-    // Redirect, dublikatni oldini olish
     header("Location: admin_chat.php?section_id=$section_id&user_id=$chat_user_id");
     exit;
 }
 
-// Section nomi
 $current_section_name = '';
 foreach ($sections as $s) {
     if ($s['id'] == $section_id) {
@@ -175,14 +161,14 @@ foreach ($sections as $s) {
                         });
                     });
                 </script>
-                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.28); min-height: 700px;">
+                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.5); min-height: 700px;">
 
                     <?php foreach ($users as $u): ?>
                         <div class="user-item">
                             <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
-                                style="background: rgba(255, 255, 255, 0.44);"
-                                class="copy-text border-white shadow-sm list-group-item list-group-item-action d-flex justify-content-between align-items-center 
-                                <?= ($u['id'] == $chat_user_id) ? 'active text-dark' : 'bg-light text-dark' ?> rounded-2 mb-1">
+                                style="color: white; background: rgba(131, 56, 236);"
+                                class="copy-text border-white list-group-item list-group-item-action d-flex justify-content-between align-items-center 
+                                <?= ($u['id'] == $chat_user_id) ? 'active' : 'bg-light text-dark shadow' ?> rounded-2 shadow-sm mb-1">
 
                                 <span><?= htmlspecialchars($u['fio']) ?></span>
 
@@ -204,7 +190,7 @@ foreach ($sections as $s) {
 
                 <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow overflow-auto" style="
                         backdrop-filter: blur(8px); 
-                        background: rgba(255, 255, 255, 0.28); 
+                        background: rgba(255, 255, 255, 0.8); 
                         min-height:550px;">
 
                     <?php foreach ($messages as $msg): ?>
@@ -212,8 +198,8 @@ foreach ($sections as $s) {
                         <?php
                         $is_admin = $msg['admin_id'] == $admin_id;
                         $bubble_bg = $is_admin
-                            ? 'rgba(61, 52, 139, 0.6)'
-                            : 'rgba(247, 71, 1, 0.6)';
+                            ? 'rgba(131, 56, 236)'
+                            : 'rgba(251, 86, 7, 0.7)';
                         ?>
 
                         <div class="d-flex <?= $is_admin ? 'justify-content-end' : 'justify-content-start' ?> mb-2">
@@ -236,7 +222,6 @@ foreach ($sections as $s) {
                                     </div>
                                 <?php endif; ?>
 
-                                <!-- 🗑 DELETE BUTTON SHU YERDA -->
                                 <?php if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']): ?>
                                     <a href="?delete_id=<?= $msg['id'] ?>"
                                         class="m-2 btn btn-sm btn-light text-danger"
@@ -253,7 +238,6 @@ foreach ($sections as $s) {
                     <?php endforeach; ?>
                 </div>
 
-                <!-- JAVOB FORM -->
                 <form method="POST" enctype="multipart/form-data" class="mt-auto">
                     <div class="input-group shadow-sm rounded-3" style="backdrop-filter: blur(8px); background: rgba(255,0,0,0.1);">
                         <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
@@ -267,7 +251,6 @@ foreach ($sections as $s) {
         </div>
 
         <script>
-            // Auto scroll oxirgi xabarga
             var chatBox = document.querySelector('.chat-box');
             if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
         </script>
