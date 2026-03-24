@@ -59,6 +59,10 @@ $stmt = $pdo->prepare("
     SELECT 
         u.id, 
         u.email,
+<<<<<<< HEAD
+=======
+        u.fio,
+>>>>>>> f1e53ac (update files)
         COUNT(CASE WHEN m.is_read = 0 AND m.admin_id IS NULL THEN 1 END) AS unread
     FROM messages m
     JOIN users u ON m.user_id = u.id
@@ -180,10 +184,17 @@ foreach ($sections as $s) {
                         <div class="user-item">
                             <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
                                 style="background: rgba(255, 255, 255, 0.44);"
+<<<<<<< HEAD
                                 class="border-white shadow-sm list-group-item list-group-item-action d-flex justify-content-between align-items-center 
                                 <?= ($u['id'] == $chat_user_id) ? 'active text-dark' : 'bg-light text-dark' ?> rounded-2 mb-1">
 
                                 <span><?= htmlspecialchars($u['email']) ?></span>
+=======
+                                class="copy-text border-white shadow-sm list-group-item list-group-item-action d-flex justify-content-between align-items-center 
+                                <?= ($u['id'] == $chat_user_id) ? 'active text-dark' : 'bg-light text-dark' ?> rounded-2 mb-1">
+
+                                <span><?= htmlspecialchars($u['fio']) ?></span>
+>>>>>>> f1e53ac (update files)
 
                                 <?php if ($u['unread'] > 0): ?>
                                     <span class="badge bg-danger rounded-pill px-2 py-1">
@@ -202,9 +213,15 @@ foreach ($sections as $s) {
                 <h5 class="mb-3">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h5>
 
                 <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow overflow-auto" style="
+<<<<<<< HEAD
             backdrop-filter: blur(8px); 
             background: rgba(255, 255, 255, 0.28); 
             min-height:550px;">
+=======
+                        backdrop-filter: blur(8px); 
+                        background: rgba(255, 255, 255, 0.28); 
+                        min-height:550px;">
+>>>>>>> f1e53ac (update files)
 
                     <?php foreach ($messages as $msg): ?>
 

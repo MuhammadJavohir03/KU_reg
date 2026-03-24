@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <?php require "Includes/header.php"; ?>
 
 <?php
@@ -27,7 +26,7 @@ if (isset($_POST['submit'])) {
         $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol, fan1, fan2, fan3)
                 VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol, :fan1, :fan2, :fan3)";
 
-        $stmt = $pdo->prepare($sql);
+        $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':talaba_id' => $talaba_id_manual,
             ':familiya' => $familiya,
@@ -55,7 +54,7 @@ if (isset($_POST['submit'])) {
 
 <body>
 
-    <div class="container bg-body-tertiary p-5" style="height:100vh">
+    <div class="container bg-body-tertiary p-3">
 
         <a class="back-btn mb-3" href="arizalar.php">
             <span class="arrow">←</span>
@@ -100,8 +99,6 @@ if (isset($_POST['submit'])) {
                 transform: translateX(-3px);
             }
         </style>
-
-        <h1 class="text-danger">Bepul Imkoniyat</h1>
 
 
 
@@ -257,7 +254,6 @@ if (isset($_POST['submit'])) {
                 }
             });
         </script>
-
     </div>
 
 </body>
