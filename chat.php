@@ -127,7 +127,7 @@ $messages = $stmt->fetchAll();
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p>Hali xabar yo‘q.</p>
+            <p class="text-dark">Hali xabar yo‘q.</p>
         <?php endif; ?>
     </div>
 

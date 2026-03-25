@@ -20,7 +20,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 <nav class="navbar navbar-expand-lg navbar-dark shadow-white sticky-top" style="border-bottom: solid 1px white; background: rgba(32, 24, 107, 0.53);">
     <div class="container container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
-            <img src="https://hrd.kokanduni.uz/assets/logo-DMIx8MBS.png" alt="" height="40" width="133" class="me-2">
+            <img src="Logos/logo.png" alt="" height="44.666" width="151" class="me-2">
             Registrator
         </a>
 
@@ -61,6 +61,8 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                                 </span>
                             <?php endif; ?>
                         </a>
+
+                        <a class="nav-link <?= ($current_page == 'arizaroyhati.php') ? 'active' : '' ?>" href="arizaroyhati.php">Arizalar Ro'yhati</a>
                     <?php elseif ($_SESSION['role'] === 'super_admin'): ?>
                         <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>" href="admin_panel.php">Admin Panel</a>

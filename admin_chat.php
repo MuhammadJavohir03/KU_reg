@@ -143,7 +143,7 @@ foreach ($sections as $s) {
 
             <!-- USER PANEL -->
             <div class="col-12 col-lg-4 col-xl-3 mb-3 mb-lg-0">
-                <h5 class="mb-3">Users</h5>
+                <h3 class="mb-3 text-white">Foydalanuvchilar:</h3>
                 <input type="text" id="userSearch" class="form-control mb-2 border" placeholder="Foydalanuvchini qidirish...">
                 <script>
                     document.getElementById('userSearch').addEventListener('keyup', function() {
@@ -186,7 +186,7 @@ foreach ($sections as $s) {
 
             <!-- CHAT PANEL -->
             <div class="col-12 col-lg-8 col-xl-9 d-flex flex-column">
-                <h5 class="mb-3">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h5>
+                <h3 class="mb-3 text-white">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h3>
 
                 <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow overflow-auto" style="
                         backdrop-filter: blur(8px); 

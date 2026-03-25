@@ -117,6 +117,13 @@
                 </div><!-- /.col-lg-4 -->
             </div>
 
+            <div class="col">
+                    <img class="shadow rounded-circle profile-img" src="" alt="">
+                    <h3 class="fw-normal">Ermuhammedov Abdullajon</h3>
+                    <h5>Registrator ofisi Asosiy shtabi</h5>
+                </div><!-- /.col-lg-4 -->
+            </div>
+
         </div>
 
 
