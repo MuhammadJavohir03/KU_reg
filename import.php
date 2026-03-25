@@ -1,10 +1,10 @@
 <?php
-set_time_limit(0); // Skriptni cheksiz ishlashga ruxsat beradi
-ini_set('memory_limit', '1024M'); // Zarur bo‘lsa xotirani oshirish
+set_time_limit(0);
+ini_set('memory_limit', '1024M');
 ?>
 
 <?php
-require "database.php"; // PDO bilan DB ulanish
+require "database.php";
 
 $response = null;
 
@@ -14,32 +14,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 
     if (($handle = fopen($file, "r")) !== FALSE) {
 
-        // eski foydalanuvchilarni o'chirish, super admin saqlansin
         $pdo->exec("DELETE FROM users WHERE role != 'super_admin'");
 
         $count = 0;
 
-        // Headerni o‘tkazib yuborish
-        $header = fgetcsv($handle, 1000, ";"); // Semicolon delimiter
-        if (!$header) $header = fgetcsv($handle, 1000, "\t"); // Tab delimiter
-        if (!$header) $header = fgetcsv($handle, 1000, ","); // Comma delimiter
+        $header = fgetcsv($handle, 1000, ";");
+        if (!$header) $header = fgetcsv($handle, 1000, "\t");
+        if (!$header) $header = fgetcsv($handle, 1000, ",");
 
         while (($data = fgetcsv($handle, 1000, ";")) !== FALSE
             || ($data = fgetcsv($handle, 1000, "\t")) !== FALSE
             || ($data = fgetcsv($handle, 1000, ",")) !== FALSE
         ) {
 
-            // CSV ustunlarini tekshirish va trim
             $email      = isset($data[3]) ? trim($data[3]) : '';
             $talaba_id  = isset($data[0]) ? trim($data[0]) : '';
             $fio        = isset($data[1]) ? trim($data[1]) : '';
             $kurs       = isset($data[2]) ? trim($data[2]) : '';
-            $guruh      = isset($data[2]) ? trim($data[2]) : ''; // agar guruh 2-ustunda bo‘lsa
+            $guruh      = isset($data[2]) ? trim($data[2]) : '';
 
-            // Email bo‘lmasa, qatorni o‘tkazib yuborish
             if ($email === '') continue;
 
-            // IDU scientific notation bo‘lsa stringga o‘tkazish
             if (stripos($talaba_id, 'E') !== false) {
                 $talaba_id = number_format(floatval($talaba_id), 0, '', '');
             }
@@ -56,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
                 $stmt->execute([$email, $password, $talaba_id, $role, $status, $fio, $kurs, $guruh]);
                 $count++;
             } catch (Exception $e) {
-                continue; // xato bo‘lsa, qatorni o‘tkazib yuborish
+                continue;
             }
         }
 
@@ -109,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
             color: white;
         }
 
-        /* strelka animatsiyasi */
         .back-btn .arrow {
             font-size: 20px;
             transition: transform 0.3s ease;
@@ -119,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
             transform: translateX(-5px);
         }
 
-        /* text ham ozgina siljiydi */
         .back-btn .text {
             transition: transform 0.3s ease;
         }

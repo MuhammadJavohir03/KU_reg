@@ -88,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </span>
                         </div>
 
-                        <!-- TALABA ID -->
                         <div class="form-outline mb-3">
                             <input type="text" name="talaba_id"
                                 class="form-control form-control-lg"
@@ -96,12 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="form-label"></label>
                         </div>
 
-                        <!-- OPTIONS -->
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="forgot_password.php" class="text-white link-danger">Parolni unutdingizmi?</a>
                         </div>
 
-                        <!-- BUTTON -->
                         <div class="text-center text-lg-start mt-4 pt-2">
                             <button type="submit" class="btn btn-danger btn-lg"
                                 style="padding-left: 2.5rem; padding-right: 2.5rem;">
