@@ -2,7 +2,6 @@
 session_start();
 require "database.php";
 
-// Faqat super_admin kirishi mumkin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {
     header("Location: login.php");
     exit;
@@ -10,12 +9,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {
 
 $message = '';
 
-// Adminni biriktirish formasi submit bo‘lganda
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_admin'])) {
     $admin_id = (int)$_POST['admin_id'];
     $section_id = (int)$_POST['section_id'];
 
-    // Tekshirish: admin rolida ekanligini tekshirish
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id=? AND role='admin'");
     $stmt->execute([$admin_id]);
     if (!$stmt->fetch()) {
@@ -27,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_admin'])) {
     }
 }
 
-// HTML Form
 ?>
 <!DOCTYPE html>
 <html>

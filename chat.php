@@ -5,13 +5,11 @@ require "database.php";
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
 
-    // Xabarni tekshiramiz
     $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
     $stmt->execute([$delete_id]);
     $msg = $stmt->fetch();
 
     if ($msg) {
-        // Faqat o‘z xabari yoki admin o‘chira oladi
         if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']) {
 
             $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ?");
@@ -36,16 +34,13 @@ if ($role === 'admin') {
     exit;
 }
 
-// Bo‘limlar
 $sections = $pdo->query("SELECT * FROM sections ORDER BY name")->fetchAll();
 if (!$sections) die("Bo‘limlar mavjud emas!");
 
-// Tanlangan section
 $section_id = isset($_GET['section_id'])
     ? (int)$_GET['section_id']
     : (int)$sections[0]['id'];
 
-// Xabar yuborish
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = trim($_POST['message'] ?? '');
     $file_path = null;
@@ -76,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// ================== XABARLARNI OLISH ==================
 $stmt = $pdo->prepare("
     SELECT m.*, u.email AS user_email, a.email AS admin_email
     FROM messages m

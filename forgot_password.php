@@ -55,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: white;
         }
 
-        /* strelka animatsiyasi */
         .back-btn .arrow {
             font-size: 20px;
             transition: transform 0.3s ease;
@@ -65,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: translateX(-5px);
         }
 
-        /* text ham ozgina siljiydi */
         .back-btn .text {
             transition: transform 0.3s ease;
         }

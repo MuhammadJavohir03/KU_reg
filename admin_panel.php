@@ -2,7 +2,6 @@
 session_start();
 require "database.php";
 
-// Faqat Super Admin kirishi mumkin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {
     header("Location: login.php");
     exit;
@@ -10,13 +9,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {
 
 $message = "";
 
-// Admin qo‘shish
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_admin'])) {
     $email = trim($_POST['email']);
     $password_plain = trim($_POST['password']);
     $talaba_id = trim($_POST['talaba_id']);
 
-    // Email va Talaba ID tekshirish
     if (!preg_match('/@kokanduni\.uz$/', $email)) {
         $message = "Admin email faqat @kokanduni.uz bilan tugashi kerak!";
     } elseif (!preg_match('/^\d{12}$/', $talaba_id)) {
@@ -34,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_admin'])) {
     }
 }
 
-// Adminlarni ro‘yxati
 $stmt = $pdo->query("SELECT id, email, talaba_id, status FROM users WHERE role='admin'");
 $admins = $stmt->fetchAll();
 ?>

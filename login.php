@@ -51,14 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
 
-                <!-- RASM -->
                 <div class="col-md-9 col-lg-6 col-xl-5 d-none d-md-block">
                     <img src="images/login-background.png"
                         class="img-fluid custom-shadow"
                         alt="image">
                 </div>
 
-                <!-- FORM -->
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
 
                     <form class="p-5 rounded-1 shadow border text-white" style="background: rgba(61, 52, 139, 0.5); height: 50vh;" method="POST" action="login.php">
@@ -69,14 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="alert alert-danger"><?php echo $error; ?></div>
                         <?php endif; ?>
 
-                        <!-- EMAIL -->
                         <div class="form-outline mb-4">
                             <input type="email" name="email" class="form-control form-control-lg"
                                 placeholder="user@kumail.uz" required />
                             <label class="form-label"></label>
                         </div>
 
-                        <!-- PASSWORD -->
                         <div class="form-outline mb-3 position-relative">
                             <input type="password" id="password" name="password"
                                 class="form-control form-control-lg"
@@ -95,9 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="form-label"></label>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center">
+                        <!-- <div class="d-flex justify-content-between align-items-center">
                             <a href="forgot_password.php" class="text-white link-danger">Parolni unutdingizmi?</a>
-                        </div>
+                        </div> -->
 
                         <div class="text-center text-lg-start mt-4 pt-2">
                             <button type="submit" class="btn btn-danger btn-lg"

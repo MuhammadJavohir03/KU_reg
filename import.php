@@ -80,47 +80,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 </head>
 
 <body>
-    <a class="back-btn mb-3" href="index.php">
-        <span class="arrow">←</span>
-        <span class="text">Orqaga</span>
-    </a>
 
-    <style>
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border: 2px solid #dc3545;
-            color: #dc3545;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
+    <div class="container">
+        <a class="back-btn m-3" href="index.php">
+            <span class="arrow">←</span>
+            <span class="text">Orqaga</span>
+        </a>
 
-        .back-btn:hover {
-            background-color: #dc3545;
-            color: white;
-        }
+        <style>
+            .back-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                border: 2px solid #dc3545;
+                color: #dc3545;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
 
-        .back-btn .arrow {
-            font-size: 20px;
-            transition: transform 0.3s ease;
-        }
+            .back-btn:hover {
+                background-color: #dc3545;
+                color: white;
+            }
 
-        .back-btn:hover .arrow {
-            transform: translateX(-5px);
-        }
+            .back-btn .arrow {
+                font-size: 20px;
+                transition: transform 0.3s ease;
+            }
 
-        .back-btn .text {
-            transition: transform 0.3s ease;
-        }
+            .back-btn:hover .arrow {
+                transform: translateX(-5px);
+            }
 
-        .back-btn:hover .text {
-            transform: translateX(-3px);
-        }
-    </style>
+            .back-btn .text {
+                transition: transform 0.3s ease;
+            }
+
+            .back-btn:hover .text {
+                transform: translateX(-3px);
+            }
+        </style>
+    </div>
+
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
