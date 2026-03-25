@@ -20,8 +20,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 <nav class="navbar navbar-expand-lg navbar-dark shadow-white sticky-top" style="border-bottom: solid 1px white; background: rgba(32, 24, 107, 0.53);">
     <div class="container container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
-            <img src="Logos/logo.png" alt="" height="44.666" width="151" class="me-2">
-            Registrator
+            <img src="Logos/logo2.png" alt="" height="46.9" width="149" class="me-2">
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">

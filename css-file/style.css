@@ -110,6 +110,10 @@ body {
     filter: drop-shadow(0px 10px 20px rgb(255, 190, 11));
 }
 
+.custom-shadow2 {
+    filter: drop-shadow(0px 10px 20px rgba(255, 255, 255, 0.5));
+}
+
 body {
     min-height: 100vh;
 

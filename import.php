@@ -82,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-6">
-                    <div class="card custom-shadow mt-5">
-                        <div class="card-header bg-primary text-white">
+                    <div class="card shadow mt-5">
+                        <div class="card-header bg-success text-white">
                             <h5 class="mb-0">Foydalanuvchilarni CSV dan import qilish</h5>
                         </div>
                         <div class="card-body">
