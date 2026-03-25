@@ -1,4 +1,8 @@
 <?php
+session_start();
+require "database.php"; ?>
+
+<?php
 set_time_limit(0);
 ini_set('memory_limit', '1024M');
 ?>
@@ -69,95 +73,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="uz">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Import</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<?php require 'Includes/header.php' ?>
 
 <body>
+    <?php require 'Includes/navbar.php' ?>
 
-    <div class="container">
-        <a class="back-btn m-3" href="index.php">
-            <span class="arrow">←</span>
-            <span class="text">Orqaga</span>
-        </a>
+    <div class="container" style="min-height: 100vh;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card custom-shadow mt-5">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Foydalanuvchilarni CSV dan import qilish</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">CSV faylni tanlang</label>
+                                    <input class="form-control" type="file" id="file" name="file" accept=".csv" required>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success">Import qilish</button>
+                                </div>
+                            </form>
 
-        <style>
-            .back-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                border: 2px solid #dc3545;
-                color: #dc3545;
-                text-decoration: none;
-                border-radius: 8px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-            }
+                            <?php if ($response): ?>
+                                <div class="mt-3">
+                                    <?php if ($response['success']): ?>
+                                        <div class="alert alert-success"><?= $response['message'] ?></div>
+                                    <?php else: ?>
+                                        <div class="alert alert-danger"><?= $response['message'] ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
 
-            .back-btn:hover {
-                background-color: #dc3545;
-                color: white;
-            }
-
-            .back-btn .arrow {
-                font-size: 20px;
-                transition: transform 0.3s ease;
-            }
-
-            .back-btn:hover .arrow {
-                transform: translateX(-5px);
-            }
-
-            .back-btn .text {
-                transition: transform 0.3s ease;
-            }
-
-            .back-btn:hover .text {
-                transform: translateX(-3px);
-            }
-        </style>
-    </div>
-
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Foydalanuvchilarni CSV dan import qilish</h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <label for="file" class="form-label">CSV faylni tanlang</label>
-                                <input class="form-control" type="file" id="file" name="file" accept=".csv" required>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success">Import qilish</button>
-                            </div>
-                        </form>
-
-                        <?php if ($response): ?>
                             <div class="mt-3">
-                                <?php if ($response['success']): ?>
-                                    <div class="alert alert-success"><?= $response['message'] ?></div>
-                                <?php else: ?>
-                                    <div class="alert alert-danger"><?= $response['message'] ?></div>
-                                <?php endif; ?>
+                                <small class="text-muted">
+                                    CSV format: IDU; To‘liq ism; O‘quv kursi; Student guruhi; Elektron pochta<br>
+                                    **IDU ustuni Text formatida bo‘lishi kerak** (katta raqamlar scientific notation bo‘lmasligi uchun)
+                                </small>
                             </div>
-                        <?php endif; ?>
-
-                        <div class="mt-3">
-                            <small class="text-muted">
-                                CSV format: IDU; To‘liq ism; O‘quv kursi; Student guruhi; Elektron pochta<br>
-                                **IDU ustuni Text formatida bo‘lishi kerak** (katta raqamlar scientific notation bo‘lmasligi uchun)
-                            </small>
                         </div>
                     </div>
                 </div>
