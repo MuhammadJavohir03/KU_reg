@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
 
-                    <form class="p-5 rounded-1 shadow border text-white" style="background: rgba(61, 52, 139, 0.5); height: 50vh;" method="POST" action="login.php">
+                    <form class="p-5 rounded-1 custom-shadow border text-white" style="background: rgba(61, 52, 139, 0.8); height: 50vh;" method="POST" action="login.php">
 
                         <h3 class="mb-4 text-dangers">Tizimga kirish</h3>
 

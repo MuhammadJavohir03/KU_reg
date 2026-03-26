@@ -107,7 +107,7 @@ body {
 }
 
 .custom-shadow {
-    filter: drop-shadow(0px 10px 20px rgb(255, 190, 11));
+    filter: drop-shadow(0px 15px 40px rgb(255, 115, 0));
 }
 
 .custom-shadow2 {
@@ -117,9 +117,23 @@ body {
 body {
     min-height: 100vh;
 
-    background: linear-gradient(to bottom right, rgb(131, 56, 236), rgb(251, 84, 7));
+    background: linear-gradient(to bottom right, rgb(0, 24, 69), rgb(2, 62, 125));
     background-repeat: no-repeat;
     background-attachment: fixed;
+}
+
+.card-shadow {
+    background: linear-gradient(to bottom right, rgb(0, 98, 255), rgb(255, 255, 255));
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.bg-custom-dark {
+    background-color: rgb(0, 24, 69);
+}
+
+.text-custom-dark{
+    color: rgb(0, 24, 69);
 }
 
 .mask-custom {

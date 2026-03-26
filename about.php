@@ -5,7 +5,7 @@
 <body>
     <?php require "Includes/navbar.php"; ?>
 
-    <div class="container p-3 bg-white custom-shadow">
+    <div class="container p-3 bg-white">
         <div class="m-5 p-3 rounded-2 rounded-1 text-center">
             <h1 class="text-danger">Registrator Ofisi Vazifasi</h1>
             <h5>Talabalarning o'quv jarayonida vujudga kelgan savol, yordam va ko'rsatmalar bo'yicha ko'mak beruvchi bo'lim</h5>
@@ -131,3 +131,7 @@
 </body>
 
 <?php require "Includes/footer.php"; ?>
+
+<!-- examp
+talabalarni nazorat qilish
+ -->
