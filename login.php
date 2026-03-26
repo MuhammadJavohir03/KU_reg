@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: admin_chat.php");
                 exit;
             } else {
-                header("Location: chat.php");
+                header("Location: index.php");
                 exit;
             }
         } else {
@@ -44,10 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php require "Includes/header.php"; ?>
 
-<body>
+<body class="hero">
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
+    <div class="cube"></div>
     <?php require "Includes/navbar.php"; ?>
 
     <section class="vh-100">
+
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
 
@@ -59,7 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
 
-                    <form class="p-5 rounded-1 custom-shadow border text-white" style="background: rgba(61, 52, 139, 0.8); height: 50vh;" method="POST" action="login.php">
+
+
+                    <form class="p-5 rounded-3 border text-white" style="background: rgba(61, 52, 139, 0.8); height: 55vh;" method="POST" action="login.php">
 
                         <h3 class="mb-4 text-dangers">Tizimga kirish</h3>
 
@@ -67,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="alert alert-danger"><?php echo $error; ?></div>
                         <?php endif; ?>
 
-                        <div class="form-outline mb-4">
+                        <div class="form-outline mb-3">
                             <input type="email" name="email" class="form-control form-control-lg"
                                 placeholder="user@kumail.uz" required />
                             <label class="form-label"></label>
@@ -96,8 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div> -->
 
                         <div class="text-center text-lg-start mt-4 pt-2">
-                            <button type="submit" class="btn btn-danger btn-lg"
-                                style="padding-left: 2.5rem; padding-right: 2.5rem;">
+                            <button type="submit" class="btn px-5 text-dark shadow btn-lg"
+                                style="background : rgb(202, 240, 248);">
                                 Kirish
                             </button>
 

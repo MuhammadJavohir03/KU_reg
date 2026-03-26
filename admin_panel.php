@@ -38,31 +38,31 @@ $admins = $stmt->fetchAll();
 <?php require "Includes/header.php"; ?>
 <?php require "Includes/navbar.php"; ?>
 
-<div class="container mt-5">
-    <h2>Admin Panel</h2>
+<div class="container mt-5 bg-white p-4 shadow">
+    <h2 class="text-dark">Admin Panel</h2>
 
     <?php if ($message) echo "<div class='alert alert-info'>$message</div>"; ?>
 
-    <h4>Admin qo‘shish</h4>
+    <h4 class="text-white">Admin qo‘shish</h4>
     <form method="POST">
         <input type="hidden" name="add_admin" value="1">
         <div class="mb-3">
-            <label>Email (@kokanduni.uz):</label>
+            <label class="text-white">Email (@kokanduni.uz):</label>
             <input type="email" name="email" class="form-control" placeholder="admin@kokanduni.uz" required>
         </div>
         <div class="mb-3">
-            <label>Talaba ID (12 raqam):</label>
+            <label class="text-white">Talaba ID (12 raqam):</label>
             <input type="text" name="talaba_id" class="form-control" placeholder="ID=12ta raqam" required>
         </div>
         <div class="mb-3">
-            <label>Parol:</label>
+            <label class="text-white">Parol:</label>
             <input type="password" name="password" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-success">Admin qo‘shish</button>
     </form>
 
     <hr>
-    <h4>Barcha Adminlar</h4>
+    <h4 class="text-white">Barcha Adminlar</h4>
     <table class="table table-bordered">
         <tr>
             <th>ID</th>

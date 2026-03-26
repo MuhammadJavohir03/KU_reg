@@ -143,7 +143,7 @@ foreach ($sections as $s) {
 
             <!-- USER PANEL -->
             <div class="col-12 col-lg-4 col-xl-3 mb-3 mb-lg-0">
-                <h3 class="mb-3 text-white">Foydalanuvchilar:</h3>
+                <h3 class="mb-3 text-dark">Foydalanuvchilar:</h3>
                 <input type="text" id="userSearch" class="form-control mb-2 border" placeholder="Foydalanuvchini qidirish...">
                 <script>
                     document.getElementById('userSearch').addEventListener('keyup', function() {
@@ -161,14 +161,14 @@ foreach ($sections as $s) {
                         });
                     });
                 </script>
-                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.5); min-height: 700px;">
+                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.32); min-height: 700px;">
 
                     <?php foreach ($users as $u): ?>
                         <div class="user-item">
                             <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
-                                style="color: white; background: rgba(131, 56, 236);"
-                                class="copy-text border-white list-group-item list-group-item-action d-flex justify-content-between align-items-center 
-                                <?= ($u['id'] == $chat_user_id) ? 'active' : 'bg-light text-dark shadow' ?> rounded-2 shadow-sm mb-1">
+                                style="color: white; background: rgba(33, 138, 255);"
+                                class="copy-text shadow list-group-item list-group-item-action d-flex justify-content-between align-items-center 
+                                <?= ($u['id'] == $chat_user_id) ? 'active' : 'bg-light text-dark shadow' ?> rounded-2 shadow mb-1">
 
                                 <span><?= htmlspecialchars($u['fio']) ?></span>
 
@@ -186,7 +186,7 @@ foreach ($sections as $s) {
 
             <!-- CHAT PANEL -->
             <div class="col-12 col-lg-8 col-xl-9 d-flex flex-column">
-                <h3 class="mb-3 text-white">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h3>
+                <h3 class="mb-3 text-dark">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h3>
 
                 <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow overflow-auto" style="
                         backdrop-filter: blur(8px); 
@@ -198,12 +198,12 @@ foreach ($sections as $s) {
                         <?php
                         $is_admin = $msg['admin_id'] == $admin_id;
                         $bubble_bg = $is_admin
-                            ? 'rgba(131, 56, 236)'
-                            : 'rgba(251, 86, 7, 0.7)';
+                            ? 'rgba(106, 204, 70)'
+                            : 'rgba(33, 138, 255)';
                         ?>
 
                         <div class="d-flex <?= $is_admin ? 'justify-content-end' : 'justify-content-start' ?> mb-2">
-                            <div class="border shadow p-2 rounded-3 text-white position-relative shadow-sm" style="
+                            <div class="p-2 rounded-3 shadow text-white position-relative" style="
                                 max-width:70%;
                                 background: <?= $bubble_bg ?>;
                                 backdrop-filter: blur(6px);">
@@ -243,7 +243,7 @@ foreach ($sections as $s) {
                         <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
                         <input type="text" name="reply" class="form-control border-0" placeholder="Javob yozing...">
                         <input type="file" name="attachment" class="form-control border-0">
-                        <button class="btn border-white" style=" background: rgba(255, 255, 255, 0.51);" type="submit">Yuborish</button>
+                        <button class="btn text-white" style=" background: rgba(106, 204, 70);" type="submit">Yuborish</button>
                     </div>
                 </form>
             </div>

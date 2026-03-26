@@ -87,7 +87,7 @@ $messages = $stmt->fetchAll();
 <?php require "Includes/header.php"; ?>
 <?php require "Includes/navbar.php"; ?>
 
-<div class="container mt-4 text-white">
+<div class="container mt-4 text-dark">
     <h4>Chat - Bo‘limni tanlang:</h4>
 
     <select class="form-select mb-3" onchange="window.location.href='chat.php?section_id='+this.value;">
@@ -98,15 +98,15 @@ $messages = $stmt->fetchAll();
         <?php endforeach; ?>
     </select>
 
-    <div class="chat-box p-3 mb-3 border rounded" style="height:550px; overflow-y:auto;background: rgba(255, 255, 255, 0.8);">
+    <div class="chat-box p-3 mb-3 border rounded" style="height:550px; overflow-y:auto;background: rgb(255, 255, 255);">
         <?php if (!empty($messages)): ?>
             <?php foreach ($messages as $msg): ?>
                 <?php
                 $is_admin = !is_null($msg['admin_id']);
-                $bubble_bg = $is_admin ? 'rgba(247, 71, 1, 0.6)' : 'rgba(61, 52, 139, 0.6)';
+                $bubble_bg = $is_admin ? 'rgba(33, 138, 255)' : 'rgba(106, 204, 70)';
                 ?>
                 <div class="d-flex <?= $is_admin ? 'justify-content-start' : 'justify-content-end' ?> mb-2">
-                    <div class="border shadow p-2 rounded-3 text-white" style="max-width:70%; background:<?= $bubble_bg ?>;">
+                    <div class="shadow p-2 rounded-3 text-white" style="max-width:70%; background:<?= $bubble_bg ?>;">
                         <?php if ($is_admin): ?>
                             <strong><?= substr($msg['admin_email'], 0, 5) ?>:</strong>
                         <?php endif; ?>
@@ -129,7 +129,7 @@ $messages = $stmt->fetchAll();
         <div class="input-group mb-3">
             <textarea name="message" class="form-control" placeholder="Xabar yozing..."></textarea>
             <input type="file" name="attachment" class="form-control">
-            <button class="btn btn-success" type="submit">Yuborish</button>
+            <button class="btn text-white" style="background : rgba(106, 204, 70);" type="submit">Yuborish</button>
         </div>
     </form>
 </div>

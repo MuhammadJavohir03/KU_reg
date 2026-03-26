@@ -107,8 +107,129 @@ body {
 }
 
 .custom-shadow {
-    filter: drop-shadow(0px 15px 40px rgb(255, 115, 0));
+    animation: shadowMove 30s infinite ease-in-out;
 }
+
+@keyframes shadowMove {
+    0% {
+        filter: drop-shadow(0px 15px 20px rgb(255, 0, 0));
+    }
+
+    25% {
+        filter: drop-shadow(5px 30px 60px rgb(98, 0, 255));
+    }
+
+    50% {
+        filter: drop-shadow(0px 50px 40px rgb(0, 174, 255));
+    }
+
+    75% {
+        filter: drop-shadow(-5px 25px 70px rgb(251, 255, 0));
+    }
+
+    100% {
+        filter: drop-shadow(0px 15px 20px rgb(255, 0, 0));
+    }
+}
+
+@import url("https://fonts.googleapis.com/css?family=Montserrat:700");
+
+@import url("https://fonts.googleapis.com/css?family=Montserrat:700");
+
+.hero {
+    background: linear-gradient(to bottom right, rgb(202, 240, 248), rgb(202, 240, 248, 0.8));
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Montserrat", sans-serif;
+}
+
+.hero__title {
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+    z-index: 1;
+}
+
+.cube {
+    position: absolute;
+    top: 80vh;
+    left: 45vw;
+    width: 10px;
+    height: 10px;
+    border: solid 1px #3377ff;
+    transform-origin: top left;
+    transform: scale(0) rotate(0deg) translate(-50%, -50%);
+    -webkit-animation: cube 12s ease-in forwards infinite;
+    animation: cube 12s ease-in forwards infinite;
+}
+
+.cube:nth-child(2n) {
+    border-color: #0051f4;
+}
+
+.cube:nth-child(2) {
+    -webkit-animation-delay: 2s;
+    animation-delay: 2s;
+    left: 25vw;
+    top: 40vh;
+}
+
+.cube:nth-child(3) {
+    -webkit-animation-delay: 4s;
+    animation-delay: 4s;
+    left: 75vw;
+    top: 50vh;
+}
+
+.cube:nth-child(4) {
+    -webkit-animation-delay: 6s;
+    animation-delay: 6s;
+    left: 90vw;
+    top: 10vh;
+}
+
+.cube:nth-child(5) {
+    -webkit-animation-delay: 8s;
+    animation-delay: 8s;
+    left: 10vw;
+    top: 85vh;
+}
+
+.cube:nth-child(6) {
+    -webkit-animation-delay: 10s;
+    animation-delay: 10s;
+    left: 50vw;
+    top: 10vh;
+}
+
+@-webkit-keyframes cube {
+    from {
+        transform: scale(0) rotate(0deg) translate(-50%, -50%);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(20) rotate(960deg) translate(-50%, -50%);
+        opacity: 0;
+    }
+}
+
+@keyframes cube {
+    from {
+        transform: scale(0) rotate(0deg) translate(-50%, -50%);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(20) rotate(960deg) translate(-50%, -50%);
+        opacity: 0;
+    }
+}
+
 
 .custom-shadow2 {
     filter: drop-shadow(0px 10px 20px rgba(255, 255, 255, 0.5));
@@ -117,7 +238,7 @@ body {
 body {
     min-height: 100vh;
 
-    background: linear-gradient(to bottom right, rgb(0, 24, 69), rgb(2, 62, 125));
+    background: linear-gradient(to bottom right, rgb(202, 240, 248), rgb(202, 240, 248, 0.8));
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
@@ -129,11 +250,11 @@ body {
 }
 
 .bg-custom-dark {
-    background-color: rgb(0, 24, 69);
+    background-color: rgb(0, 48, 73);
 }
 
-.text-custom-dark{
-    color: rgb(0, 24, 69);
+.text-custom-dark {
+    color: rgb(0, 48, 73);
 }
 
 .mask-custom {

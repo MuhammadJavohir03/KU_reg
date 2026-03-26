@@ -2,6 +2,8 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
+<?php require 'database.php' ?>
+
 <?php
 if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
     $admin_id = $_SESSION['user_id'];
@@ -17,7 +19,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 }
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow-white sticky-top" style="border-bottom: solid 1px white; background: rgba(32, 24, 107, 0.53);">
+<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="border-bottom: solid 1px black; background: rgb(3, 5, 94, 0.8);">
     <div class="container container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
             <img src="Logos/logo2.png" alt="" height="46.9" width="149" class="me-2">

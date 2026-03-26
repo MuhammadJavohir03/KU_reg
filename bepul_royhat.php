@@ -51,7 +51,7 @@ require "database.php";
 
         </form>
 
-        <table class="table table-bordered">
+        <table class="shadow table table-bordered">
             <thead>
                 <tr>
                     <th>No</th>

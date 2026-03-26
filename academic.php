@@ -21,7 +21,7 @@
 
     <div class="container">
 
-        <nav id="navbar-example2" class="rounded-1 navbar px-3 mb-3" style="background-color: rgb(255, 255, 255);;">
+        <nav id="navbar-example2" class="rounded-1 shadow navbar px-3 mb-3" style="background-color: rgb(255, 255, 255);;">
             <a class="navbar-brand text-danger" href="#">
                 <h3>Academic Policy Kokand University</h3>
             </a>
@@ -97,7 +97,7 @@
                 </li>
             </ul>
         </nav>
-        <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" class="scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0">
+        <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" class="shadow scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0">
             <h4 id="scrollspyHeading1">QO'LLANISH SOHASI</h4>
             <p>Akademik siyosat - ta’lim jarayonini tashkil etish samaradorligini, ta’lim sifatini oshirishga, talabalarning shaxsiy rivojlanishi uchun qulay shart-sharoitlarni yaratishga yordam berishi kerak bo‘lgan qoidalar va tartiblar ro‘yxati.<br>
                 <br>
