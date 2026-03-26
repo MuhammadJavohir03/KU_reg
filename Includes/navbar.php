@@ -63,6 +63,8 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 
                         <a class="nav-link <?= ($current_page == 'arizaroyhati.php') ? 'active' : '' ?>" href="arizaroyhati.php">Arizalar Ro'yhati</a>
                     <?php elseif ($_SESSION['role'] === 'super_admin'): ?>
+
+                        <a class="nav-link <?= ($current_page == 'arizaroyhati.php') ? 'active' : '' ?>" href="arizaroyhati.php">Arizalar Ro'yhati</a>
                         <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>" href="admin_panel.php">Admin Panel</a>
                         </li>
@@ -71,9 +73,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'forgot_password.php') ? 'active' : '' ?>" href="forgot_password.php">Password Tiklash</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">

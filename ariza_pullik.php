@@ -17,7 +17,6 @@ if (isset($_POST['submit'])) {
     $hemis_parol = $_POST['parol'];
     $talaba_id_manual = $_POST['id'];
 
-    // fanlar arrayini olish
     $fanlar = $_POST['fanlar'] ?? [];
     $fan1 = $fanlar[0] ?? null;
     $fan2 = $fanlar[1] ?? null;
