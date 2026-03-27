@@ -238,7 +238,7 @@ body {
 body {
     min-height: 100vh;
 
-    background: linear-gradient(to bottom right, rgb(202, 240, 248), rgb(202, 240, 248, 0.8));
+    background: linear-gradient(to bottom right, rgba(202, 240, 248, 0.541), rgba(202, 240, 248, 0.438));
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
