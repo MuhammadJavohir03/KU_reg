@@ -112,123 +112,34 @@ body {
 
 @keyframes shadowMove {
     0% {
-        filter: drop-shadow(0px 15px 20px rgb(255, 0, 0));
+        filter: drop-shadow(0px 15px 20px rgb(56, 191, 248));
     }
 
     25% {
-        filter: drop-shadow(5px 30px 60px rgb(98, 0, 255));
+        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.6));
     }
 
     50% {
-        filter: drop-shadow(0px 50px 40px rgb(0, 174, 255));
+        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.4));
     }
 
     75% {
-        filter: drop-shadow(-5px 25px 70px rgb(251, 255, 0));
+        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.2));
     }
 
     100% {
-        filter: drop-shadow(0px 15px 20px rgb(255, 0, 0));
+        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.8));
     }
+}
+
+.text-danger{
+    color: rgb(0, 46, 66) !important;
 }
 
 @import url("https://fonts.googleapis.com/css?family=Montserrat:700");
 
 @import url("https://fonts.googleapis.com/css?family=Montserrat:700");
 
-.hero {
-    background: linear-gradient(to bottom right, rgb(202, 240, 248), rgb(202, 240, 248, 0.8));
-    position: relative;
-    height: 100vh;
-    overflow: hidden;
-    font-family: "Montserrat", sans-serif;
-}
-
-.hero__title {
-    color: #fff;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 50px;
-    z-index: 1;
-}
-
-.cube {
-    position: absolute;
-    top: 80vh;
-    left: 45vw;
-    width: 10px;
-    height: 10px;
-    border: solid 1px #3377ff;
-    transform-origin: top left;
-    transform: scale(0) rotate(0deg) translate(-50%, -50%);
-    -webkit-animation: cube 12s ease-in forwards infinite;
-    animation: cube 12s ease-in forwards infinite;
-}
-
-.cube:nth-child(2n) {
-    border-color: #0051f4;
-}
-
-.cube:nth-child(2) {
-    -webkit-animation-delay: 2s;
-    animation-delay: 2s;
-    left: 25vw;
-    top: 40vh;
-}
-
-.cube:nth-child(3) {
-    -webkit-animation-delay: 4s;
-    animation-delay: 4s;
-    left: 75vw;
-    top: 50vh;
-}
-
-.cube:nth-child(4) {
-    -webkit-animation-delay: 6s;
-    animation-delay: 6s;
-    left: 90vw;
-    top: 10vh;
-}
-
-.cube:nth-child(5) {
-    -webkit-animation-delay: 8s;
-    animation-delay: 8s;
-    left: 10vw;
-    top: 85vh;
-}
-
-.cube:nth-child(6) {
-    -webkit-animation-delay: 10s;
-    animation-delay: 10s;
-    left: 50vw;
-    top: 10vh;
-}
-
-@-webkit-keyframes cube {
-    from {
-        transform: scale(0) rotate(0deg) translate(-50%, -50%);
-        opacity: 1;
-    }
-
-    to {
-        transform: scale(20) rotate(960deg) translate(-50%, -50%);
-        opacity: 0;
-    }
-}
-
-@keyframes cube {
-    from {
-        transform: scale(0) rotate(0deg) translate(-50%, -50%);
-        opacity: 1;
-    }
-
-    to {
-        transform: scale(20) rotate(960deg) translate(-50%, -50%);
-        opacity: 0;
-    }
-}
 
 
 .custom-shadow2 {
@@ -237,8 +148,13 @@ body {
 
 body {
     min-height: 100vh;
-
-    background: linear-gradient(to bottom right, rgba(202, 240, 248, 0.541), rgba(202, 240, 248, 0.438));
+    background: radial-gradient(1200px 600px at 20% 20%,
+            rgba(56, 189, 248, 0.1),
+            transparent 60%),
+        radial-gradient(1000px 500px at 80% 30%,
+            rgba(124, 58, 237, 0.1),
+            transparent 60%),
+        #0b1220;
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
@@ -264,4 +180,47 @@ body {
     border: 2px solid rgba(255, 255, 255, 0.05);
     background-clip: padding-box;
     box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03);
+}
+
+/* LOGIN SAQLANADI, ANIMATION ORQADA ISHLAYDI */
+
+
+body {
+    background: radial-gradient(1200px 600px at 20% 20%,
+            rgba(56, 189, 248, 0.1),
+            transparent 60%),
+        radial-gradient(1000px 500px at 80% 30%,
+            rgba(124, 58, 237, 0.1),
+            transparent 60%),
+        #0b1220 !important;
+    font-family: system-ui, -apple-system, "Inter", Roboto, sans-serif;
+    /* full-screen canvas */
+}
+
+/* Fullscreen canvas behind content */
+#bg {
+    position: fixed;
+    inset: 0;
+    display: block;
+}
+
+/* Minimal overlay UI */
+.ui {
+    background: rgba(11, 18, 32, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.8rem;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+.ui h1 {
+    font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+    letter-spacing: 0.2px;
+}
+
+.ui p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: 0.3rem;
 }

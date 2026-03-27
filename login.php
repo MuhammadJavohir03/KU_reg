@@ -2,6 +2,8 @@
 session_start();
 require "database.php";
 
+
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -45,16 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php require "Includes/header.php"; ?>
 
 <body>
-    
     <?php require "Includes/navbar.php"; ?>
-
-    <section class="hero vh-100">
-<div class="z-n1 cube"></div>
-    <div class="z-n1 cube"></div>
-    <div class="z-n1 cube"></div>
-    <div class="z-n1 cube"></div>
-    <div class="z-n1 cube"></div>
-    <div class="z-n1 cube"></div>
+    <canvas class="z-n1" id="bg"></canvas>
+    <section class="vh-100">
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
 
@@ -68,14 +63,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-                    <form class="p-5 rounded-3 shadow border text-white" style="background: rgba(61, 52, 139, 0.8); height: 55vh;" method="POST" action="login.php">
+                    <form class="p-5 rounded-3 shadow border text-white" style="background: rgba(11, 18, 32, 0.35);
+                                                                                border: 1px solid rgba(255, 255, 255, 0.12);
+                                                                                border-radius: 0.8rem;
+                                                                                backdrop-filter: blur(8px) saturate(140%);
+                                                                                -webkit-backdrop-filter: blur(8px) saturate(140%);
+                                                                                box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); height: 55vh;" method="POST" action="login.php">
 
                         <h3 class="mb-4 text-dangers">Tizimga kirish</h3>
 
                         <?php if ($error): ?>
                             <div class="alert alert-danger"><?php echo $error; ?></div>
                         <?php endif; ?>
-
                         <div class="form-outline mb-3">
                             <input type="email" name="email" class="form-control form-control-lg"
                                 placeholder="user@kumail.uz" required />
@@ -104,8 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <a href="forgot_password.php" class="text-white link-danger">Parolni unutdingizmi?</a>
                         </div> -->
 
-                        <div class="text-center text-lg-start mt-4 pt-2">
-                            <button type="submit" class="btn px-5 text-dark shadow btn-lg"
+                        <div class="text-center text-lg-start  mt-4 pt-2">
+                            <button type="submit" class="btn px-5 text-custom-dark shadow btn-lg"
                                 style="background : rgb(202, 240, 248);">
                                 Kirish
                             </button>
@@ -130,4 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 
     <?php require "Includes/footer.php"; ?>
+
 </body>
+
+<script src="add.js"></script>

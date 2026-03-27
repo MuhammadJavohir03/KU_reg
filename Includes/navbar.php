@@ -19,7 +19,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 }
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="border-bottom: solid 1px black; background: rgb(3, 5, 94, 0.8);">
+<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="border-bottom: solid 1px black; background: rgba(0, 74, 105, 0.8);">
     <div class="container container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
             <img src="Logos/logo2.png" alt="" height="46.9" width="149" class="me-2">
