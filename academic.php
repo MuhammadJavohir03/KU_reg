@@ -4,7 +4,7 @@
 
 <body>
     <?php require "Includes/navbar.php"; ?>
-
+    <canvas class="z-n1" id="bg"></canvas>
     <div class="container position-relative">
         <button onclick="topFunction()" id="topBtn" class=" btn border" style="background: rgba(61, 52, 139, 0.53);">
             <h1 class="text-white">↑</h1>
@@ -498,3 +498,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
 </body>
 <?php require "Includes/footer.php"; ?>
+<script src="add.js"></script>

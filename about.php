@@ -4,7 +4,7 @@
 
 <body>
     <?php require "Includes/navbar.php"; ?>
-
+    <canvas class="z-n1" id="bg"></canvas>
     <div class="shadow container p-3 bg-white">
         <div class="m-5 p-3 rounded-2 rounded-1 text-center">
             <h1 class="text-danger">Registrator Ofisi Vazifasi</h1>
@@ -118,18 +118,18 @@
             </div>
 
             <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="" alt="">
-                    <h3 class="fw-normal">Ermuhammedov Abdullajon</h3>
-                    <h5>Registrator ofisi Asosiy shtabi</h5>
-                </div><!-- /.col-lg-4 -->
-            </div>
-
+                <img class="shadow rounded-circle profile-img" src="" alt="">
+                <h3 class="fw-normal">Ermuhammedov Abdullajon</h3>
+                <h5>Registrator ofisi Asosiy shtabi</h5>
+            </div><!-- /.col-lg-4 -->
         </div>
 
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
-
+<script src="add.js"></script>
 <?php require "Includes/footer.php"; ?>
 
 <!-- examp

@@ -137,7 +137,7 @@ foreach ($sections as $s) {
 <?php require "Includes/navbar.php"; ?>
 
 <body class="gradient-custom">
-
+    <canvas class="z-n1" id="bg"></canvas>
     <div class="container py-5">
         <div class="row">
 
@@ -256,5 +256,5 @@ foreach ($sections as $s) {
         </script>
 
 </body>
-
+<script src="add.js"></script>
 <?php require "Includes/footer.php"; ?>

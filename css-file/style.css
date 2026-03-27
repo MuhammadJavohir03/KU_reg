@@ -107,28 +107,28 @@ body {
 }
 
 .custom-shadow {
-    animation: shadowMove 30s infinite ease-in-out;
+    animation: shadowMove 15s infinite ease-in-out;
 }
 
 @keyframes shadowMove {
     0% {
-        filter: drop-shadow(0px 15px 20px rgb(56, 191, 248));
+        filter: drop-shadow(0px 30px 40px rgb(56, 191, 248));
     }
 
     25% {
-        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.6));
+        filter: drop-shadow(0px 30px 40px rgba(56, 189, 248, 0.6));
     }
 
     50% {
-        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.4));
+        filter: drop-shadow(0px 30px 40px rgba(56, 189, 248, 0.4));
     }
 
     75% {
-        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.2));
+        filter: drop-shadow(0px 30px 40px rgba(56, 189, 248, 0.2));
     }
 
     100% {
-        filter: drop-shadow(0px 15px 20px rgba(56, 189, 248, 0.8));
+        filter: drop-shadow(0px 30px 40px rgba(56, 191, 248));
     }
 }
 

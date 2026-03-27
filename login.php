@@ -51,14 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <canvas class="z-n1" id="bg"></canvas>
     <section class="vh-100">
         <div class="container-fluid h-custom">
-            <div class="row d-flex justify-content-center align-items-center h-100">
-
-                <div class="col-md-9 col-lg-6 col-xl-5 d-none d-md-block">
-                    <img src="images/login-background.png"
-                        class="img-fluid custom-shadow"
-                        alt="image">
-                </div>
-
+            <div class="d-flex justify-content-center align-items-center h-100">
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
 
 

@@ -1,11 +1,11 @@
 // ====== Config ======
 const CONFIG = {
-    baseDensity: 0.12, // particule per 10,000 px^2 (se scalează cu dimensiunea ecranului)
-    maxSpeed: 0.6, // px / frame
+    baseDensity: 15, // particule per 10,000 px^2 (se scalează cu dimensiunea ecranului)
+    maxSpeed: 0.5, // px / frame
     radius: [1.0, 2.2], // min, max radius
     linkDist: 110, // distanța maximă pentru a desena linie între particule
-    linkAlpha: 0.16, // opacitatea de bază a liniilor
-    mouseInfluence: 110, // rază de influență la mouse
+    linkAlpha: 0.3, // opacitatea de bază a liniilor
+    mouseInfluence: 50, // rază de influență la mouse
     repelStrength: 0.35, // cât de puternic e efectul de respingere
     attractStrength: 0.2, // alternativ: setat pozitiv pentru atracție
     clickBurst: 120, // impuls la click
@@ -105,7 +105,7 @@ function computeParticlesCount() {
     const per10k = CONFIG.baseDensity; // per 10,000 px^2
     targetCount = Math.round(per10k * (area / 10000));
     // soft cap pentru mobile
-    targetCount = clamp(targetCount, 40, 220);
+    targetCount = clamp(targetCount, 600, 1200);
     if (particles.length < targetCount) {
         const add = targetCount - particles.length;
         for (let i = 0; i < add; i++) particles.push(new Particle());
