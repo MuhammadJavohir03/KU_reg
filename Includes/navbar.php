@@ -94,8 +94,8 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 
             <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="d-flex align-items-center">
-                    <div class="border rounded-circle d-flex justify-content-center align-items-center me-3 shadow"
-                        style="color: rgb(131, 56, 236); background: rgba(255, 190, 11);width:50px; height:50px; font-weight:bold;">
+                    <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow"
+                        style="border-bottom: solid 1px white; border-top: solid 1px white; color: rgb(138, 177, 255); background: rgba(54, 86, 150);width:50px; height:50px; font-weight:bold;">
                         <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
                     </div>
                     <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a>
