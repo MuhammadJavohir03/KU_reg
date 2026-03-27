@@ -1,23 +1,42 @@
 <?php
 require "database.php";
 
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=bepul_students.xls");
+$filters = [
+    'talaba_id' => $_GET['talaba_id'] ?? '',
+    'familiya'  => $_GET['familiya'] ?? '',
+    'ism'       => $_GET['ism'] ?? '',
+    'otasi'     => $_GET['otasi'] ?? '',
+    'guruh'     => $_GET['guruh'] ?? '',
+    'yonalish'  => $_GET['yonalish'] ?? '',
+    'kurs'      => $_GET['kurs'] ?? '',
+];
 
-echo "Talaba ID\tFamiliya\tIsm\tOtasi\tGuruh\tYonalish\tKurs\tFan1\tFan2\tFan3\n";
+$sql = "SELECT * FROM bepul WHERE 1";
+$params = [];
 
-$stmt = $pdo->prepare("SELECT * FROM bepul");
-$stmt->execute();
-
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo $row['talaba_id'] . "\t";
-    echo $row['familiya'] . "\t";
-    echo $row['ism'] . "\t";
-    echo $row['otasi'] . "\t";
-    echo $row['guruh'] . "\t";
-    echo $row['yonalish'] . "\t";
-    echo $row['kurs'] . "\t";
-    echo $row['fan1'] . "\t";
-    echo $row['fan2'] . "\t";
-    echo $row['fan3'] . "\n";
+foreach ($filters as $key => $value) {
+    if (!empty($value)) {
+        $sql .= " AND $key LIKE :$key";
+        $params[$key] = "%$value%";
+    }
 }
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$data = $stmt->fetchAll();
+
+header("Content-Type: text/csv");
+header("Content-Disposition: attachment; filename=talabalar.csv");
+
+$output = fopen("php://output", "w");
+
+if (!empty($data)) {
+    fputcsv($output, array_keys($data[0]));
+}
+
+foreach ($data as $row) {
+    fputcsv($output, $row);
+}
+
+fclose($output);
+exit;

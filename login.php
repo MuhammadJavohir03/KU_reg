@@ -5,9 +5,9 @@ require "database.php";
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $password = trim($_POST['password'] ?? '');
-    $talaba_id = trim($_POST['talaba_id'] ?? '');
+    $email = htmlspecialchars(trim($_POST['email'] ?? ''));
+    $password = htmlspecialchars(trim($_POST['password'] ?? ''));
+    $talaba_id = htmlspecialchars(trim($_POST['talaba_id'] ?? ''));
 
     if (empty($email) || empty($password) || empty($talaba_id)) {
         $error = "Barcha maydonlar to‘ldirilishi kerak!";
@@ -44,17 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php require "Includes/header.php"; ?>
 
-<body class="hero">
-    <div class="cube"></div>
-    <div class="cube"></div>
-    <div class="cube"></div>
-    <div class="cube"></div>
-    <div class="cube"></div>
-    <div class="cube"></div>
+<body>
+    
     <?php require "Includes/navbar.php"; ?>
 
-    <section class="vh-100">
-
+    <section class="hero vh-100">
+<div class="z-n1 cube"></div>
+    <div class="z-n1 cube"></div>
+    <div class="z-n1 cube"></div>
+    <div class="z-n1 cube"></div>
+    <div class="z-n1 cube"></div>
+    <div class="z-n1 cube"></div>
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
 
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-                    <form class="p-5 rounded-3 border text-white" style="background: rgba(61, 52, 139, 0.8); height: 55vh;" method="POST" action="login.php">
+                    <form class="p-5 rounded-3 shadow border text-white" style="background: rgba(61, 52, 139, 0.8); height: 55vh;" method="POST" action="login.php">
 
                         <h3 class="mb-4 text-dangers">Tizimga kirish</h3>
 

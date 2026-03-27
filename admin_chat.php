@@ -92,7 +92,7 @@ $messages = $stmt->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($chat_user_id > 0)) {
 
-    $reply = trim($_POST['reply'] ?? '');
+    $reply = htmlspecialchars(trim($_POST['reply'] ?? ''));
     $file_path = null;
 
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {

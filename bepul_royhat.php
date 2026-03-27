@@ -9,49 +9,58 @@ require "database.php";
     <div class="container">
 
         <h1 class="bg-white text-danger p-2 mb-3 text-center shadow">
-            Bepul A'rizaga topshirgan talabalar ro'yxati
+            Bepul A'riza Ro'yxati
         </h1>
-        <div class="mb-2">
-            <a class="p-2 btn border-white shadow-sm btn-danger" href="arizaroyhati.php">Orqaga</a>
-        </div>
+
         <form method="GET" class="row g-2 mb-3">
 
+            <input name="talaba_id" class="form-control col" placeholder="Talaba ID" value="<?= $_GET['talaba_id'] ?? '' ?>">
+            <input name="familiya" class="form-control col" placeholder="Familiya" value="<?= $_GET['familiya'] ?? '' ?>">
+            <input name="ism" class="form-control col" placeholder="Ism" value="<?= $_GET['ism'] ?? '' ?>">
+            <input name="otasi" class="form-control col" placeholder="Otasi" value="<?= $_GET['otasi'] ?? '' ?>">
+            <input name="guruh" class="form-control col" placeholder="Guruh" value="<?= $_GET['guruh'] ?? '' ?>">
+            <input name="yonalish" class="form-control col" placeholder="Yo'nalish" value="<?= $_GET['yonalish'] ?? '' ?>">
+            <input name="kurs" class="form-control col" placeholder="Kurs" value="<?= $_GET['kurs'] ?? '' ?>">
 
-
-            <div class="col-md-4">
-                <input
-                    list="guruhlar"
-                    name="guruh"
-                    class="form-control"
-                    placeholder="Guruh yozing yoki tanlang"
-                    value="<?= isset($_GET['guruh']) ? htmlspecialchars($_GET['guruh']) : '' ?>">
-
-                <datalist id="guruhlar">
-                    <?php
-                    $groups = $pdo->query("SELECT DISTINCT guruh FROM bepul")->fetchAll();
-                    foreach ($groups as $g) {
-                        echo "<option value='{$g['guruh']}'>";
-                    }
-                    ?>
-                </datalist>
-            </div>
-
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-success border-white shadow-sm w-100">
-                    Filter
-                </button>
-            </div>
-
-            <div class="col-md-3">
-                <a href="export_bepul.php?guruh=<?= isset($_GET['guruh']) ? urlencode($_GET['guruh']) : '' ?>"
-                    class="border-white shadow-sm btn btn-success w-100">
-                    Excelga export
-                </a>
-            </div>
+            <button type="submit" class="btn btn-success col-md-2">Filter</button>
 
         </form>
 
-        <table class="shadow table table-bordered">
+        <div class="mb-3">
+            <a href="export_bepul.php?<?= http_build_query($_GET) ?>"
+                class="btn btn-success w-100">
+                Excelga export
+            </a>
+        </div>
+
+        <?php
+
+        $filters = [
+            'talaba_id' => $_GET['talaba_id'] ?? '',
+            'familiya'  => $_GET['familiya'] ?? '',
+            'ism'       => $_GET['ism'] ?? '',
+            'otasi'     => $_GET['otasi'] ?? '',
+            'guruh'     => $_GET['guruh'] ?? '',
+            'yonalish'  => $_GET['yonalish'] ?? '',
+            'kurs'      => $_GET['kurs'] ?? '',
+        ];
+
+        $sql = "SELECT * FROM bepul WHERE 1";
+        $params = [];
+
+        foreach ($filters as $key => $value) {
+            if (!empty($value)) {
+                $sql .= " AND $key LIKE :$key";
+                $params[$key] = "%$value%";
+            }
+        }
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+        ?>
+
+        <table class="table table-bordered shadow">
             <thead>
                 <tr>
                     <th>No</th>
@@ -62,54 +71,38 @@ require "database.php";
                     <th>Guruh</th>
                     <th>Yo‘nalish</th>
                     <th>Kurs</th>
-                    <th>Fan 1</th>
-                    <th>Fan 2</th>
-                    <th>Fan 3</th>
+                    <th>Fan1</th>
+                    <th>Fan2</th>
+                    <th>Fan3</th>
                 </tr>
             </thead>
+
             <tbody>
-
-                <?php
-                $guruh = $_GET['guruh'] ?? '';
-
-                if (!empty($guruh)) {
-                    $stmt = $pdo->prepare("SELECT * FROM bepul WHERE guruh LIKE :guruh");
-                    $stmt->execute([
-                        'guruh' => '%' . $guruh . '%'
-                    ]);
-                } else {
-                    $stmt = $pdo->prepare("SELECT * FROM bepul");
-                    $stmt->execute();
-                }
-
-                $rows = $stmt->fetchAll();
-
-                if ($rows) {
-                    $i = 1;
-                    foreach ($rows as $row) {
-                        echo "<tr>
-                    <td>{$i}</td>
-                    <td>{$row['talaba_id']}</td>
-                    <td>{$row['familiya']}</td>
-                    <td>{$row['ism']}</td>
-                    <td>{$row['otasi']}</td>
-                    <td>{$row['guruh']}</td>
-                    <td>{$row['yonalish']}</td>
-                    <td>{$row['kurs']}</td>
-                    <td>{$row['fan1']}</td>
-                    <td>{$row['fan2']}</td>
-                    <td>{$row['fan3']}</td>
-                </tr>";
-                        $i++;
-                    }
-                } else {
-                    echo "<tr><td colspan='11' class='text-center'>Ma'lumot topilmadi</td></tr>";
-                }
-                ?>
-
+                <?php if ($rows): ?>
+                    <?php $i = 1;
+                    foreach ($rows as $row): ?>
+                        <tr>
+                            <td><?= $i++ ?></td>
+                            <td><?= htmlspecialchars($row['talaba_id']) ?></td>
+                            <td><?= htmlspecialchars($row['familiya']) ?></td>
+                            <td><?= htmlspecialchars($row['ism']) ?></td>
+                            <td><?= htmlspecialchars($row['otasi']) ?></td>
+                            <td><?= htmlspecialchars($row['guruh']) ?></td>
+                            <td><?= htmlspecialchars($row['yonalish']) ?></td>
+                            <td><?= htmlspecialchars($row['kurs']) ?></td>
+                            <td><?= htmlspecialchars($row['fan1']) ?></td>
+                            <td><?= htmlspecialchars($row['fan2']) ?></td>
+                            <td><?= htmlspecialchars($row['fan3']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="11" class="text-center">Ma'lumot topilmadi</td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
-
+        <a class="bg-danger text-decoration-none text-white p-2 mb-5" href="arizaroyhati.php">Orqaga</a>
     </div>
 </body>
 

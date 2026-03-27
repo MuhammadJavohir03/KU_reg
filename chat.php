@@ -42,7 +42,7 @@ $section_id = isset($_GET['section_id'])
     : (int)$sections[0]['id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $message = trim($_POST['message'] ?? '');
+    $message = htmlspecialchars(trim($_POST['message'] ?? ''));
     $file_path = null;
 
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
