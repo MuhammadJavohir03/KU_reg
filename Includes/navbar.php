@@ -19,7 +19,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 }
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="border-bottom: solid 1px white; background: rgba(25, 40, 71, 0.8);">
+<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="border-bottom: solid 1px white; background: rgba(100, 13, 20, 0.9);">
     <div class="container container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
             <img src="Logos/logo2.png" alt="" height="46.9" width="149" class="me-2">
@@ -94,11 +94,11 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 
             <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="d-flex align-items-center">
-                    <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow"
-                        style="border-bottom: solid 1px white; border-top: solid 1px white; color: rgb(138, 177, 255); background: rgba(54, 86, 150);width:50px; height:50px; font-weight:bold;">
+                    <a href="myprofile.php" class="text-decoration-none rounded-circle d-flex justify-content-center align-items-center me-3 shadow"
+                        style="border-bottom: solid 1px white; border-top: solid 1px white; color: rgb(100, 13, 20); background: rgba(255, 255, 255, 0.7);width:50px; height:50px; font-weight:bold;">
                         <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
-                    </div>
-                    <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a>
+                    </a>
+                    <!-- <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a> -->
                 </div>
             <?php endif; ?>
         </div>

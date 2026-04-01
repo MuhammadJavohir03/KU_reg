@@ -9,8 +9,8 @@ const CONFIG = {
     repelStrength: 0.35, // cât de puternic e efectul de respingere
     attractStrength: 0.2, // alternativ: setat pozitiv pentru atracție
     clickBurst: 120, // impuls la click
-    colorParticle: "#c9e7ff",
-    colorLink: "#7dd3fc"
+    colorParticle: "#ffffff",
+    colorLink: "#ffffff"
 };
 
 // ====== Setup canvas (DPR aware) ======

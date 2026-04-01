@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-                    <form class="p-5 rounded-3 shadow border text-white" style="background: rgba(11, 18, 32, 0.35);
+                    <form class="p-5 rounded-3 shadow border text-white" style="background: rgba(0, 0, 0, 0.35);
                                                                                 border: 1px solid rgba(255, 255, 255, 0.12);
                                                                                 border-radius: 0.8rem;
                                                                                 backdrop-filter: blur(8px) saturate(140%);

@@ -89,8 +89,8 @@ $messages = $stmt->fetchAll();
 <body>
     <?php require "Includes/navbar.php"; ?>
     <canvas class="z-n1" id="bg"></canvas>
-    <div class="container mt-4 text-white">
-        <h4>Chat - Bo‘limni tanlang:</h4>
+    <div class="container mt-4 text-dark">
+        <h4 class="bg-white p-3 rounded-2">Chat - Bo‘limni tanlang:</h4>
 
         <select class="form-select mb-3" onchange="window.location.href='chat.php?section_id='+this.value;">
             <?php foreach ($sections as $sec): ?>

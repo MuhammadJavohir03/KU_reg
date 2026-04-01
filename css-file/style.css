@@ -146,19 +146,6 @@ body {
     filter: drop-shadow(0px 10px 20px rgba(255, 255, 255, 0.5));
 }
 
-body {
-    min-height: 100vh;
-    background: radial-gradient(1200px 600px at 20% 20%,
-            rgba(56, 189, 248, 0.1),
-            transparent 60%),
-        radial-gradient(1000px 500px at 80% 30%,
-            rgba(124, 58, 237, 0.1),
-            transparent 60%),
-        #0b1220;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-
 .card-shadow {
     background: linear-gradient(to bottom right, rgb(0, 98, 255), rgb(255, 255, 255));
     background-repeat: no-repeat;
@@ -186,15 +173,7 @@ body {
 
 
 body {
-    background: radial-gradient(1200px 600px at 20% 20%,
-            rgba(56, 189, 248, 0.1),
-            transparent 60%),
-        radial-gradient(1000px 500px at 80% 30%,
-            rgba(124, 58, 237, 0.1),
-            transparent 60%),
-        #0b1220 !important;
-    font-family: system-ui, -apple-system, "Inter", Roboto, sans-serif;
-    /* full-screen canvas */
+    background: rgb(100, 13, 20) !important;
 }
 
 /* Fullscreen canvas behind content */

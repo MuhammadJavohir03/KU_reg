@@ -43,26 +43,26 @@ $admins = $stmt->fetchAll();
 
     <?php if ($message) echo "<div class='alert alert-info'>$message</div>"; ?>
 
-    <h4 class="text-white">Admin qo‘shish</h4>
+    <h4 class="text-dark">Admin qo‘shish</h4>
     <form method="POST">
         <input type="hidden" name="add_admin" value="1">
         <div class="mb-3">
-            <label class="text-white">Email (@kokanduni.uz):</label>
+            <label class="text-dark">Email (@kokanduni.uz):</label>
             <input type="email" name="email" class="form-control" placeholder="admin@kokanduni.uz" required>
         </div>
         <div class="mb-3">
-            <label class="text-white">Talaba ID (12 raqam):</label>
+            <label class="text-dark">Talaba ID (12 raqam):</label>
             <input type="text" name="talaba_id" class="form-control" placeholder="ID=12ta raqam" required>
         </div>
         <div class="mb-3">
-            <label class="text-white">Parol:</label>
+            <label class="text-dark">Parol:</label>
             <input type="password" name="password" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-success">Admin qo‘shish</button>
     </form>
 
     <hr>
-    <h4 class="text-white">Barcha Adminlar</h4>
+    <h4 class="text-dark">Barcha Adminlar</h4>
     <table class="table table-bordered">
         <tr>
             <th>ID</th>
