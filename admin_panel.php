@@ -2,7 +2,6 @@
 session_start();
 require "database.php";
 
-// Faqat Super Admin kirishi mumkin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {
     header("Location: login.php");
     exit;
@@ -10,13 +9,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {
 
 $message = "";
 
-// Admin qo‘shish
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_admin'])) {
     $email = trim($_POST['email']);
     $password_plain = trim($_POST['password']);
     $talaba_id = trim($_POST['talaba_id']);
 
-    // Email va Talaba ID tekshirish
     if (!preg_match('/@kokanduni\.uz$/', $email)) {
         $message = "Admin email faqat @kokanduni.uz bilan tugashi kerak!";
     } elseif (!preg_match('/^\d{12}$/', $talaba_id)) {
@@ -34,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_admin'])) {
     }
 }
 
-// Adminlarni ro‘yxati
 $stmt = $pdo->query("SELECT id, email, talaba_id, status FROM users WHERE role='admin'");
 $admins = $stmt->fetchAll();
 ?>
@@ -42,31 +38,31 @@ $admins = $stmt->fetchAll();
 <?php require "Includes/header.php"; ?>
 <?php require "Includes/navbar.php"; ?>
 
-<div class="container mt-5">
-    <h2>Admin Panel</h2>
+<div class="container mt-5 bg-white p-4 shadow">
+    <h2 class="text-dark">Admin Panel</h2>
 
     <?php if ($message) echo "<div class='alert alert-info'>$message</div>"; ?>
 
-    <h4>Admin qo‘shish</h4>
+    <h4 class="text-dark">Admin qo‘shish</h4>
     <form method="POST">
         <input type="hidden" name="add_admin" value="1">
         <div class="mb-3">
-            <label>Email (@kokanduni.uz):</label>
+            <label class="text-dark">Email (@kokanduni.uz):</label>
             <input type="email" name="email" class="form-control" placeholder="admin@kokanduni.uz" required>
         </div>
         <div class="mb-3">
-            <label>Talaba ID (12 raqam):</label>
+            <label class="text-dark">Talaba ID (12 raqam):</label>
             <input type="text" name="talaba_id" class="form-control" placeholder="ID=12ta raqam" required>
         </div>
         <div class="mb-3">
-            <label>Parol:</label>
+            <label class="text-dark">Parol:</label>
             <input type="password" name="password" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-success">Admin qo‘shish</button>
     </form>
 
     <hr>
-    <h4>Barcha Adminlar</h4>
+    <h4 class="text-dark">Barcha Adminlar</h4>
     <table class="table table-bordered">
         <tr>
             <th>ID</th>

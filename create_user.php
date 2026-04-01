@@ -9,7 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_plain = trim($_POST['password']);
     $talaba_id = trim($_POST['talaba_id']); // majburiy NOT NULL
 
-    // Tekshiruvlar
     if (!preg_match('/@kokanduni\.uz$/', $email)) {
         $error = "Email faqat @kokanduni.uz bilan tugashi kerak!";
     } elseif (!preg_match('/^\d{12}$/', $talaba_id)) {
@@ -17,13 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password_plain) < 4) {
         $error = "Parol kamida 4 ta belgidan iborat bo'lishi kerak!";
     } else {
-        // Parolni hash qilish
         $password_hashed = password_hash($password_plain, PASSWORD_DEFAULT);
 
-        // Role = admin
         $role = 'admin';
 
-        // Foydalanuvchini qo‘shish
         try {
             $stmt = $pdo->prepare("INSERT INTO users (email, password, talaba_id, role) VALUES (?, ?, ?, ?)");
             $stmt->execute([$email, $password_hashed, $talaba_id, $role]);
@@ -74,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 color: white;
             }
 
-            /* strelka animatsiyasi */
             .back-btn .arrow {
                 font-size: 20px;
                 transition: transform 0.3s ease;
@@ -84,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 transform: translateX(-5px);
             }
 
-            /* text ham ozgina siljiydi */
             .back-btn .text {
                 transition: transform 0.3s ease;
             }

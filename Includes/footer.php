@@ -4,10 +4,10 @@
                     <use xlink:href="#bootstrap"></use>
                 </svg> </a> <span class="mb-3 mb-md-0 text-white">© 2026 Kokand University - Registrator Office</span> </div>
         <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
-            <li class="ms-3"><a class="text-body-secondary" href="#" aria-label="Instagram"><svg class="bi" width="24" height="24" aria-hidden="true">
+            <li class="ms-3"><a class="text-white" href="#" aria-label="Instagram"><svg class="bi" width="24" height="24" aria-hidden="true">
                         <use xlink:href="#instagram"></use>
                     </svg></a></li>
-            <li class="ms-3"><a class="text-body-secondary" href="#" aria-label="Facebook"><svg class="bi" width="24" height="24">
+            <li class="ms-3"><a class="text-white" href="#" aria-label="Facebook"><svg class="bi" width="24" height="24">
                         <use xlink:href="#facebook"></use>
                     </svg></a></li>
         </ul>

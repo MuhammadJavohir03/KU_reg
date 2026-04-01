@@ -4,7 +4,7 @@
 
 <body>
     <?php require "Includes/navbar.php"; ?>
-
+    <canvas class="z-n1" id="bg"></canvas>
     <div class="container position-relative">
         <button onclick="topFunction()" id="topBtn" class=" btn border" style="background: rgba(61, 52, 139, 0.53);">
             <h1 class="text-white">↑</h1>
@@ -21,7 +21,7 @@
 
     <div class="container">
 
-        <nav id="navbar-example2" class="rounded-1 navbar px-3 mb-3" style="background-color: rgb(255, 255, 255);;">
+        <nav id="navbar-example2" class="rounded-1 shadow navbar px-3 mb-3" style="background-color: rgb(255, 255, 255);;">
             <a class="navbar-brand text-danger" href="#">
                 <h3>Academic Policy Kokand University</h3>
             </a>
@@ -74,21 +74,21 @@
                 <li class="nav-item dropdown">
                     <a class="text-white bg-danger nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Sahifalar</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#scrollspyHeading1">QO'LLANISH SOHASI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading2">QISTQARMALAR VA SHARTLI BELGILAR</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading3">AKADEMIK SIYOSATNING MAQSADI VA PRINSIPLARI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading4">UNIVERSITETGA O’QISHGA QABUL QILISH SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading5">SIFATLI TA’LIM SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading6">AKADEMIK HALOLLIK SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading7">TA’LIM DASTURLARINI ISHLAB CHIQISH VA TASDIQLASH SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading8">TA’LIM JARAYONINI REJALASHTIRISH VA TASHKIL ETISH SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading9">TALABALARNING BAHOLASH SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading10">TALABALARNI O’QISHINI KO’CHIRISH, TIKLASH, CHETLASHTIRISH VA AKADEMIK TA’TIL BERISH SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading11">BITIRUVCHILARNING KASBIY YO‘NALISH, BANDLIK VA KARYERA (MANSAB) O‘SISH SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading12">OCHIQLIK VA OSHKORALIK SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading13">AKADEMIK MOBILLIK VA HALQARO ALOQALAR SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading14">DUAL TA’LIM ELEMENTLARINI AMALGA OSHIRISH SIYOSATI</a></li>
-                        <li><a class="dropdown-item" href="#scrollspyHeading15">PROFESSOR- O’QITUVCHILARNING MALAKA OSHIRISH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading1">QO'LLANISH SOHASI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading2">QISTQARMALAR VA SHARTLI BELGILAR</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading3">AKADEMIK SIYOSATNING MAQSADI VA PRINSIPLARI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading4">UNIVERSITETGA O’QISHGA QABUL QILISH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading5">SIFATLI TA’LIM SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading6">AKADEMIK HALOLLIK SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading7">TA’LIM DASTURLARINI ISHLAB CHIQISH VA TASDIQLASH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading8">TA’LIM JARAYONINI REJALASHTIRISH VA TASHKIL ETISH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading9">TALABALARNING BAHOLASH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading10">TALABALARNI O’QISHINI KO’CHIRISH, TIKLASH, CHETLASHTIRISH VA AKADEMIK TA’TIL BERISH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading11">BITIRUVCHILARNING KASBIY YO‘NALISH, BANDLIK VA KARYERA (MANSAB) O‘SISH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading12">OCHIQLIK VA OSHKORALIK SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading13">AKADEMIK MOBILLIK VA HALQARO ALOQALAR SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading14">DUAL TA’LIM ELEMENTLARINI AMALGA OSHIRISH SIYOSATI</a></li>
+                        <li><a class="dropdown-item btn-danger" href="#scrollspyHeading15">PROFESSOR- O’QITUVCHILARNING MALAKA OSHIRISH SIYOSATI</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -97,7 +97,7 @@
                 </li>
             </ul>
         </nav>
-        <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" class="scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0">
+        <div data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" class="shadow scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0">
             <h4 id="scrollspyHeading1">QO'LLANISH SOHASI</h4>
             <p>Akademik siyosat - ta’lim jarayonini tashkil etish samaradorligini, ta’lim sifatini oshirishga, talabalarning shaxsiy rivojlanishi uchun qulay shart-sharoitlarni yaratishga yordam berishi kerak bo‘lgan qoidalar va tartiblar ro‘yxati.<br>
                 <br>
@@ -493,8 +493,9 @@
             </p>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
 </body>
-
 <?php require "Includes/footer.php"; ?>
+<script src="add.js"></script>

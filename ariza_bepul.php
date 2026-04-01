@@ -27,7 +27,7 @@ if (isset($_POST['submit'])) {
         $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol, fan1, fan2, fan3)
                 VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol, :fan1, :fan2, :fan3)";
 
-        $stmt = $conn->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':talaba_id' => $talaba_id_manual,
             ':familiya' => $familiya,
@@ -101,7 +101,7 @@ if (isset($_POST['submit'])) {
             }
         </style>
 
-        <h1 class="text-danger">Bepul Imkoniyat</h1>
+        <h1 class="text-dark">Bepul Imkoniyat</h1>
 
 
 
@@ -121,23 +121,23 @@ if (isset($_POST['submit'])) {
         </script>
         <form id="myForm" action="" method="POST">
             <div class="input-group mb-3">
-                <input required name="familiya" type="text" class="form-control border-danger" placeholder="Familiyangiz">
-                <input required name="ism" type="text" class="form-control border-danger" placeholder="Ismingiz">
-                <input required name="otasi" type="text" class="form-control border-danger" placeholder="Otangizni ismi">
+                <input required name="familiya" type="text" class="form-control border-success" placeholder="Familiyangiz">
+                <input required name="ism" type="text" class="form-control border-success" placeholder="Ismingiz">
+                <input required name="otasi" type="text" class="form-control border-success" placeholder="Otangizni ismi">
             </div>
 
             <div class="input-group mb-3">
-                <input required name="guruh" type="text" class="form-control border-danger" placeholder="Guruhingiz">
-                <input required name="yonalish" type="text" class="form-control border-danger" placeholder="Yo'nalishingiz">
-                <input required name="kurs" type="text" class="form-control border-danger" placeholder="Kursingiz">
+                <input required name="guruh" type="text" class="form-control border-success" placeholder="Guruhingiz">
+                <input required name="yonalish" type="text" class="form-control border-success" placeholder="Yo'nalishingiz">
+                <input required name="kurs" type="text" class="form-control border-success" placeholder="Kursingiz">
             </div>
 
             <div class="input-group mb-3">
-                <input required name="parol" type="password" class="form-control border-danger" placeholder="HEMIS parolingiz">
+                <input required name="parol" type="password" class="form-control border-success" placeholder="HEMIS parolingiz">
                 <input
                     name="id"
                     type="text"
-                    class="form-control border-danger"
+                    class="form-control border-success"
                     placeholder="Talaba ID"
                     pattern="\d{12}"
                     title="Talaba ID aniq 12 raqamdan iborat bo'lishi kerak"
@@ -159,7 +159,7 @@ if (isset($_POST['submit'])) {
 
             <div id="fan-container">
                 <div class="input-group mb-3">
-                    <input name="fanlar[]" type="text" class="form-control border-danger" placeholder="Fan nomi">
+                    <input name="fanlar[]" type="text" class="form-control border-success" placeholder="Fan nomi">
                     <button type="button" class="btn btn-danger removeFan">- Olib tashlash</button>
                 </div>
             </div>
@@ -187,7 +187,7 @@ if (isset($_POST['submit'])) {
                 });
             </script>
 
-            <button type="button" id="addFan" class="btn bg-danger text-white">
+            <button type="button" id="addFan" class="btn bg-success text-white">
                 FAN QO'SHISH
             </button>
 

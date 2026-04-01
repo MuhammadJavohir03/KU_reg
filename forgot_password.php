@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php require "Includes/navbar.php"; ?>
 
 <div class="container bg-white p-5 rounded-1 shadow mt-5">
-    <a class="back-btn mb-3" href="login.php">
+    <a class="back-btn mb-3" href="index.php">
         <span class="arrow">←</span>
         <span class="text">Orqaga</span>
     </a>
@@ -55,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: white;
         }
 
-        /* strelka animatsiyasi */
         .back-btn .arrow {
             font-size: 20px;
             transition: transform 0.3s ease;
@@ -65,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: translateX(-5px);
         }
 
-        /* text ham ozgina siljiydi */
         .back-btn .text {
             transition: transform 0.3s ease;
         }

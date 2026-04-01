@@ -17,7 +17,6 @@ if (isset($_POST['submit'])) {
     $hemis_parol = $_POST['parol'];
     $talaba_id_manual = $_POST['id'];
 
-    // fanlar arrayini olish
     $fanlar = $_POST['fanlar'] ?? [];
     $fan1 = $fanlar[0] ?? null;
     $fan2 = $fanlar[1] ?? null;
@@ -27,7 +26,7 @@ if (isset($_POST['submit'])) {
         $sql = "INSERT INTO pullik (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol, fan1, fan2, fan3)
                 VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol, :fan1, :fan2, :fan3)";
 
-        $stmt = $conn->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':talaba_id' => $talaba_id_manual,
             ':familiya' => $familiya,

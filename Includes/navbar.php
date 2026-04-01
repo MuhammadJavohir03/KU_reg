@@ -2,6 +2,8 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
+<?php require 'database.php' ?>
+
 <?php
 if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
     $admin_id = $_SESSION['user_id'];
@@ -17,20 +19,16 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
 }
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow-white sticky-top" style="background: rgba(61, 52, 139, 0.53);">
+<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="border-bottom: solid 1px white; background: rgba(100, 13, 20, 0.9);">
     <div class="container container-fluid">
-        <!-- Logo va nom -->
         <a class="navbar-brand d-flex align-items-center" href="index.php">
-            <img src="https://hrd.kokanduni.uz/assets/logo-DMIx8MBS.png" alt="" height="40" width="133" class="me-2">
-            Registrator
+            <img src="Logos/logo2.png" alt="" height="46.9" width="149" class="me-2">
         </a>
 
-        <!-- Hamburger toggle button -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Navbar links -->
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
@@ -42,14 +40,33 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                 <li class="nav-item">
                     <a class="nav-link <?= ($current_page == 'about.php') ? 'active' : '' ?>" href="about.php">Biz Haqimizda</a>
                 </li>
-                <li class="nav-item">
+
+                <!-- <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'tekshiruv.php') ? 'active' : '' ?>" href="tekshiruv.php">Tekshiruv</a>
+                </li> -->
+
+                <!-- <li class="nav-item">
                     <a class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>" href="arizalar.php">Arizalar</a>
-                </li>
+                </li> -->
+
+                <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] != 'user'): ?>
+
+                    <li class="nav-item">
+                        <a class="nav-link <?= ($current_page == 'fanlar.php') ? 'active' : '' ?>" href="fanlar.php">Fanlar</a>
+                    </li>
+
+                    <!-- <li>
+                        <a class="nav-link <?= ($current_page == 'talabalar.php') ? 'active' : '' ?>" href="talabalar.php">Talabalar</a>
+                    </li> -->
+
+                <?php endif; ?>
 
                 <?php if (!isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">
                         <a class="nav-link <?= ($current_page == 'login.php') ? 'active' : '' ?>" href="login.php">Kirish</a>
                     </li>
+
+
                 <?php else: ?>
                     <?php if ($_SESSION['role'] === 'admin'): ?>
                         <a href="admin_chat.php" class="nav-link position-relative">
@@ -61,7 +78,11 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                                 </span>
                             <?php endif; ?>
                         </a>
+
+                        <a class="nav-link <?= ($current_page == 'arizaroyhati.php') ? 'active' : '' ?>" href="arizaroyhati.php">Arizalar Ro'yhati</a>
                     <?php elseif ($_SESSION['role'] === 'super_admin'): ?>
+
+                        <a class="nav-link <?= ($current_page == 'arizaroyhati.php') ? 'active' : '' ?>" href="arizaroyhati.php">Arizalar Ro'yhati</a>
                         <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>" href="admin_panel.php">Admin Panel</a>
                         </li>
@@ -69,32 +90,32 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                             <a class="nav-link <?= ($current_page == 'import.php') ? 'active' : '' ?>" href="import.php">import talaba</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
+                            <a class="nav-link <?= ($current_page == 'forgot_password.php') ? 'active' : '' ?>" href="forgot_password.php">Password Tiklash</a>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>" href="arizalar.php">Arizalar</a>
+                        </li>
                     <?php endif; ?>
                 <?php endif; ?>
             </ul>
 
-            <!-- User initials va logout -->
             <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="d-flex align-items-center">
-                    <div class="text-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm"
-                        style="background: rgba(61, 52, 139, 0.79);width:50px; height:50px; font-weight:bold;">
+                    <a href="myprofile.php" class="text-decoration-none rounded-circle d-flex justify-content-center align-items-center me-3 shadow"
+                        style="border-bottom: solid 1px white; border-top: solid 1px white; color: rgb(100, 13, 20); background: rgba(255, 255, 255, 0.7);width:50px; height:50px; font-weight:bold;">
                         <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
-                    </div>
-                    <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a>
+                    </a>
+                    <!-- <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a> -->
                 </div>
             <?php endif; ?>
         </div>
     </div>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap JS bundle (Popper bilan) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </nav>

@@ -4,7 +4,8 @@
 
 <body class="gradient-custom">
     <?php require "Includes/navbar.php"; ?>
-    <div class="container bg-white p-5" style="height: 100vh;">
+    <canvas class="z-n1" id="bg"></canvas>
+    <div class="container bg-white p-5 shadow" style="height: 100vh;">
         <div id="carouselExampleCaptions" class="carousel slide bg-dark" data-bs-ride="carousel">
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -24,6 +25,7 @@
                         <p>Qayta topshirishga ariza berish 21-mart 2026-yilgacha amal qiladi shoshiling! </p>
                     </div>
                 </div>
+
 
                 <!-- <div class="carousel-item active">
                     <div class="position-relative bg-dark opacity-50">
@@ -48,9 +50,10 @@
                 </button>
             </div>
         </div>
-        <!-- <?php require "yonalishlar.php"; ?> -->
+
+        <?php require "yonalishlar.php"; ?>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
-
+<script src="add.js"></script>
 <?php require "Includes/footer.php"; ?>

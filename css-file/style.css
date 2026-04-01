@@ -107,15 +107,57 @@ body {
 }
 
 .custom-shadow {
-    filter: drop-shadow(0px 10px 20px rgb(247, 186, 1));
+    animation: shadowMove 15s infinite ease-in-out;
 }
 
-body {
-    min-height: 100vh;
+@keyframes shadowMove {
+    0% {
+        filter: drop-shadow(0px 30px 40px rgb(56, 191, 248));
+    }
 
-    background: linear-gradient(to bottom right, rgb(118, 120, 237), rgb(241, 135, 1));
+    25% {
+        filter: drop-shadow(0px 30px 40px rgba(56, 189, 248, 0.6));
+    }
+
+    50% {
+        filter: drop-shadow(0px 30px 40px rgba(56, 189, 248, 0.4));
+    }
+
+    75% {
+        filter: drop-shadow(0px 30px 40px rgba(56, 189, 248, 0.2));
+    }
+
+    100% {
+        filter: drop-shadow(0px 30px 40px rgba(56, 191, 248));
+    }
+}
+
+.text-danger{
+    color: rgb(0, 46, 66) !important;
+}
+
+@import url("https://fonts.googleapis.com/css?family=Montserrat:700");
+
+@import url("https://fonts.googleapis.com/css?family=Montserrat:700");
+
+
+
+.custom-shadow2 {
+    filter: drop-shadow(0px 10px 20px rgba(255, 255, 255, 0.5));
+}
+
+.card-shadow {
+    background: linear-gradient(to bottom right, rgb(0, 98, 255), rgb(255, 255, 255));
     background-repeat: no-repeat;
     background-attachment: fixed;
+}
+
+.bg-custom-dark {
+    background-color: rgb(0, 48, 73);
+}
+
+.text-custom-dark {
+    color: rgb(0, 48, 73);
 }
 
 .mask-custom {
@@ -125,4 +167,39 @@ body {
     border: 2px solid rgba(255, 255, 255, 0.05);
     background-clip: padding-box;
     box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03);
+}
+
+/* LOGIN SAQLANADI, ANIMATION ORQADA ISHLAYDI */
+
+
+body {
+    background: rgb(100, 13, 20) !important;
+}
+
+/* Fullscreen canvas behind content */
+#bg {
+    position: fixed;
+    inset: 0;
+    display: block;
+}
+
+/* Minimal overlay UI */
+.ui {
+    background: rgba(11, 18, 32, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.8rem;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+.ui h1 {
+    font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+    letter-spacing: 0.2px;
+}
+
+.ui p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: 0.3rem;
 }
