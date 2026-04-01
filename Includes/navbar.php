@@ -49,7 +49,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                     <a class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>" href="arizalar.php">Arizalar</a>
                 </li> -->
 
-<<<<<<< HEAD
                 <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] != 'user'): ?>
 
                     <li class="nav-item">
@@ -61,8 +60,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                     </li> -->
 
                 <?php endif; ?>
-=======
->>>>>>> 6c9c6c12db66928a42d5cfd6b66579e15881bfb8
 
                 <?php if (!isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">
