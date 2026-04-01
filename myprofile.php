@@ -48,38 +48,38 @@ if (isset($_POST['update'])) {
     <canvas class="z-n1" id="bg"></canvas>
 
     <div class="container p-5 mt-5 shadow rounded-1"
-        style="background-color: rgba(100, 13, 20, 0.7); border:1px solid rgb(255, 255, 255);">
+        style="background-color: rgba(255, 255, 255); border:1px solid rgb(100, 13, 20);">
 
         <a href="index.php" class="btn border btn-danger mb-3">← Orqaga</a>
 
-        <h2 class="text-white">My Profile</h2>
+        <h2 class="text-dark">My Profile</h2>
 
         <!-- INFO -->
-        <h4 class="text-white">Email: <?= $user['email'] ?></h4>
+        <h4 class="text-dark">Email: <?= $user['email'] ?></h4>
 
-        <h4 class="text-white">
+        <h4 class="text-dark">
             Role:
             <?= ($user['role'] == 'user') ? 'Talaba' : 'Admin' ?>
         </h4>
 
-        <hr class="text-white">
+        <hr class="text-dark">
 
         <!-- FORM -->
         <form method="POST">
 
-            <label class="text-white">Talaba ID:</label>
+            <label class="text-dark">Talaba ID:</label>
             <input class="form-control" type="text"
                 value="<?= $user['talaba_id'] ?>" disabled><br>
 
-            <label class="text-white">FIO:</label>
+            <label class="text-dark">FIO:</label>
             <input class="form-control" type="text"
                 value="<?= $user['fio'] ?>" disabled><br>
 
-            <label class="text-white">Kurs:</label>
+            <label class="text-dark">Kurs:</label>
             <input class="form-control" type="text"
                 value="<?= $user['kurs'] ?>" disabled><br>
 
-            <label class="text-white">Yangi password:</label>
+            <label class="text-dark">Yangi password:</label>
             <input class="form-control" type="password"
                 name="password" placeholder="Yangi parol"><br>
 
