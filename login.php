@@ -92,9 +92,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="form-label"></label>
                         </div>
 
+<<<<<<< HEAD
                         <div class="d-flex justify-content-between align-items-center">
+=======
+                        <!-- <div class="d-flex justify-content-between align-items-center">
+>>>>>>> 6c9c6c12db66928a42d5cfd6b66579e15881bfb8
                             <a href="forgot_password.php" class="text-white link-danger">Parolni unutdingizmi?</a>
-                        </div>
+                        </div> -->
 
                         <div class="text-center text-lg-start  mt-4 pt-2">
                             <button type="submit" class="btn px-5 text-custom-dark shadow btn-lg"
