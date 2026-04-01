@@ -137,13 +137,12 @@ foreach ($sections as $s) {
 <?php require "Includes/navbar.php"; ?>
 
 <body class="gradient-custom">
-    <canvas class="z-n1" id="bg"></canvas>
     <div class="container py-5">
         <div class="row">
 
             <!-- USER PANEL -->
             <div class="col-12 col-lg-4 col-xl-3 mb-3 mb-lg-0">
-                <h3 class="mb-3 text-dark">Foydalanuvchilar:</h3>
+                <h3 class="mb-3 text-white">Foydalanuvchilar:</h3>
                 <input type="text" id="userSearch" class="form-control mb-2 border" placeholder="Foydalanuvchini qidirish...">
                 <script>
                     document.getElementById('userSearch').addEventListener('keyup', function() {
@@ -186,7 +185,7 @@ foreach ($sections as $s) {
 
             <!-- CHAT PANEL -->
             <div class="col-12 col-lg-8 col-xl-9 d-flex flex-column">
-                <h3 class="mb-3 text-dark">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h3>
+                <h3 class="mb-3 text-white">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h3>
 
                 <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow overflow-auto" style="
                         backdrop-filter: blur(8px); 
@@ -243,7 +242,9 @@ foreach ($sections as $s) {
                         <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
                         <input type="text" name="reply" class="form-control border-0" placeholder="Javob yozing...">
                         <input type="file" name="attachment" class="form-control border-0">
-                        <button class="btn text-white" style=" background: rgba(106, 204, 70);" type="submit">Yuborish</button>
+                        <button class="btn text-white" style=" background: rgba(106, 204, 70);" type="submit">Yuborish <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                                <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
+                            </svg></button>
                     </div>
                 </form>
             </div>

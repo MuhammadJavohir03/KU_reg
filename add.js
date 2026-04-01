@@ -1,7 +1,7 @@
 // ====== Config ======
 const CONFIG = {
     baseDensity: 15, // particule per 10,000 px^2 (se scalează cu dimensiunea ecranului)
-    maxSpeed: 0.5, // px / frame
+    maxSpeed: 0.8, // px / frame
     radius: [1.0, 2.2], // min, max radius
     linkDist: 110, // distanța maximă pentru a desena linie între particule
     linkAlpha: 0.3, // opacitatea de bază a liniilor
@@ -105,7 +105,7 @@ function computeParticlesCount() {
     const per10k = CONFIG.baseDensity; // per 10,000 px^2
     targetCount = Math.round(per10k * (area / 10000));
     // soft cap pentru mobile
-    targetCount = clamp(targetCount, 600, 1200);
+    targetCount = clamp(targetCount, 800, 1500);
     if (particles.length < targetCount) {
         const add = targetCount - particles.length;
         for (let i = 0; i < add; i++) particles.push(new Particle());
