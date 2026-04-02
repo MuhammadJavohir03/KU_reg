@@ -3,7 +3,7 @@
 $host = "localhost";
 $username = "root";
 $password = "secret";
-$dbname = "reg";
+$dbname = "registrator_ku";
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
