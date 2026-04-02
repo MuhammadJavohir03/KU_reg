@@ -132,7 +132,7 @@ body {
     }
 }
 
-.text-danger{
+.text-danger {
     color: rgb(0, 46, 66) !important;
 }
 
@@ -202,4 +202,67 @@ body {
     font-size: 0.85rem;
     color: #94a3b8;
     margin-top: 0.3rem;
+}
+
+
+
+
+
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    font-family: Arial;
+    border: 1px solid #ddd;
+}
+
+/* FLEX ROW */
+.table-header,
+.table-row {
+    display: flex;
+}
+
+/* ====== FIXED WIDTH RULE ====== */
+.name {
+    width: 200px;
+    min-width: 200px;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    font-weight: bold;
+    background: #f9fafb;
+}
+
+/* HAR BIR FAN BIR XIL KENGLIK */
+.subject {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid #ddd;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+}
+
+/* HEADER ichidagi 3 ta label */
+.sub-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-top: 5px;
+    color: #666;
+}
+
+/* DATA ROW */
+.subject-data {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    text-align: center;
+}
+
+/* HOVER */
+.table-row:hover {
+    background: #f3f4f6;
 }

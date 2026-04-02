@@ -15,7 +15,7 @@ require "database.php";
                 <a class="nav-link btn bg-white p-2 m-3 shadow" href="bepul_royhat.php">Bepul Arizalar Ro'yxati</a>
             </div>
             <div class="col">
-                <a class="nav-link btn bg-white p-2 m-3 shadow" href="pullik_royhat.php">Bepul Arizalar Ro'yxati</a>
+                <a class="nav-link btn bg-white p-2 m-3 shadow" href="pullik_royhat.php">Pullik Arizalar Ro'yxati</a>
             </div>
         </div>
 

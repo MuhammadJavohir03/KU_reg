@@ -1,42 +1,58 @@
 <?php
 require "database.php";
 
-$filters = [
-    'talaba_id' => $_GET['talaba_id'] ?? '',
-    'familiya'  => $_GET['familiya'] ?? '',
-    'ism'       => $_GET['ism'] ?? '',
-    'otasi'     => $_GET['otasi'] ?? '',
-    'guruh'     => $_GET['guruh'] ?? '',
-    'yonalish'  => $_GET['yonalish'] ?? '',
-    'kurs'      => $_GET['kurs'] ?? '',
-];
+$q = $_GET['q'] ?? '';
 
-$sql = "SELECT * FROM bepul WHERE 1";
+header("Content-Type: application/vnd.ms-excel");
+header("Content-Disposition: attachment; filename=bepul_royhat.xls");
+
+$where = "";
 $params = [];
 
-foreach ($filters as $key => $value) {
-    if (!empty($value)) {
-        $sql .= " AND $key LIKE :$key";
-        $params[$key] = "%$value%";
-    }
+if (!empty($q)) {
+    $where = "
+    WHERE 
+        u.fio LIKE ? OR
+        u.talaba_id LIKE ? OR
+        u.email LIKE ? OR
+        u.guruh LIKE ?
+    ";
+
+    $qParam = "%$q%";
+    $params = array_fill(0, 4, $qParam);
 }
 
-$stmt = $pdo->prepare($sql);
+$stmt = $pdo->prepare("
+    SELECT 
+        u.fio,
+        u.talaba_id,
+        u.email,
+        u.guruh,
+        b.hemis_parol,
+        b.fan1,
+        b.fan2,
+        b.fan3,
+        b.fan4
+
+    FROM bepul b
+    JOIN users u ON u.id = b.user_id
+
+    $where
+");
+
 $stmt->execute($params);
-$data = $stmt->fetchAll();
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-header("Content-Type: text/csv");
-header("Content-Disposition: attachment; filename=talabalar.csv");
-
-$output = fopen("php://output", "w");
-
-if (!empty($data)) {
-    fputcsv($output, array_keys($data[0]));
-}
+echo "FIO\tTalaba ID\tEmail\tGuruh\tHEMIS Parol\tFan1\tFan2\tFan3\tFan4\n";
 
 foreach ($data as $row) {
-    fputcsv($output, $row);
+    echo $row['fio'] . "\t";
+    echo $row['talaba_id'] . "\t";
+    echo $row['email'] . "\t";
+    echo $row['guruh'] . "\t";
+    echo $row['hemis_parol'] . "\t";
+    echo $row['fan1'] . "\t";
+    echo $row['fan2'] . "\t";
+    echo $row['fan3'] . "\t";
+    echo $row['fan4'] . "\n";
 }
-
-fclose($output);
-exit;

@@ -108,6 +108,26 @@ if (isset($_POST['import'])) {
 
         $fio = trim($d[0]);
 
+<<<<<<< HEAD
+        $q = $pdo->prepare("SELECT id, talaba_id FROM users WHERE fio=?");
+        $q->execute([$fio]);
+        $user = $q->fetch();
+
+        if (!$user) continue;
+
+        $user_id   = $user['id'];
+        $talaba_id = $user['talaba_id'];
+
+        $pdo->prepare("
+            INSERT INTO talabalar
+            (user_id, fan_id, talaba_id, joriy_nazorat, oraliq_nazorat, reyting,
+             yakuniy_nazorat, qayta_topshirish, umumiy, davomat)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ")->execute([
+            $user_id,
+            $fan_id,
+            $talaba_id,
+=======
         $q = $pdo->prepare("SELECT id FROM users WHERE fio=?");
         $q->execute([$fio]);
         $user_id = $q->fetchColumn();
@@ -122,6 +142,7 @@ if (isset($_POST['import'])) {
         ")->execute([
             $user_id,
             $fan_id,
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
             (int)$d[1],
             (int)$d[2],
             (int)$d[3],
@@ -148,6 +169,10 @@ if (isset($_GET['export'])) {
 
     fputcsv($out, [
         "FIO",
+<<<<<<< HEAD
+        "Talaba ID",
+=======
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
         "Joriy",
         "Oraliq",
         "Reyting",
@@ -157,12 +182,30 @@ if (isset($_GET['export'])) {
         "Davomat"
     ], ";");
 
+<<<<<<< HEAD
+    // BASE QUERY
+    $sql = "
+=======
     $stmt = $pdo->prepare("
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
         SELECT u.fio, t.*
         FROM talabalar t
         JOIN users u ON u.id=t.user_id
         WHERE t.fan_id=?
+<<<<<<< HEAD
+    ";
+
+    // FILTER QO‘SHAMIZ
+    if ($filter == 'fail') {
+        $sql .= " AND (t.davomat >= 33 OR t.reyting < 20)";
+    } elseif ($filter == 'pass') {
+        $sql .= " AND (t.davomat < 33 AND t.reyting >= 20)";
+    }
+
+    $stmt = $pdo->prepare($sql);
+=======
     ");
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
     $stmt->execute([$fan_id]);
 
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -170,6 +213,10 @@ if (isset($_GET['export'])) {
     foreach ($data as $r) {
         fputcsv($out, [
             $r['fio'],
+<<<<<<< HEAD
+            $r['talaba_id'],
+=======
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
             $r['joriy_nazorat'],
             $r['oraliq_nazorat'],
             $r['reyting'],
@@ -214,6 +261,28 @@ if (isset($_POST['save'])) {
     $fio = trim($_POST['fio']);
 
     // usersdan topish
+<<<<<<< HEAD
+    $stmt = $pdo->prepare("SELECT id, talaba_id FROM users WHERE fio=?");
+    $stmt->execute([$fio]);
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        die("User topilmadi!");
+    }
+
+    $user_id   = $user['id'];
+    $talaba_id = $user['talaba_id'];
+
+    // fan ichiga qo'shish
+    $pdo->prepare("
+    INSERT INTO talabalar
+    (fan_id, user_id, talaba_id, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+")->execute([
+        $fan_id,
+        $user_id,
+        $talaba_id,
+=======
     $stmt = $pdo->prepare("SELECT id FROM users WHERE fio=?");
     $stmt->execute([$fio]);
     $user_id = $stmt->fetchColumn();
@@ -230,6 +299,7 @@ if (isset($_POST['save'])) {
     ")->execute([
         $fan_id,
         $user_id,
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
         $_POST['joriy_nazorat'],
         $_POST['oraliq_nazorat'],
         $_POST['reyting'],
@@ -252,7 +322,12 @@ if (isset($_POST['save'])) {
     <div class="p-4 bg-white">
 
 
+<<<<<<< HEAD
+        <a class="btn btn-danger mb-3" href="fanlar.php"><-Orqaga
+                </a>
+=======
         <a class="btn btn-danger mb-3" href="fanlar.php"><-Orqaga</a>
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
 
                 <h3>📘 <?= htmlspecialchars($fan['nomi']) ?> - Fanidan Talabalar</h3>
 
@@ -268,7 +343,11 @@ if (isset($_POST['save'])) {
                     <input type="file" name="file" required>
                     <button name="import" class="btn btn-primary">Import</button>
 
+<<<<<<< HEAD
+                    <a href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&export=1" class="btn btn-danger">
+=======
                     <a href="?fan_id=<?= $fan_id ?>&export=1" class="btn btn-danger">
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
                         Export
                     </a>
                 </form>
@@ -311,6 +390,10 @@ if (isset($_POST['save'])) {
                         <tr>
                             <th>No</th>
                             <th>FIO</th>
+<<<<<<< HEAD
+                            <th>Talaba ID</th>
+=======
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
                             <th>Joriy</th>
                             <th>Oraliq</th>
                             <th>Reyting</th>
@@ -336,6 +419,10 @@ if (isset($_POST['save'])) {
 
                                     <td><?= $i++ ?></td>
                                     <td><?= $r['fio'] ?></td>
+<<<<<<< HEAD
+                                    <td><?= $r['talaba_id'] ?></td>
+=======
+>>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
 
                                     <td><input name="joriy_nazorat" value="<?= $r['joriy_nazorat'] ?>"></td>
                                     <td><input name="oraliq_nazorat" value="<?= $r['oraliq_nazorat'] ?>"></td>
