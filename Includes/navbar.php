@@ -35,6 +35,9 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                     <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php">Bosh Sahifa</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= ($current_page == 'test.php') ? 'active' : '' ?>" href="test.php">Test</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= ($current_page == 'academic.php') ? 'active' : '' ?>" href="academic.php">Academic Policy</a>
                 </li>
                 <li class="nav-item">
@@ -49,6 +52,17 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
                     <a class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>" href="arizalar.php">Arizalar</a>
                 </li> -->
 
+                <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] != 'user'): ?>
+
+                    <li class="nav-item">
+                        <a class="nav-link <?= ($current_page == 'fanlar.php') ? 'active' : '' ?>" href="fanlar.php">Fanlar</a>
+                    </li>
+
+                    <!-- <li>
+                        <a class="nav-link <?= ($current_page == 'talabalar.php') ? 'active' : '' ?>" href="talabalar.php">Talabalar</a>
+                    </li> -->
+
+                <?php endif; ?>
 
                 <?php if (!isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">

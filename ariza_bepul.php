@@ -1,264 +1,198 @@
-<?php session_start(); ?>
-<?php require "Includes/header.php"; ?>
-
 <?php
 require "database.php";
+session_start();
 
-$error = "";
-$success = false;
+// 🔐 login check
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$id = $_SESSION['user_id'];
+
+// 👤 user olish
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
+    exit("User topilmadi");
+}
 
 if (isset($_POST['submit'])) {
-    $familiya = $_POST['familiya'];
-    $ism = $_POST['ism'];
-    $otasining_ismi = $_POST['otasi'];
-    $guruh = $_POST['guruh'];
-    $yonalish = $_POST['yonalish'];
-    $kurs = $_POST['kurs'];
-    $hemis_parol = $_POST['parol'];
-    $talaba_id_manual = $_POST['id'];
 
-    // fanlar arrayini olish
     $fanlar = $_POST['fanlar'] ?? [];
-    $fan1 = $fanlar[0] ?? null;
-    $fan2 = $fanlar[1] ?? null;
-    $fan3 = $fanlar[2] ?? null;
 
-    try {
-        $sql = "INSERT INTO bepul (talaba_id, familiya, ism, otasi, guruh, yonalish, kurs, parol, fan1, fan2, fan3)
-                VALUES (:talaba_id, :familiya, :ism, :otasi, :guruh, :yonalish, :kurs, :parol, :fan1, :fan2, :fan3)";
+    $user_id = $user['id'];
+    $talaba_id = $user['talaba_id'];
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':talaba_id' => $talaba_id_manual,
-            ':familiya' => $familiya,
-            ':ism' => $ism,
-            ':otasi' => $otasining_ismi,
-            ':guruh' => $guruh,
-            ':yonalish' => $yonalish,
-            ':kurs' => $kurs,
-            ':parol' => $hemis_parol,
-            ':fan1' => $fan1,
-            ':fan2' => $fan2,
-            ':fan3' => $fan3,
-        ]);
+    $validFans = [];
 
-        $success = true;
-    } catch (PDOException $e) {
-        if ($e->errorInfo[1] == 1062) {
-            $error = "❌ Bu Talaba ID allaqachon mavjud!";
-        } else {
-            $error = "❌ Xatolik yuz berdi!";
+    foreach ($fanlar as $fan_id) {
+
+        if (!$fan_id) continue;
+
+        // 🔍 talabalar jadvalidan tekshirish
+        $stmt = $pdo->prepare("
+            SELECT reyting, davomat
+            FROM talabalar
+            WHERE user_id=? AND fan_id=?
+        ");
+        $stmt->execute([$user_id, $fan_id]);
+        $res = $stmt->fetch();
+
+        // ❌ umuman yo‘q
+        if (!$res) {
+            echo "<script>alert('❌ Siz bu fanga birikmagansiz, kuting');</script>";
+            continue;
         }
+
+        $reyting = (float)$res['reyting'];
+        $davomat = (float)$res['davomat'];
+
+        // ❌ yiqilgan
+        if ($reyting < 20 || $davomat >= 33) {
+            echo "<script>alert('❌ Sizda bepul imkoniyatga ball yetarli emas');</script>";
+            continue;
+        }
+
+        // ✅ o‘tgan
+        $validFans[] = $fan_id;
     }
+
+    if (empty($validFans)) {
+        die("❌ Hech qaysi fan qo‘shilmadi");
+    }
+
+    // max 4 ta
+    $validFans = array_unique($validFans);
+    $validFans = array_slice($validFans, 0, 4);
+
+    $fan1 = $validFans[0] ?? null;
+    $fan2 = $validFans[1] ?? null;
+    $fan3 = $validFans[2] ?? null;
+    $fan4 = $validFans[3] ?? null;
+
+    echo "<script>alert('✅ Ariza topshirildi');</script>";
+
+    $user_id = $user['id'];
+    $talaba_id = $user['talaba_id'];
+    $hemis_parol = trim($_POST['hemis_parol']);
+
+    // ❌ tekshirish: 2 marta topshirmasin
+    $check = $pdo->prepare("SELECT id FROM bepul WHERE user_id=?");
+    $check->execute([$user_id]);
+
+    if ($check->fetch()) {
+        die("❌ Siz allaqachon ariza topshirgansiz");
+    }
+
+    // ✅ insert
+    $pdo->prepare("
+    INSERT INTO bepul
+    (user_id, talaba_id, fan1, fan2, fan3, fan4, hemis_parol)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+")->execute([
+        $user_id,
+        $talaba_id,
+        $fan1,
+        $fan2,
+        $fan3,
+        $fan4,
+        $hemis_parol
+    ]);
 }
+$stmt = $pdo->query("SELECT id, nomi FROM fanlar");
+$fanlar = $stmt->fetchAll();
 ?>
+
+<?php require "Includes/header.php"; ?>
 
 <body>
 
-    <div class="container bg-body-tertiary p-5" style="height:100vh">
+    <div class="container bg-white p-5 mt-5 shadow rounded-1">
+        <a href="arizalar.php" class="btn mb-5 btn-danger"><-Orqaga
+                </a>
 
-        <a class="back-btn mb-3" href="arizalar.php">
-            <span class="arrow">←</span>
-            <span class="text">Orqaga</span>
-        </a>
+                <h1 class="text-danger mb-3">Bepul Ariza Topshirish</h1>
+                <form method="POST" action="">
+                    <label class="text-dark">Talaba ID:</label>
+                    <input class="form-control" type="text"
+                        value="<?= $user['talaba_id'] ?>" disabled><br>
 
-        <style>
-            .back-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                border: 2px solid #dc3545;
-                color: #dc3545;
-                text-decoration: none;
-                border-radius: 8px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-            }
+                    <label class="text-dark">FIO</label>
+                    <input class="form-control" type="text"
+                        value="<?= $user['fio'] ?>" disabled><br>
 
-            .back-btn:hover {
-                background-color: #dc3545;
-                color: white;
-            }
+                    <label class="text-dark">Email</label>
+                    <input class="form-control" type="text"
+                        value="<?= $user['email'] ?>" disabled><br>
 
-            /* strelka animatsiyasi */
-            .back-btn .arrow {
-                font-size: 20px;
-                transition: transform 0.3s ease;
-            }
+                    <label class="text-dark">Guruh</label>
+                    <input class="form-control" type="text"
+                        value="<?= $user['guruh'] ?>" disabled><br>
 
-            .back-btn:hover .arrow {
-                transform: translateX(-5px);
-            }
+                    <label class="text-dark">Hemis Prol Kiriting</label>
+                    <input
+                        class="mb-3 form-control"
+                        type="text"
+                        name="hemis_parol"
+                        required>
 
-            /* text ham ozgina siljiydi */
-            .back-btn .text {
-                transition: transform 0.3s ease;
-            }
+                    <div id="fan-container">
 
-            .back-btn:hover .text {
-                transform: translateX(-3px);
-            }
-        </style>
+                        <div class="mb-2">
+                            <select name="fanlar[]" class="form-control">
+                                <option value="">Fan tanlang</option>
+                                <?php foreach ($fanlar as $f): ?>
+                                    <option value="<?= $f['id'] ?>">
+                                        <?= $f['nomi'] ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-        <h1 class="text-dark">Bepul Imkoniyat</h1>
+                    </div>
 
+                    <button type="button" id="addFan" class="btn btn-success m-2">
+                        + Fan qo‘shish
+                    </button>
 
-
-        <?php if ($error): ?>
-            <div class="alert alert-danger text-center"><?= $error ?></div>
-        <?php endif; ?>
-
-        <?php if ($success): ?>
-            <div class="alert alert-success text-center">✅ Ma'lumot saqlandi!</div>
-        <?php endif; ?>
-
-        <script>
-            setTimeout(() => {
-                let alertBox = document.querySelector('.alert');
-                if (alertBox) alertBox.style.display = 'none';
-            }, 2000);
-        </script>
-        <form id="myForm" action="" method="POST">
-            <div class="input-group mb-3">
-                <input required name="familiya" type="text" class="form-control border-success" placeholder="Familiyangiz">
-                <input required name="ism" type="text" class="form-control border-success" placeholder="Ismingiz">
-                <input required name="otasi" type="text" class="form-control border-success" placeholder="Otangizni ismi">
-            </div>
-
-            <div class="input-group mb-3">
-                <input required name="guruh" type="text" class="form-control border-success" placeholder="Guruhingiz">
-                <input required name="yonalish" type="text" class="form-control border-success" placeholder="Yo'nalishingiz">
-                <input required name="kurs" type="text" class="form-control border-success" placeholder="Kursingiz">
-            </div>
-
-            <div class="input-group mb-3">
-                <input required name="parol" type="password" class="form-control border-success" placeholder="HEMIS parolingiz">
-                <input
-                    name="id"
-                    type="text"
-                    class="form-control border-success"
-                    placeholder="Talaba ID"
-                    pattern="\d{12}"
-                    title="Talaba ID aniq 12 raqamdan iborat bo'lishi kerak"
-                    required>
+                    <button name="submit" type="submit" class="m-2 btn btn-success">
+                        Saqlash va Jo'natish
+                    </button>
+                </form>
 
                 <script>
-                    const talabaInput = document.querySelector('input[name="id"]');
+                    let maxFans = 4;
+                    let count = 1;
 
-                    talabaInput.addEventListener('input', () => {
-                        const val = talabaInput.value;
-                        if (/^\d{12}$/.test(val)) {
-                            talabaInput.style.borderColor = 'green';
-                        } else {
-                            talabaInput.style.borderColor = 'red';
+                    document.getElementById("addFan").onclick = function() {
+
+                        if (count >= maxFans) {
+                            alert("Maximum 4 ta fan!");
+                            return;
                         }
-                    });
-                </script>
-            </div>
 
-            <div id="fan-container">
-                <div class="input-group mb-3">
-                    <input name="fanlar[]" type="text" class="form-control border-success" placeholder="Fan nomi">
-                    <button type="button" class="btn btn-danger removeFan">- Olib tashlash</button>
-                </div>
-            </div>
+                        let div = document.createElement("div");
+                        div.className = "mb-2";
 
-            <script>
-                document.getElementById("myForm").addEventListener("submit", function(e) {
-                    let inputs = document.querySelectorAll("#myForm input");
-                    let isValid = true;
-
-                    inputs.forEach(input => {
-                        if (input.type !== "button" && input.type !== "submit") {
-                            if (input.value.trim() === "") {
-                                input.style.borderColor = "red";
-                                isValid = false;
-                            } else {
-                                input.style.borderColor = "green";
-                            }
-                        }
-                    });
-
-                    if (!isValid) {
-                        e.preventDefault();
-                        alert("❗ Barcha maydonlarni to‘ldiring!");
-                    }
-                });
-            </script>
-
-            <button type="button" id="addFan" class="btn bg-success text-white">
-                FAN QO'SHISH
-            </button>
-
-            <button name="submit" type="submit" class="btn bg-success text-white">
-                Saqlash va Jo'natish
-            </button>
-
-            <script>
-                document.getElementById("myForm").addEventListener("submit", function(e) {
-                    let inputs = document.querySelectorAll("#myForm input[type='text'], #myForm input[type='password']");
-                    let isValid = true;
-
-                    inputs.forEach(input => {
-                        if (input.value.trim() === "") {
-                            input.style.borderColor = "red";
-                            isValid = false;
-                        } else {
-                            input.style.borderColor = "green";
-                        }
-                    });
-
-                    if (!isValid) {
-                        e.preventDefault(); // submitni to‘xtatadi
-                        alert("❗ Iltimos, barcha maydonlarni to‘ldiring!");
-                    }
-                });
-            </script>
-
-        </form>
-
-        <script>
-            let maxFans = 3;
-            let count = 1;
-
-            document.getElementById("addFan").addEventListener("click", function() {
-                if (count >= maxFans) {
-                    alert("Maximum 3 ta fan qo‘shish mumkin!");
-                    return;
-                }
-
-                let container = document.getElementById("fan-container");
-
-                let div = document.createElement("div");
-                div.className = "input-group mb-3";
-                div.innerHTML = `
-        <input name="fanlar[]" type="text" class="form-control border-danger" placeholder="Fan nomi">
-        <button type="button" class="btn btn-danger removeFan">- Olib tashlash</button>
+                        div.innerHTML = `
+        <select name="fanlar[]" class="form-control">
+            <option value="">Fan tanlang</option>
+            <?php foreach ($fanlar as $f): ?>
+                <option value="<?= $f['id'] ?>">
+                    <?= $f['nomi'] ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
     `;
 
-                container.appendChild(div);
-                count++;
-            });
-        </script>
-
-        <script>
-            document.addEventListener("click", function(e) {
-                if (e.target.classList.contains("removeFan")) {
-                    let container = document.getElementById("fan-container");
-
-                    // kamida 1 ta fan qolishi kerak
-                    if (container.children.length > 1) {
-                        e.target.parentElement.remove();
-                        count--;
-                    } else {
-                        alert("Kamida 1 ta fan bo‘lishi kerak!");
-                    }
-                }
-            });
-        </script>
-
+                        document.getElementById("fan-container").appendChild(div);
+                        count++;
+                    };
+                </script>
     </div>
 
+
 </body>
-<?php require "Includes/footer.php"; ?>
