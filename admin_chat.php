@@ -2,25 +2,23 @@
 session_start();
 require "database.php";
 
+// 1. O'chirish funksiyasi (O'zgarishsiz)
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
-
     $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
     $stmt->execute([$delete_id]);
     $msg = $stmt->fetch();
-
     if ($msg) {
         if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']) {
-
             $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ?");
             $stmt->execute([$delete_id]);
         }
     }
-
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
 
+// 2. Admin tekshiruvi
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit;
@@ -28,12 +26,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $admin_id = $_SESSION['user_id'];
 
-$stmt = $pdo->prepare("
-    SELECT s.* 
-    FROM sections s
-    JOIN admin_sections a ON s.id = a.section_id
-    WHERE a.admin_id = ?
-");
+// 3. Bo'limlarni olish
+$stmt = $pdo->prepare("SELECT s.* FROM sections s JOIN admin_sections a ON s.id = a.section_id WHERE a.admin_id = ?");
 $stmt->execute([$admin_id]);
 $sections = $stmt->fetchAll();
 
@@ -41,85 +35,56 @@ if (!$sections) {
     die("Sizga biriktirilgan bo‘lim yo‘q!");
 }
 
-$section_id = isset($_GET['section_id'])
-    ? (int)$_GET['section_id']
-    : (int)$sections[0]['id'];
+$section_id = isset($_GET['section_id']) ? (int)$_GET['section_id'] : (int)$sections[0]['id'];
 
-$chat_user_id = isset($_GET['user_id'])
-    ? (int)$_GET['user_id']
-    : ($users[0]['id'] ?? 0);
-
+// 4. Foydalanuvchilarni olish (Statistikadan oldin bo'lishi shart)
 $stmt = $pdo->prepare("
     SELECT 
-        u.id, 
-        u.email,
-        u.fio,
+        u.id, u.email, u.fio,
         COUNT(CASE WHEN m.is_read = 0 AND m.admin_id IS NULL THEN 1 END) AS unread
     FROM messages m
     JOIN users u ON m.user_id = u.id
-    WHERE m.section_id = ?
-      AND (m.admin_id IS NULL OR m.admin_id = ?)
+    WHERE m.section_id = ? AND (m.admin_id IS NULL OR m.admin_id = ?)
     GROUP BY u.id
 ");
 $stmt->execute([$section_id, $admin_id]);
-$users = $stmt->fetchAll();
+$users = $stmt->fetchAll() ?: []; // Agar bo'sh bo'lsa massiv qaytarsin
 
-$chat_user_id = isset($_GET['user_id'])
-    ? (int)$_GET['user_id']
-    : ($users[0]['id'] ?? 0);
-
-if ($chat_user_id > 0) {
-    $pdo->prepare("
-        UPDATE messages 
-        SET is_read = 1 
-        WHERE section_id = ? 
-          AND user_id = ? 
-          AND admin_id IS NULL
-    ")->execute([$section_id, $chat_user_id]);
+// STATISTIKA HISOBI
+$total_users_count = count($users);
+$answered_count = 0;
+foreach ($users as $u) {
+    if ($u['unread'] == 0) $answered_count++;
 }
 
-$stmt = $pdo->prepare("
-    SELECT m.*, u.email AS user_email
-    FROM messages m
-    JOIN users u ON m.user_id = u.id
-    WHERE m.section_id = ? 
-      AND m.user_id = ? 
-      AND (m.admin_id IS NULL OR m.admin_id = ?)
-    ORDER BY m.created_at ASC
-");
+$chat_user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : ($users[0]['id'] ?? 0);
+
+// 5. Xabarlarni o'qilgan qilish va olish mantiqi
+if ($chat_user_id > 0) {
+    $pdo->prepare("UPDATE messages SET is_read = 1 WHERE section_id = ? AND user_id = ? AND admin_id IS NULL")->execute([$section_id, $chat_user_id]);
+}
+
+$stmt = $pdo->prepare("SELECT m.*, u.email AS user_email FROM messages m JOIN users u ON m.user_id = u.id WHERE m.section_id = ? AND m.user_id = ? AND (m.admin_id IS NULL OR m.admin_id = ?) ORDER BY m.created_at ASC");
 $stmt->execute([$section_id, $chat_user_id, $admin_id]);
 $messages = $stmt->fetchAll();
 
+// 6. Javob yozish
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($chat_user_id > 0)) {
-
     $reply = htmlspecialchars(trim($_POST['reply'] ?? ''));
     $file_path = null;
-
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = __DIR__ . '/uploads/';
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
-
         $filename = time() . '_' . basename($_FILES['attachment']['name']);
         $target_file = $upload_dir . $filename;
-
-        $allowed_ext = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'txt', 'zip'];
-        $file_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        if (in_array($file_ext, $allowed_ext)) {
-            if (move_uploaded_file($_FILES['attachment']['tmp_name'], $target_file)) {
-                $file_path = 'uploads/' . $filename; // DB ga saqlash
-            }
+        if (move_uploaded_file($_FILES['attachment']['tmp_name'], $target_file)) {
+            $file_path = 'uploads/' . $filename;
         }
     }
-
     if (!empty($reply) || $file_path) {
-        $stmt = $pdo->prepare("
-            INSERT INTO messages (section_id, user_id, admin_id, message, attachment, is_read)
-            VALUES (?, ?, ?, ?, ?, 1)
-        ");
-        $stmt->execute([$section_id, $chat_user_id, $admin_id, $reply, $file_path]);
+        $pdo->prepare("INSERT INTO messages (section_id, user_id, admin_id, message, attachment, is_read) VALUES (?, ?, ?, ?, ?, 1)")
+            ->execute([$section_id, $chat_user_id, $admin_id, $reply, $file_path]);
     }
-
     header("Location: admin_chat.php?section_id=$section_id&user_id=$chat_user_id");
     exit;
 }
@@ -134,128 +99,268 @@ foreach ($sections as $s) {
 ?>
 
 <?php require "Includes/header.php"; ?>
-<?php require "Includes/navbar.php"; ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-<body class="gradient-custom">
-    <div class="container py-5">
-        <div class="row">
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-            <!-- USER PANEL -->
-            <div class="col-12 col-lg-4 col-xl-3 mb-3 mb-lg-0">
-                <h3 class="mb-3 text-white">Foydalanuvchilar:</h3>
-                <input type="text" id="userSearch" class="form-control mb-2 border" placeholder="Foydalanuvchini qidirish...">
-                <script>
-                    document.getElementById('userSearch').addEventListener('keyup', function() {
-                        let search = this.value.toLowerCase();
-                        let users = document.querySelectorAll('.user-item');
+    /* Statistika kartochkalari */
+    .card-stat {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
 
-                        users.forEach(function(user) {
-                            let name = user.textContent.toLowerCase();
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
 
-                            if (name.includes(search)) {
-                                user.style.display = 'block';
-                            } else {
-                                user.style.display = 'none';
-                            }
-                        });
-                    });
-                </script>
-                <div class="list-group shadow rounded-3 p-3" style="background: rgba(255, 255, 255, 0.32); min-height: 700px;">
+    /* Chat struktura */
+    .chat-container {
+        height: 75vh;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
 
-                    <?php foreach ($users as $u): ?>
-                        <div class="user-item">
-                            <a href="admin_chat.php?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
-                                style="color: white; background: rgba(33, 138, 255);"
-                                class="copy-text shadow list-group-item list-group-item-action d-flex justify-content-between align-items-center 
-                                <?= ($u['id'] == $chat_user_id) ? 'active' : 'bg-light text-dark shadow' ?> rounded-2 shadow mb-1">
+    .user-sidebar {
+        border-right: 1px solid #eee;
+        background: #f8f9fa;
+    }
 
-                                <span><?= htmlspecialchars($u['fio']) ?></span>
+    .user-item {
+        border: none;
+        margin-bottom: 2px;
+        padding: 15px;
+        transition: 0.2s;
+        border-radius: 0 !important;
+    }
 
-                                <?php if ($u['unread'] > 0): ?>
-                                    <span class="badge bg-danger rounded-pill px-2 py-1">
-                                        <?= $u['unread'] ?>
-                                    </span>
-                                <?php endif; ?>
+    .user-item:hover {
+        background: #e9ecef;
+    }
 
-                            </a>
+    .user-item.active {
+        background: #fff !important;
+        border-left: 4px solid #0d6efd !important;
+        color: #0d6efd !important;
+        font-weight: 600;
+    }
+
+    .chat-main {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+
+    .chat-messages {
+        flex-grow: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #fdfdfd;
+    }
+
+    /* Xabar bulutlari */
+    .msg-wrapper {
+        display: flex;
+        margin-bottom: 15px;
+        flex-direction: column;
+    }
+
+    .msg-bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 15px;
+        position: relative;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .msg-admin {
+        align-self: flex-end;
+        background-color: #0d6efd;
+        color: #fff;
+        border-bottom-right-radius: 2px;
+    }
+
+    .msg-user {
+        align-self: flex-start;
+        background-color: #f0f2f5;
+        color: #333;
+        border-bottom-left-radius: 2px;
+    }
+
+    .msg-info {
+        font-size: 10px;
+        margin-top: 4px;
+        opacity: 0.7;
+    }
+
+    .msg-admin .msg-info {
+        color: #fff;
+        text-align: right;
+    }
+
+    /* Input qismi */
+    .chat-input-area {
+        padding: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    .search-input {
+        background: #eee;
+        border: none;
+        border-radius: 8px;
+    }
+</style>
+
+<body>
+    <?php require "Includes/navbar.php"; ?>
+
+    <div class="container-fluid py-4 px-4">
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card card-stat p-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-primary text-white me-3"><i class="bi bi-people"></i></div>
+                        <div>
+                            <p class="text-muted mb-0 small">Jami yozganlar</p>
+                            <h4 class="mb-0 fw-bold"><?= $total_users_count ?> ta</h4>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-stat p-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-success text-white me-3"><i class="bi bi-check-circle"></i></div>
+                        <div>
+                            <p class="text-muted mb-0 small">Javob berilgan</p>
+                            <h4 class="mb-0 fw-bold"><?= $answered_count ?> ta</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-stat p-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-danger text-white me-3"><i class="bi bi-clock-history"></i></div>
+                        <div>
+                            <p class="text-muted mb-0 small">Kutilmoqda</p>
+                            <h4 class="mb-0 fw-bold"><?= $total_users_count - $answered_count ?> ta</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-0 chat-container">
+            <div class="col-md-4 col-lg-3 user-sidebar d-flex flex-column">
+                <div class="p-3 border-bottom bg-white">
+                    <h6 class="fw-bold mb-3">Suhbatlar</h6>
+                    <input type="text" id="userSearch" class="form-control search-input shadow-none" placeholder="Ism bo'yicha qidiruv...">
+                </div>
+                <div class="list-group list-group-flush overflow-auto flex-grow-1">
+                    <?php foreach ($users as $u): ?>
+                        <a href="?section_id=<?= $section_id ?>&user_id=<?= $u['id'] ?>"
+                            class="user-item list-group-item list-group-item-action <?= ($u['id'] == $chat_user_id) ? 'active' : '' ?>">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-truncate me-2"><?= htmlspecialchars($u['fio']) ?></div>
+                                <?php if ($u['unread'] > 0): ?>
+                                    <span class="badge bg-danger rounded-pill"><?= $u['unread'] ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <small class="opacity-50 d-block"><?= htmlspecialchars($u['email']) ?></small>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             </div>
 
-            <!-- CHAT PANEL -->
-            <div class="col-12 col-lg-8 col-xl-9 d-flex flex-column">
-                <h3 class="mb-3 text-white">Chat - Bo‘lim: <?= htmlspecialchars($current_section_name) ?></h3>
+            <div class="col-md-8 col-lg-9 chat-main">
+                <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><?= htmlspecialchars($current_section_name) ?> bo'limi</h6>
+                    <small class="text-muted">Admin Panel</small>
+                </div>
 
-                <div class="chat-box flex-grow-1 p-3 mb-3 rounded-3 shadow overflow-auto" style="
-                        backdrop-filter: blur(8px); 
-                        background: rgba(255, 255, 255, 0.8); 
-                        min-height:550px;">
-
-                    <?php foreach ($messages as $msg): ?>
-
-                        <?php
-                        $is_admin = $msg['admin_id'] == $admin_id;
-                        $bubble_bg = $is_admin
-                            ? 'rgba(106, 204, 70)'
-                            : 'rgba(33, 138, 255)';
-                        ?>
-
-                        <div class="d-flex <?= $is_admin ? 'justify-content-end' : 'justify-content-start' ?> mb-2">
-                            <div class="p-2 rounded-3 shadow text-white position-relative" style="
-                                max-width:70%;
-                                background: <?= $bubble_bg ?>;
-                                backdrop-filter: blur(6px);">
-
+                <div class="chat-messages" id="chatMessages">
+                    <?php foreach ($messages as $msg):
+                        $is_admin = !is_null($msg['admin_id']);
+                    ?>
+                        <div class="msg-wrapper">
+                            <div class="msg-bubble <?= $is_admin ? 'msg-admin' : 'msg-user' ?>">
                                 <?php if (!$is_admin): ?>
-                                    <strong><?= substr($msg['user_email'], 0, 5) ?>:</strong>
+                                    <div class="fw-bold mb-1" style="font-size: 11px; opacity: 0.8;">
+                                        <?= htmlspecialchars($msg['user_email']) ?>
+                                    </div>
                                 <?php endif; ?>
 
-                                <?= htmlspecialchars($msg['message']) ?>
+                                <?= nl2br(htmlspecialchars($msg['message'])) ?>
 
                                 <?php if ($msg['attachment']): ?>
-                                    <div class="mt-1">
-                                        <a href="<?= htmlspecialchars($msg['attachment']) ?>" target="_blank" class="text-primary btn btn-sm btn-outline-primary">
-                                            Yuklangan fayl
+                                    <div class="mt-2 pt-2 border-top border-light border-opacity-25">
+                                        <a href="<?= $msg['attachment'] ?>" target="_blank" class="btn btn-sm btn-light py-0 px-2" style="font-size: 11px;">
+                                            <i class="bi bi-file-earmark"></i> Faylni ko'rish
                                         </a>
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if ($_SESSION['role'] === 'admin' || $msg['user_id'] == $_SESSION['user_id']): ?>
-                                    <a href="?delete_id=<?= $msg['id'] ?>"
-                                        class="m-2 btn btn-sm btn-light text-danger"
-                                        style="top:5px; right:5px; padding:2px 6px;"
-                                        onclick="return confirm('O‘chirilsinmi?')">
-                                        -Olish
-                                    </a>
-                                <?php endif; ?>
-
-                                <div class="text-end small opacity-75"><?= $msg['created_at'] ?></div>
+                                <div class="msg-info">
+                                    <?= date('H:i', strtotime($msg['created_at'])) ?>
+                                    <?php if ($is_admin): ?>
+                                        <a href="?delete_id=<?= $msg['id'] ?>" class="text-white ms-2" onclick="return confirm('Xabar o\'chirilsinmi?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
-
                     <?php endforeach; ?>
                 </div>
 
-                <form method="POST" enctype="multipart/form-data" class="mt-auto">
-                    <div class="input-group shadow-sm rounded-3" style="backdrop-filter: blur(8px); background: rgba(255,0,0,0.1);">
-                        <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
-                        <input type="text" name="reply" class="form-control border-0" placeholder="Javob yozing...">
-                        <input type="file" name="attachment" class="form-control border-0">
-                        <button class="btn text-white" style=" background: rgba(106, 204, 70);" type="submit">Yuborish <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
-                                <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
-                            </svg></button>
-                    </div>
+                <div class="chat-input-area bg-white">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="input-group">
+                            <input type="hidden" name="chat_user_id" value="<?= $chat_user_id ?>">
+                            <label class="btn btn-outline-secondary border-0 bg-light" for="fileUp">
+                                <i class="bi bi-paperclip"></i>
+                                <input type="file" name="attachment" id="fileUp" class="d-none">
+                            </label>
+                            <input type="text" name="reply" class="form-control border-0 bg-light shadow-none" placeholder="Xabaringizni yozing..." required>
+                            <button class="btn btn-primary px-4 shadow-none" type="submit">
+                                <i class="bi bi-send"></i>
+                        </div>
+                </div>
                 </form>
             </div>
-
         </div>
+    </div>
+    </div>
 
-        <script>
-            var chatBox = document.querySelector('.chat-box');
-            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-        </script>
+    <script>
+        // Chatni doim eng pastga tushirish
+        const objDiv = document.getElementById("chatMessages");
+        objDiv.scrollTop = objDiv.scrollHeight;
 
+        // Qidiruv
+        document.getElementById('userSearch').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let items = document.querySelectorAll('.user-item');
+            items.forEach(item => {
+                let text = item.innerText.toLowerCase();
+                item.style.display = text.includes(filter) ? 'block' : 'none';
+            });
+        });
+    </script>
 </body>
-<script src="add.js"></script>
 <?php require "Includes/footer.php"; ?>

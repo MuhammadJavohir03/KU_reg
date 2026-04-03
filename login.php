@@ -2,8 +2,6 @@
 session_start();
 require "database.php";
 
-
-
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -35,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             } else {
                 header("Location: index.php");
-                exit;
             }
         } else {
             $error = "Email, Talaba ID yoki parol noto‘g‘ri.";
@@ -46,77 +43,197 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php require "Includes/header.php"; ?>
 
+<style>
+    :root {
+        --primary-accent: #caf0f8;
+        --glass-bg: rgba(15, 23, 42, 0.8);
+        --input-focus: #00b4d8;
+    }
+
+    body {
+        margin: 0;
+        background: #0f172a; /* To'q fon */
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    /* Navbar joyida qolishi uchun konteyner */
+    .main-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card h3 {
+        color: white;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .input-style {
+        width: 100%;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+    .input-style:focus {
+        outline: none;
+        border-color: var(--input-focus);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.2);
+    }
+
+    .password-container {
+        position: relative;
+    }
+
+    .eye-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #64748b;
+        user-select: none;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary-accent);
+        color: #0f172a;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    .btn-login:hover {
+        background: #90e0ef;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(202, 240, 248, 0.2);
+    }
+
+    .error-msg {
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        text-align: center;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Telefonlar uchun moslashuv */
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 30px 20px;
+            border-radius: 20px;
+        }
+        .login-card h3 {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+
 <body>
     <?php require "Includes/navbar.php"; ?>
-    <canvas class="z-n1" id="bg"></canvas>
-    <section class="vh-100">
-        <div class="container-fluid h-custom">
-            <div class="d-flex justify-content-center align-items-center h-100">
-                <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+    
+    <canvas id="bg"></canvas>
 
+    <div class="main-wrapper">
+        <div class="login-card">
+            <h3>Tizimga kirish</h3>
 
+            <?php if ($error): ?>
+                <div class="error-msg"><?= $error ?></div>
+            <?php endif; ?>
 
-                    <form class="p-5 rounded-3 shadow border text-white" style="background: rgba(0, 0, 0, 0.35);
-                                                                                border: 1px solid rgba(255, 255, 255, 0.12);
-                                                                                border-radius: 0.8rem;
-                                                                                backdrop-filter: blur(8px) saturate(140%);
-                                                                                -webkit-backdrop-filter: blur(8px) saturate(140%);
-                                                                                box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); height: 55vh;" method="POST" action="login.php">
-
-                        <h3 class="mb-4 text-dangers">Tizimga kirish</h3>
-
-                        <?php if ($error): ?>
-                            <div class="alert alert-danger"><?php echo $error; ?></div>
-                        <?php endif; ?>
-                        <div class="form-outline mb-3">
-                            <input type="email" name="email" class="form-control form-control-lg"
-                                placeholder="user@kumail.uz" required />
-                            <label class="form-label"></label>
-                        </div>
-
-                        <div class="form-outline mb-3 position-relative">
-                            <input type="password" id="password" name="password"
-                                class="form-control form-control-lg"
-                                placeholder="Parol" required />
-
-                            <span onclick="togglePassword()"
-                                style="position:absolute; right:15px; top:12px; cursor:pointer;">
-                                👁
-                            </span>
-                        </div>
-
-                        <div class="form-outline mb-3">
-                            <input type="text" name="talaba_id"
-                                class="form-control form-control-lg"
-                                placeholder="Talaba ID" required />
-                            <label class="form-label"></label>
-                        </div>
-
-<<<<<<< HEAD
-                        <div class="d-flex justify-content-between align-items-center">
-=======
-                        <!-- <div class="d-flex justify-content-between align-items-center">
->>>>>>> 6c9c6c12db66928a42d5cfd6b66579e15881bfb8
-                            <a href="forgot_password.php" class="text-white link-danger">Parolni unutdingizmi?</a>
-                        </div> -->
-
-                        <div class="text-center text-lg-start  mt-4 pt-2">
-                            <button type="submit" class="btn px-5 text-custom-dark shadow btn-lg"
-                                style="background : rgb(202, 240, 248);">
-                                Kirish
-                            </button>
-
-                            <!-- <p class="small fw-bold mt-2 pt-1 mb-0">
-                                Ro'yxatdan o'tmaganmisiz?
-                                <a href="create_user.php" class="text-white link-danger">Ro‘yxatdan o‘tish</a>
-                            </p> -->
-                        </div>
-
-                    </form>
+            <form method="POST" action="login.php">
+                <div class="form-group">
+                    <label>Email manzil</label>
+                    <input type="email" name="email" class="input-style" 
+                           placeholder="user@kumail.uz" required>
                 </div>
-            </div>
+
+                <div class="form-group">
+                    <label>Parol</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" 
+                               class="input-style" placeholder="••••••••" required>
+                        <span class="eye-icon" onclick="togglePassword()">👁</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Talaba ID</label>
+                    <input type="text" name="talaba_id" class="input-style" 
+                           placeholder="12 xonali ID" required maxlength="12">
+                </div>
+
+                <button type="submit" class="btn-login">Kirish</button>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="forgot_password.php" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem;">
+                        Parolni unutdingizmi?
+                    </a>
+                </div>
+            </form>
         </div>
-    </section>
+    </div>
 
     <script>
         function togglePassword() {
@@ -125,8 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
 
-    <?php require "Includes/footer.php"; ?>
-
 </body>
 
 <script src="add.js"></script>
+</html>

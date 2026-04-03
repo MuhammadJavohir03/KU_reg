@@ -8,11 +8,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $q = $_GET['q'] ?? '';
-
 $where = "";
 $params = [];
 
 if (!empty($q)) {
+    // Qidiruv mantiqi
     $where = "
     WHERE 
         u.fio LIKE ? OR
@@ -20,108 +20,214 @@ if (!empty($q)) {
         u.email LIKE ? OR
         u.guruh LIKE ? OR
         b.hemis_parol LIKE ? OR
-        b.fan1 LIKE ? OR
-        b.fan2 LIKE ? OR
-        b.fan3 LIKE ? OR
-        b.fan4 LIKE ?
+        f1.nomi LIKE ? OR
+        f2.nomi LIKE ? OR
+        f3.nomi LIKE ? OR
+        f4.nomi LIKE ?
     ";
-
     $qParam = "%$q%";
     $params = array_fill(0, 9, $qParam);
 }
 
-$stmt = $pdo->prepare("
+// SQL so'rovni tayyorlash
+$sql = "
     SELECT 
         b.*,
         u.fio,
         u.talaba_id,
         u.email,
         u.guruh,
-
-        CONCAT(b.fan1, ' ', f1.nomi) AS fan1_full,
-        CONCAT(b.fan2, ' ', f2.nomi) AS fan2_full,
-        CONCAT(b.fan3, ' ', f3.nomi) AS fan3_full,
-        CONCAT(b.fan4, ' ', f4.nomi) AS fan4_full
-
+        CONCAT(f1.nomi, ' (', b.fan1, ')') AS fan1_full,
+        CONCAT(f2.nomi, ' (', b.fan2, ')') AS fan2_full,
+        CONCAT(f3.nomi, ' (', b.fan3, ')') AS fan3_full,
+        CONCAT(f4.nomi, ' (', b.fan4, ')') AS fan4_full
     FROM bepul b
     JOIN users u ON u.id = b.user_id
-
     LEFT JOIN fanlar f1 ON f1.id = b.fan1
     LEFT JOIN fanlar f2 ON f2.id = b.fan2
     LEFT JOIN fanlar f3 ON f3.id = b.fan3
     LEFT JOIN fanlar f4 ON f4.id = b.fan4
-
     $where
     ORDER BY b.id DESC
-");
+";
 
+$stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <?php require "Includes/header.php"; ?>
-<?php require "Includes/navbar.php"; ?>
-<div class="container bg-white p-3 mt-5">
 
+<style>
+    body {
+        background: #f4f7fe;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #2d3748;
+    }
 
+    .dashboard-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+        margin-top: 30px;
+    }
 
-    <h2 class="mb-4 text-primary">📋 Bepul Ro‘yxat</h2>
+    .search-section {
+        background: #f8faff;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #eef2f7;
+    }
 
-    <a class="btn btn-danger mb-5" href="arizaroyhati.php"><-Orqaga
-            </a>
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+    }
 
-            <form method="GET" class="mb-3">
-                <input type="text" name="q" class="form-control"
-                    placeholder="🔍 Qidirish: FIO, ID, email, fan..."
-                    value="<?= $_GET['q'] ?? '' ?>">
-                <button class="btn btn-primary mt-2">Qidirish</button>
+    .table {
+        border-spacing: 0 8px;
+        border-collapse: separate;
+    }
 
-                <a href="export_bepul.php?q=<?= $_GET['q'] ?? '' ?>"
-                    class="btn btn-success mt-2">
-                    Excel Export
-                </a>
-            </form>
+    .table thead th {
+        background: #f8faff;
+        color: #718096;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: none;
+        padding: 15px;
+    }
 
-            <table class="table table-bordered table-striped">
+    .table tbody tr {
+        background: #fff;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
 
-                <thead class="table-dark">
-                    <tr>
-                        <th>No</th>
-                        <th>FIO</th>
-                        <th>Talaba ID</th>
-                        <th>Email</th>
-                        <th>Guruh</th>
-                        <th>HEMIS Parol</th>
-                        <th>Fan 1</th>
-                        <th>Fan 2</th>
-                        <th>Fan 3</th>
-                        <th>Fan 4</th>
-                    </tr>
-                </thead>
+    .table tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
 
-                <tbody>
-                    <?php $i = 1; ?>
-                    <?php foreach ($data as $row): ?>
+    .table td {
+        padding: 15px;
+        border-top: 1px solid #f1f4f8;
+        border-bottom: 1px solid #f1f4f8;
+        vertical-align: middle;
+    }
+
+    .fan-badge {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 2px;
+    }
+
+    .btn-custom {
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    code {
+        background: #fff5f5;
+        color: #e53e3e;
+        padding: 4px 8px;
+        border-radius: 5px;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<body>
+    <?php require "Includes/navbar.php"; ?>
+
+    <div class="container-fluid px-4 mb-5">
+        <div class="dashboard-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1"><i class="bi bi-clipboard-check text-primary me-2"></i> Bepul Ro‘yxat</h2>
+                    <p class="text-muted small">Tizimdagi barcha arizalar va biriktirilgan fanlar</p>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-7">
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" name="q" class="form-control border-start-0 ps-0"
+                                placeholder="FIO, ID yoki fan nomini yozing..." value="<?= htmlspecialchars($q) ?>">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary btn-custom w-100">Qidirish</button>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="export_bepul.php?q=<?= urlencode($q) ?>" class="btn btn-success btn-custom w-100">
+                            <i class="bi bi-file-earmark-excel"></i> Excel Export
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
                         <tr>
-                            <td><?= $i++ ?></td>
-
-                            <td><?= htmlspecialchars($row['fio']) ?></td>
-                            <td><?= htmlspecialchars($row['talaba_id']) ?></td>
-                            <td><?= htmlspecialchars($row['email']) ?></td>
-                            <td><?= htmlspecialchars($row['guruh']) ?></td>
-
-                            <td><?= htmlspecialchars($row['hemis_parol']) ?></td>
-
-                            <td><?= htmlspecialchars($row['fan1_full'] ?? ' ') ?></td>
-                            <td><?= htmlspecialchars($row['fan2_full'] ?? ' ') ?></td>
-                            <td><?= htmlspecialchars($row['fan3_full'] ?? ' ') ?></td>
-                            <td><?= htmlspecialchars($row['fan4_full'] ?? ' ') ?></td>
+                            <th class="text-center">No</th>
+                            <th>Talaba ma'lumotlari</th>
+                            <th>Email & Guruh</th>
+                            <th>HEMIS Parol</th>
+                            <th>Tanlangan fanlar</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($data)): ?>
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">Ma'lumot topilmadi</td>
+                            </tr>
+                            <?php else: $i = 1;
+                            foreach ($data as $row): ?>
+                                <tr>
+                                    <td class="text-center fw-bold text-muted"><?= $i++ ?></td>
+                                    <td>
+                                        <div class="fw-bold"><?= htmlspecialchars($row['fio']) ?></div>
+                                        <div class="small text-primary">ID: <?= htmlspecialchars($row['talaba_id']) ?></div>
+                                    </td>
+                                    <td>
+                                        <div class="small"><i class="bi bi-envelope"></i> <?= htmlspecialchars($row['email']) ?></div>
+                                        <span class="badge bg-light text-dark border mt-1"><?= htmlspecialchars($row['guruh']) ?></span>
+                                    </td>
+                                    <td><code><?= htmlspecialchars($row['hemis_parol']) ?></code></td>
+                                    <td>
+                                        <?php for ($j = 1; $j <= 4; $j++):
+                                            $fname = "fan{$j}_full";
+                                            if (!empty(trim($row[$fname] ?? ''))): ?>
+                                                <span class="fan-badge"><?= htmlspecialchars($row[$fname]) ?></span>
+                                        <?php endif;
+                                        endfor; ?>
+                                    </td>
+                                </tr>
+                        <?php endforeach;
+                        endif; ?>
+                    </tbody>
+                </table>
+            </div>
 
-            </table>
+        </div>
+    </div>
 
-</div>
+    <?php require "Includes/footer.php"; ?>
+</body>
 
-<?php require "Includes/footer.php"; ?>
+</html>

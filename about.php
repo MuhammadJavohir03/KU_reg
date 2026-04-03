@@ -1,137 +1,205 @@
 <?php session_start(); ?>
-<?php $title = "Bosh Sahifa"; ?>
+<?php $title = "Registrator Ofisi | Kokand University"; ?>
 <?php require "Includes/header.php"; ?>
+
+<style>
+    :root {
+        --ku-red: #b91c1c;
+        --ku-dark: #1e293b;
+    }
+
+    body {
+        background-color: #f1f5f9;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Hero Section */
+    .hero-card {
+        background: white;
+        border-radius: 20px;
+        border-top: 5px solid var(--ku-red);
+        overflow: hidden;
+    }
+
+    /* Xodimlar kartochkasi */
+    .staff-card {
+        background: white;
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        border: 1px solid #e2e8f0;
+    }
+
+    .staff-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .profile-img-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 20px auto;
+    }
+
+    .profile-img-main {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .profile-img-small {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        font-weight: 800;
+        color: var(--ku-dark);
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: var(--ku-red);
+        border-radius: 2px;
+    }
+
+    .contact-info {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    .badge-role {
+        font-size: 0.8rem;
+        padding: 5px 12px;
+        border-radius: 20px;
+        background: #fee2e2;
+        color: var(--ku-red);
+        font-weight: 600;
+    }
+</style>
 
 <body>
     <?php require "Includes/navbar.php"; ?>
-    <canvas class="z-n1" id="bg"></canvas>
-    <div class="shadow container p-3 bg-white">
-        <div class="m-5 p-3 rounded-2 rounded-1 text-center">
-            <h1 class="text-danger">Registrator Ofisi Vazifasi</h1>
-            <h5>Talabalarning o'quv jarayonida vujudga kelgan savol, yordam va ko'rsatmalar bo'yicha ko'mak beruvchi bo'lim</h5>
-            <h3>Qabul kunlari:</h3>
-            <h5>Dushanba - Juma (8:30-17:30)</h5>
-            <h3>Aloqa:</h3>
-            <h5>+(998) 73 545-33-33</h5>
+    <canvas class="z-n1" id="bg" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+
+    <div class="container py-5">
+        <div class="hero-card shadow-sm p-4 p-md-5 mb-5 text-center">
+            <h1 class="display-5 fw-bold text-danger mb-3">Registrator Ofisi</h1>
+            <p class="lead text-muted mx-auto mb-4" style="max-width: 800px;">
+                Talabalarning o'quv jarayonida vujudga kelgan savollar, yordam va ko'rsatmalar bo'yicha ko'mak beruvchi asosiy bo'lim.
+            </p>
+            
+            <div class="row g-3 justify-content-center">
+                <div class="col-md-4">
+                    <div class="contact-info border shadow-sm h-100">
+                        <i class="bi bi-calendar-check text-danger h3"></i>
+                        <h6 class="fw-bold mt-2">Qabul kunlari</h6>
+                        <p class="small mb-0 text-secondary">Dushanba - Juma<br>08:30 - 17:30</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="contact-info border shadow-sm h-100">
+                        <i class="bi bi-telephone-outbound text-danger h3"></i>
+                        <h6 class="fw-bold mt-2">Aloqa markazi</h6>
+                        <p class="small mb-0 text-secondary">+(998) 73 545-33-33<br>info@kokanduniversity.uz</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="row text-center m-3">
-            <div class="col">
-                <img class="shadow rounded-circle profile-img1" src="Reg_office/Ikramov_MuhammadYusuf.jpg" alt="">
-                <h1 class="fw-normal">Ikramov MuhammadYusuf Abdulaxad o'g'li</h1>
-                <h3>Registrator ofisi boshlig'i</h3>
-                <div class="accordion" id="accordionExample">
-                    <div class="text-center">
-                        <button class="btn bg-danger text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Batafsil
+        <div class="text-center mb-5">
+            <h2 class="section-title">Ofis Rahbariyati</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-5">
+                    <div class="staff-card shadow-sm p-4">
+                        <div class="profile-img-container">
+                            <img class="rounded-circle profile-img-main" src="Reg_office/Ikramov_MuhammadYusuf.jpg" alt="Ikramov MuhammadYusuf">
+                        </div>
+                        <h4 class="fw-bold mb-1">Ikramov MuhammadYusuf</h4>
+                        <p class="text-danger fw-semibold mb-3">Registrator ofisi boshlig'i</p>
+                        
+                        <button class="btn btn-outline-danger btn-sm rounded-pill px-4" type="button" data-bs-toggle="collapse" data-bs-target="#bioMain">
+                            Batafsil ma'lumot
                         </button>
-                    </div>
-                    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                        <div class="accordion-body">
-                            <strong>
+                        
+                        <div class="collapse mt-3" id="bioMain">
+                            <div class="card card-body border-0 bg-light small text-start">
                                 Muhammad Yusuf Ikramov shu kunga qadar Qo‘qon universitetining Iqtisodiyot va ta'lim fakulteti ish yurituvchisi, fakultet dekani muovini mas'ul vazifalarida ishlagan.
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
-            <h1 class="text-center m-5">Registrator Hero bo'limi</h1>
-            <div class="row text-center ">
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Mulaydinov Farxod Murotovich.jpg" alt="">
-                    <h3 class="fw-normal">Mulaydinov Farxod Murotovich</h3>
-                    <h5>Registrator ofisi Hero Mutaxasisi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Diyorbek_Hero.jpg" alt="">
-                    <h3 class="fw-normal">Xo’jamurodov Diyorbek Ulug’bek o’g’li</h3>
-                    <h5>Registrator ofisi Hero Mutaxasisi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Toxirjonov_Donyor.jpg" alt="">
-                    <h3 class="fw-normal">Toxirjonov Doniyor Baxtiyor o‘g‘li</h3>
-                    <h5>Registrator ofisi Hero Mutaxasisi</h5>
-                </div><!-- /.col-lg-4 -->
-            </div>
-
-            <div class="row text-center m-5">
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Mulaydinov Farxod Murotovich.jpg" alt="">
-                    <h3 class="fw-normal">Baxtiyorjonov MuhammadJavoxir Jamshid o'g'li</h3>
-                    <h5>Registrator ofisi Hero Mutaxasisi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Diyorbek_Hero.jpg" alt="">
-                    <h3 class="fw-normal">Saydaliyev Abdulazizxon Ilxomjon o'g'li</h3>
-                    <h5>Registrator ofisi Hero Mutaxasisi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Toxirjonov_Donyor.jpg" alt="">
-                    <h3 class="fw-normal">Begzodbek</h3>
-                    <h5>Registrator ofisi Hero Mutaxasisi</h5>
-                </div><!-- /.col-lg-4 -->
-            </div>
-
-            <h1 class="text-center m-5">Registrator Asosiy shtabi</h1>
-            <div class="row text-center m-5">
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Munavvar.jpg" alt="">
-                    <h3 class="fw-normal">Xatamqulov Munavvarjon Maxsutali o‘g‘li</h3>
-                    <h5>Registrator ofisi Asosiy shtabi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/Diyor.jpg" alt="">
-                    <h3 class="fw-normal">Zaylobiddinov Diyorbek Elyorjon o’g’li</h3>
-                    <h5>Registrator ofisi Asosiy shtabi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/laziz.jpg" alt="">
-                    <h3 class="fw-normal">Oxunov Lazizxon Avazxon o`g`li</h3>
-                    <h5>Registrator ofisi Asosiy shtabi</h5>
-                </div><!-- /.col-lg-4 -->
-            </div>
-
-            <div class="row text-center">
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/yaxyo.jpg" alt="">
-                    <h3 class="fw-normal">Sodiqjonov Yaxyobek Sobirjon o`gli</h3>
-                    <h5>Registrator ofisi Asosiy shtabi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/ali.jpg" alt="">
-                    <h3 class="fw-normal">Aliyev Alibek Sobir o`g`li</h3>
-                    <h5>Registrator ofisi Asosiy shtabi</h5>
-                </div><!-- /.col-lg-4 -->
-
-                <div class="col">
-                    <img class="shadow rounded-circle profile-img" src="Reg_office/mohim.jpg" alt="">
-                    <h3 class="fw-normal">Xasanova Mohimbegim Raxmonjon qizi</h3>
-                    <h5>Registrator ofisi Asosiy shtabi</h5>
-                </div><!-- /.col-lg-4 -->
-            </div>
-
-            <div class="col">
-                <img class="shadow rounded-circle profile-img" src="" alt="">
-                <h3 class="fw-normal">Ermuhammedov Abdullajon</h3>
-                <h5>Registrator ofisi Asosiy shtabi</h5>
-            </div><!-- /.col-lg-4 -->
         </div>
 
+        <div class="text-center mb-5">
+            <h2 class="section-title">Registrator Hero Bo'limi</h2>
+            <div class="row g-4">
+                <?php
+                $heroes = [
+                    ["name" => "Mulaydinov Farxod", "role" => "Hero Mutaxassis", "img" => "Mulaydinov Farxod Murotovich.jpg"],
+                    ["name" => "Xo’jamurodov Diyorbek", "role" => "Hero Mutaxassis", "img" => "Diyorbek_Hero.jpg"],
+                    ["name" => "Toxirjonov Doniyor", "role" => "Hero Mutaxassis", "img" => "Toxirjonov_Donyor.jpg"],
+                    ["name" => "Baxtiyorjonov M.Javoxir", "role" => "Hero Mutaxassis", "img" => "Mulaydinov Farxod Murotovich.jpg"],
+                    ["name" => "Saydaliyev Abdulazizxon", "role" => "Hero Mutaxassis", "img" => "Diyorbek_Hero.jpg"],
+                    ["name" => "Begzodbek", "role" => "Hero Mutaxassis", "img" => "Toxirjonov_Donyor.jpg"]
+                ];
+                foreach ($heroes as $hero): ?>
+                <div class="col-6 col-md-4 col-lg-2">
+                    <div class="staff-card shadow-sm p-3">
+                        <img class="rounded-circle profile-img-small mb-3" src="Reg_office/<?= $hero['img'] ?>" alt="<?= $hero['name'] ?>">
+                        <h6 class="fw-bold mb-1 small"><?= $hero['name'] ?></h6>
+                        <span class="badge-role">Hero</span>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <h2 class="section-title">Asosiy Shtab</h2>
+            <div class="row g-4 justify-content-center">
+                <?php
+                $shtab = [
+                    ["name" => "Xatamqulov Munavvarjon", "img" => "Munavvar.jpg"],
+                    ["name" => "Zaylobiddinov Diyorbek", "img" => "Diyor.jpg"],
+                    ["name" => "Oxunov Lazizxon", "img" => "laziz.jpg"],
+                    ["name" => "Sodiqjonov Yaxyobek", "img" => "yaxyo.jpg"],
+                    ["name" => "Aliyev Alibek", "img" => "ali.jpg"],
+                    ["name" => "Xasanova Mohimbegim", "img" => "mohim.jpg"],
+                    ["name" => "Ermuhammedov Abdullajon", "img" => "placeholder.jpg"]
+                ];
+                foreach ($shtab as $member): ?>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="staff-card shadow-sm p-3">
+                        <img class="rounded-circle profile-img-small mb-3" src="Reg_office/<?= $member['img'] ?>" alt="<?= $member['name'] ?>" onerror="this.src='https://via.placeholder.com/150'">
+                        <h6 class="fw-bold mb-1 small"><?= $member['name'] ?></h6>
+                        <p class="text-muted extra-small mb-0">Asosiy shtab a'zosi</p>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
     </div>
 
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="add.js"></script>
+    <?php require "Includes/footer.php"; ?>
 </body>
-<script src="add.js"></script>
-<?php require "Includes/footer.php"; ?>
-
-<!-- examp
-talabalarni nazorat qilish
- -->

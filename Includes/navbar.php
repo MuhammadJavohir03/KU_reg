@@ -1,124 +1,157 @@
 <?php
-$current_page = basename($_SERVER['PHP_SELF']);
+require "database.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$current = basename($_SERVER['PHP_SELF']);
+$role = $_SESSION['role'] ?? null;
 ?>
 
-<?php require 'database.php' ?>
+<!-- BOOTSTRAP -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
 
 <?php
-if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') {
-    $admin_id = $_SESSION['user_id'];
+$fio = '-';
 
-    $stmt = $pdo->prepare("
-        SELECT COUNT(*) as total_unread
-        FROM messages
-        WHERE is_read = 0 
-          AND admin_id IS NULL
-    ");
-    $stmt->execute();
-    $total_unread = $stmt->fetch()['total_unread'] ?? 0;
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare("SELECT fio FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $fioData = $stmt->fetch();
+
+    if ($fioData && !empty($fioData['fio'])) {
+        $fio = $fioData['fio'];
+    }
 }
+$stmt = $pdo->prepare("
+    SELECT 
+        u.id, 
+        u.email,
+        u.fio,
+        COUNT(CASE WHEN m.is_read = 0 AND m.admin_id IS NULL THEN 1 END) AS unread
+    FROM messages m
+    JOIN users u ON m.user_id = u.id
+    WHERE m.section_id = ?
+      AND (m.admin_id IS NULL OR m.admin_id = ?)
+    GROUP BY u.id
+");
+
+$section_id = $section_id ?? 0;
+$admin_id = $_SESSION['user_id'] ?? 0;
 ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top" style="border-bottom: solid 1px white; background: rgba(100, 13, 20, 0.9);">
-    <div class="container container-fluid">
-        <a class="navbar-brand d-flex align-items-center" href="index.php">
-            <img src="Logos/logo2.png" alt="" height="46.9" width="149" class="me-2">
-        </a>
+<!-- MOBILE BUTTON -->
+<button id="toggleBtn">☰</button>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<!-- SIDEBAR -->
+<div id="sidebar">
 
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : '' ?>" href="index.php">Bosh Sahifa</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'test.php') ? 'active' : '' ?>" href="test.php">Test</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'academic.php') ? 'active' : '' ?>" href="academic.php">Academic Policy</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'about.php') ? 'active' : '' ?>" href="about.php">Biz Haqimizda</a>
-                </li>
-
-                <!-- <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'tekshiruv.php') ? 'active' : '' ?>" href="tekshiruv.php">Tekshiruv</a>
-                </li> -->
-
-                <!-- <li class="nav-item">
-                    <a class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>" href="arizalar.php">Arizalar</a>
-                </li> -->
-
-                <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] != 'user'): ?>
-
-                    <li class="nav-item">
-                        <a class="nav-link <?= ($current_page == 'fanlar.php') ? 'active' : '' ?>" href="fanlar.php">Fanlar</a>
-                    </li>
-
-                    <!-- <li>
-                        <a class="nav-link <?= ($current_page == 'talabalar.php') ? 'active' : '' ?>" href="talabalar.php">Talabalar</a>
-                    </li> -->
-
-                <?php endif; ?>
-
-                <?php if (!isset($_SESSION['user_id'])): ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?= ($current_page == 'login.php') ? 'active' : '' ?>" href="login.php">Kirish</a>
-                    </li>
-
-
-                <?php else: ?>
-                    <?php if ($_SESSION['role'] === 'admin'): ?>
-                        <a href="admin_chat.php" class="nav-link position-relative">
-                            Admin Chat
-
-                            <?php if (!empty($total_unread) && $total_unread > 0): ?>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    <?= $total_unread ?>
-                                </span>
-                            <?php endif; ?>
-                        </a>
-
-                        <a class="nav-link <?= ($current_page == 'arizaroyhati.php') ? 'active' : '' ?>" href="arizaroyhati.php">Arizalar Ro'yhati</a>
-                    <?php elseif ($_SESSION['role'] === 'super_admin'): ?>
-
-                        <a class="nav-link <?= ($current_page == 'arizaroyhati.php') ? 'active' : '' ?>" href="arizaroyhati.php">Arizalar Ro'yhati</a>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'admin_panel.php') ? 'active' : '' ?>" href="admin_panel.php">Admin Panel</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'import.php') ? 'active' : '' ?>" href="import.php">import talaba</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'forgot_password.php') ? 'active' : '' ?>" href="forgot_password.php">Password Tiklash</a>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'chat.php') ? 'active' : '' ?>" href="chat.php">Chat</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?= ($current_page == 'arizalar.php') ? 'active' : '' ?>" href="arizalar.php">Arizalar</a>
-                        </li>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </ul>
-
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <div class="d-flex align-items-center">
-                    <a href="myprofile.php" class="text-decoration-none rounded-circle d-flex justify-content-center align-items-center me-3 shadow"
-                        style="border-bottom: solid 1px white; border-top: solid 1px white; color: rgb(100, 13, 20); background: rgba(255, 255, 255, 0.7);width:50px; height:50px; font-weight:bold;">
-                        <?= strtoupper(substr($_SESSION['email'], 0, 2)) ?>
-                    </a>
-                    <!-- <a href="logout.php" class="btn btn-outline-light" onclick="return confirm('Rostdan ham tark etmoqchimisiz?');">Logout</a> -->
-                </div>
-            <?php endif; ?>
-        </div>
+    <!-- LOGO -->
+    <div class="text-center p-3 border-bottom">
+        <img src="Logos/logo2.png" width="120">
     </div>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- MENU -->
+    <a href="index.php" class="<?= $current == 'index.php' ? 'active' : '' ?>">
+        Bosh sahifa
+    </a>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</nav>
+    <a href="about.php" class="<?= $current == 'about.php' ? 'active' : '' ?>">
+        Biz haqimizda
+    </a>
+
+    <a href="academic.php" class="<?= $current == 'academic.php' ? 'active' : '' ?>">
+        Academic Policy
+    </a>
+
+
+    <?php if ($role == 'admin'): ?>
+        <a href="test.php" class="<?= $current == 'test.php' ? 'active' : '' ?>">
+            O'zlashtirish natijalari
+        </a>
+        <button onclick="toggleSubmenu()">
+            Arizalar
+            <span>▼</span>
+        </button>
+
+        <div id="submenu" class="submenu">
+            <a href="bepul_royhat.php">Bepul ro'yhat</a>
+            <a href="pullik_royhat.php">Pullik ro'yhat</a>
+        </div>
+    <?php endif; ?>
+
+    <!-- ADMIN -->
+    <?php if ($role == 'admin' || $role == 'super_admin'): ?>
+        <a href="fanlar.php">Fanlar</a>
+        <a href="admin_chat.php">Admin Chat</a>
+    <?php endif; ?>
+
+    <!-- USER -->
+    <?php if ($role == 'user'): ?>
+        <a href="arizalar.php">Arizalarim</a>
+        <a href="chat.php">Chat</a>
+
+    <?php endif; ?>
+
+    <?php if ($role == 'super_admin'): ?>
+        <a href="admin_panel.php">Admin Panel</a>
+        <a href="forgot_password.php">Parolni tiklash</a>
+        <a href="import.php">Import talaba</a>
+        <a href="test.php">O'zlashtirish natijalari</a>
+    <?php endif; ?>
+
+    <?php if ($role == null): ?>
+        <a href="login.php">Kirish</a>
+    <?php endif; ?>
+
+    <!-- 🔥 PROFILE (QAYTARILDI) -->
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <div class="profile">
+            <a href="myprofile.php" style="text-decoration:none;">
+                <div class="profile-circle">
+                    <?= strtoupper(substr($_SESSION['email'] ?? 'U', 0, 1)) ?>
+                </div>
+
+                <div class="text-white profile-text">
+                    <?= htmlspecialchars($fio) ?>
+                </div>
+
+            </a>
+        </div>
+    <?php endif; ?>
+
+</div>
+
+<main>
+
+    <script>
+        let sidebar = document.getElementById("sidebar");
+        let toggleBtn = document.getElementById("toggleBtn");
+
+        // MOBILE OPEN/CLOSE
+        toggleBtn.addEventListener("click", function() {
+            sidebar.classList.toggle("show");
+        });
+
+        // SUBMENU TOGGLE
+        function toggleSubmenu() {
+            let submenu = document.getElementById("submenu");
+
+            if (submenu.style.display === "block") {
+                submenu.style.display = "none";
+                localStorage.setItem("submenu", "0");
+            } else {
+                submenu.style.display = "block";
+                localStorage.setItem("submenu", "1");
+            }
+        }
+
+        // KEEP STATE AFTER REFRESH
+        window.onload = function() {
+            if (localStorage.getItem("submenu") === "1") {
+                document.getElementById("submenu").style.display = "block";
+            }
+        };
+    </script>

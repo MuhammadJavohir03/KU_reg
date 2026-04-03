@@ -173,7 +173,7 @@ body {
 
 
 body {
-    background: rgb(100, 13, 20) !important;
+    background: #e0e9ff !important;
 }
 
 /* Fullscreen canvas behind content */
@@ -205,64 +205,202 @@ body {
 }
 
 
+/* SIDEBAR */
+#sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #0f172a;
+    color: white;
+    overflow-y: auto;
+    transition: 0.3s;
 
+    z-index: 1050;
 
-
-
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    font-family: Arial;
-    border: 1px solid #ddd;
-}
-
-/* FLEX ROW */
-.table-header,
-.table-row {
     display: flex;
+    flex-direction: column;
+    padding-bottom: 80px;
+    /* profile joyi uchun */
 }
 
-/* ====== FIXED WIDTH RULE ====== */
-.name {
-    width: 200px;
-    min-width: 200px;
-    padding: 10px;
-    border-right: 1px solid #ddd;
-    font-weight: bold;
-    background: #f9fafb;
-}
-
-/* HAR BIR FAN BIR XIL KENGLIK */
-.subject {
-    width: 240px;
-    min-width: 240px;
-    border-right: 1px solid #ddd;
-    text-align: center;
-    padding: 10px;
-    font-weight: bold;
-}
-
-/* HEADER ichidagi 3 ta label */
-.sub-row {
+/* LINKS */
+#sidebar a,
+#sidebar button {
+    color: white;
+    text-decoration: none;
+    padding: 12px 15px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+}
+
+#sidebar a:hover,
+#sidebar button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ACTIVE */
+.active {
+    background: #1e293b !important;
+    border-left: 4px solid #38bdf8;
+}
+
+/* SUBMENU */
+.submenu {
+    display: none;
+    background: #1f2937;
+}
+
+.submenu a {
+    padding-left: 40px;
+    font-size: 14px;
+}
+
+/* MOBILE BUTTON */
+#toggleBtn {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    background: #0f172a;
+    color: white;
+    border: none;
+    font-size: 26px;
+    padding: 5px 12px;
+    border-radius: 5px;
+}
+
+/* MAIN */
+main {
+    margin-left: 260px;
+    padding: 20px;
+}
+
+/* MOBILE */
+@media(max-width:768px) {
+
+    #sidebar {
+        left: -260px;
+    }
+
+    #sidebar.show {
+        left: 0;
+    }
+
+    #toggleBtn {
+        display: block;
+    }
+
+    main {
+        margin-left: 0 !important;
+    }
+}
+
+/* PROFILE */
+.profile {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+}
+
+.profile-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #004766;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    font-weight: bold;
+    color: white;
+    border: 1px solid #ffffff;
+}
+
+.profile-text {
     font-size: 12px;
     margin-top: 5px;
-    color: #666;
+    color: white;
 }
 
-/* DATA ROW */
-.subject-data {
-    width: 240px;
-    min-width: 240px;
-    border-right: 1px solid #ddd;
+
+/* PAGE WRAPPER */
+.wrapper {
+    padding: 20px;
+}
+
+/* FILTER PANEL */
+.filter-box {
     display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    text-align: center;
+    gap: 12px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
 }
 
-/* HOVER */
-.table-row:hover {
-    background: #f3f4f6;
+.filter-box select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+/* TABLE */
+.table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+/* HEADER */
+thead tr:first-child th {
+    background: #2d89ef;
+    color: white;
+    text-align: center;
+    border: 1px solid #1f6fd1;
+    padding: 10px;
+}
+
+/* SUB HEADER */
+thead tr:nth-child(2) th {
+    background: #f0f0f0;
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #ddd;
+    font-size: 13px;
+}
+
+/* CELLS */
+td {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #eee;
+}
+
+/* FIO COLUMN */
+.fio {
+    text-align: left;
+    font-weight: bold;
+    background: #fafafa;
+}
+
+/* FAN TITLE */
+.fan-title {
+    font-size: 13px;
 }

@@ -2,197 +2,239 @@
 require "database.php";
 session_start();
 
-// 🔐 login check
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
 $id = $_SESSION['user_id'];
-
-// 👤 user olish
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$user) {
-    exit("User topilmadi");
-}
+if (!$user) exit("User topilmadi");
 
 if (isset($_POST['submit'])) {
-
     $fanlar = $_POST['fanlar'] ?? [];
-
     $user_id = $user['id'];
     $talaba_id = $user['talaba_id'];
+    $hemis_parol = trim($_POST['hemis_parol']);
+    
+    // 2 marta topshirmaslikni tekshirish
+    $check = $pdo->prepare("SELECT id FROM bepul WHERE user_id=?");
+    $check->execute([$user_id]);
+    if ($check->fetch()) {
+        echo "<script>alert('❌ Siz allaqachon ariza topshirgansiz'); window.location.href='arizalar.php';</script>";
+        exit;
+    }
 
     $validFans = [];
-
     foreach ($fanlar as $fan_id) {
-
         if (!$fan_id) continue;
-
-        // 🔍 talabalar jadvalidan tekshirish
-        $stmt = $pdo->prepare("
-            SELECT reyting, davomat
-            FROM talabalar
-            WHERE user_id=? AND fan_id=?
-        ");
+        
+        $stmt = $pdo->prepare("SELECT reyting, davomat, umumiy FROM talabalar WHERE user_id=? AND fan_id=?");
         $stmt->execute([$user_id, $fan_id]);
         $res = $stmt->fetch();
 
-        // ❌ umuman yo‘q
         if (!$res) {
-            echo "<script>alert('❌ Siz bu fanga birikmagansiz, kuting');</script>";
+            echo "<script>alert('❌ Siz bu fanga birikmagansiz');</script>";
             continue;
         }
 
-        $reyting = (float)$res['reyting'];
-        $davomat = (float)$res['davomat'];
-
-        // ❌ yiqilgan
-        if ($reyting < 20 || $davomat >= 33) {
+        if ((float)$res['reyting'] < 20 || (float)$res['davomat'] >= 33) {
             echo "<script>alert('❌ Sizda bepul imkoniyatga ball yetarli emas');</script>";
             continue;
         }
 
-        // ✅ o‘tgan
+        if ((float)$res['umumiy'] >= 60) {
+            echo "<script>alert('❌ Sizning bu fandan ballingiz yetarli');</script>";
+            continue;
+        }
         $validFans[] = $fan_id;
     }
 
-    if (empty($validFans)) {
-        die("❌ Hech qaysi fan qo‘shilmadi");
+    if (!empty($validFans)) {
+        $validFans = array_unique(array_slice($validFans, 0, 4));
+        $fan1 = $validFans[0] ?? null;
+        $fan2 = $validFans[1] ?? null;
+        $fan3 = $validFans[2] ?? null;
+        $fan4 = $validFans[3] ?? null;
+
+        $pdo->prepare("INSERT INTO bepul (user_id, talaba_id, fan1, fan2, fan3, fan4, hemis_parol) VALUES (?, ?, ?, ?, ?, ?, ?)")
+            ->execute([$user_id, $talaba_id, $fan1, $fan2, $fan3, $fan4, $hemis_parol]);
+        
+        echo "<script>alert('✅ Ariza muvaffaqiyatli topshirildi'); window.location.href='arizalar.php';</script>";
     }
-
-    // max 4 ta
-    $validFans = array_unique($validFans);
-    $validFans = array_slice($validFans, 0, 4);
-
-    $fan1 = $validFans[0] ?? null;
-    $fan2 = $validFans[1] ?? null;
-    $fan3 = $validFans[2] ?? null;
-    $fan4 = $validFans[3] ?? null;
-
-    echo "<script>alert('✅ Ariza topshirildi');</script>";
-
-    $user_id = $user['id'];
-    $talaba_id = $user['talaba_id'];
-    $hemis_parol = trim($_POST['hemis_parol']);
-
-    // ❌ tekshirish: 2 marta topshirmasin
-    $check = $pdo->prepare("SELECT id FROM bepul WHERE user_id=?");
-    $check->execute([$user_id]);
-
-    if ($check->fetch()) {
-        die("❌ Siz allaqachon ariza topshirgansiz");
-    }
-
-    // ✅ insert
-    $pdo->prepare("
-    INSERT INTO bepul
-    (user_id, talaba_id, fan1, fan2, fan3, fan4, hemis_parol)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-")->execute([
-        $user_id,
-        $talaba_id,
-        $fan1,
-        $fan2,
-        $fan3,
-        $fan4,
-        $hemis_parol
-    ]);
 }
-$stmt = $pdo->query("SELECT id, nomi FROM fanlar");
-$fanlar = $stmt->fetchAll();
+
+$fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar")->fetchAll();
 ?>
 
 <?php require "Includes/header.php"; ?>
 
+<style>
+    body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
+    #bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+    
+    .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .form-label { color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; }
+    
+    .form-control-static {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+    }
+
+    .form-input {
+        background: #fff;
+        color: #0f172a;
+        border-radius: 10px;
+        border: 2px solid transparent;
+        padding: 12px;
+        transition: 0.3s;
+    }
+
+    .form-input:focus {
+        border-color: #2ecc71;
+        box-shadow: 0 0 15px rgba(46, 204, 113, 0.2);
+        outline: none;
+    }
+
+    .fan-select-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .btn-add {
+        background: rgba(46, 204, 113, 0.15);
+        color: #2ecc71;
+        border: 1px dashed #2ecc71;
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+    .btn-add:hover { background: rgba(46, 204, 113, 0.25); }
+
+    .btn-submit {
+        background: #2ecc71;
+        color: white;
+        font-weight: 700;
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        width: 100%;
+        margin-top: 20px;
+    }
+</style>
+
 <body>
+    <?php require "Includes/navbar.php"; ?>
+    <canvas id="bg"></canvas>
 
-    <div class="container bg-white p-5 mt-5 shadow rounded-1">
-        <a href="arizalar.php" class="btn mb-5 btn-danger"><-Orqaga
-                </a>
-
-                <h1 class="text-danger mb-3">Bepul Ariza Topshirish</h1>
-                <form method="POST" action="">
-                    <label class="text-dark">Talaba ID:</label>
-                    <input class="form-control" type="text"
-                        value="<?= $user['talaba_id'] ?>" disabled><br>
-
-                    <label class="text-dark">FIO</label>
-                    <input class="form-control" type="text"
-                        value="<?= $user['fio'] ?>" disabled><br>
-
-                    <label class="text-dark">Email</label>
-                    <input class="form-control" type="text"
-                        value="<?= $user['email'] ?>" disabled><br>
-
-                    <label class="text-dark">Guruh</label>
-                    <input class="form-control" type="text"
-                        value="<?= $user['guruh'] ?>" disabled><br>
-
-                    <label class="text-dark">Hemis Prol Kiriting</label>
-                    <input
-                        class="mb-3 form-control"
-                        type="text"
-                        name="hemis_parol"
-                        required>
-
-                    <div id="fan-container">
-
-                        <div class="mb-2">
-                            <select name="fanlar[]" class="form-control">
-                                <option value="">Fan tanlang</option>
-                                <?php foreach ($fanlar as $f): ?>
-                                    <option value="<?= $f['id'] ?>">
-                                        <?= $f['nomi'] ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">✨ Bepul Ariza</h2>
+                        <a href="arizalar.php" class="btn btn-sm btn-outline-light">Orqaga qaytish</a>
                     </div>
 
-                    <button type="button" id="addFan" class="btn btn-success m-2">
-                        + Fan qo‘shish
-                    </button>
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-5 border-end border-secondary pe-md-4">
+                                <p class="text-info small mb-4"><i class="bi bi-info-circle"></i> Shaxsiy ma'lumotlaringiz avtomatik yuklangan.</p>
+                                
+                                <label class="form-label">Talaba ID</label>
+                                <div class="form-control-static"><?= $user['talaba_id'] ?></div>
 
-                    <button name="submit" type="submit" class="m-2 btn btn-success">
-                        Saqlash va Jo'natish
-                    </button>
-                </form>
+                                <label class="form-label">F.I.O</label>
+                                <div class="form-control-static"><?= $user['fio'] ?></div>
 
-                <script>
-                    let maxFans = 4;
-                    let count = 1;
+                                <label class="form-label">Guruh</label>
+                                <div class="form-control-static"><?= $user['guruh'] ?></div>
 
-                    document.getElementById("addFan").onclick = function() {
+                                <label class="form-label">Hemis Parol (Tasdiqlash uchun)</label>
+                                <input type="password" name="hemis_parol" class="form-control form-input" placeholder="Parolni kiriting" required>
+                            </div>
 
-                        if (count >= maxFans) {
-                            alert("Maximum 4 ta fan!");
-                            return;
-                        }
+                            <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
+                                <h5 class="mb-3">Qayta topshiriladigan fanlar</h5>
+                                <p class="text-muted small">Maksimal 4 ta fan tanlashingiz mumkin.</p>
 
-                        let div = document.createElement("div");
-                        div.className = "mb-2";
+                                <div id="fan-container">
+                                    <div class="fan-select-row">
+                                        <select name="fanlar[]" class="form-control form-input" required>
+                                            <option value="">Fan tanlang...</option>
+                                            <?php foreach ($fanlar_list as $f): ?>
+                                                <option value="<?= $f['id'] ?>"><?= $f['nomi'] ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
 
-                        div.innerHTML = `
-        <select name="fanlar[]" class="form-control">
-            <option value="">Fan tanlang</option>
-            <?php foreach ($fanlar as $f): ?>
-                <option value="<?= $f['id'] ?>">
-                    <?= $f['nomi'] ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    `;
+                                <button type="button" id="addFan" class="btn btn-add mt-2">
+                                    <i class="bi bi-plus-circle"></i> + Fan qo‘shish
+                                </button>
 
-                        document.getElementById("fan-container").appendChild(div);
-                        count++;
-                    };
-                </script>
+                                <button name="submit" type="submit" class="btn btn-submit">
+                                    Arizani jo'natish <i class="bi bi-send-fill ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <script>
+        let maxFans = 4;
+        let count = 1;
 
+        document.getElementById("addFan").onclick = function() {
+            if (count >= maxFans) {
+                alert("Maksimal 4 ta fan tanlash mumkin!");
+                return;
+            }
+
+            let div = document.createElement("div");
+            div.className = "fan-select-row mt-2";
+            div.innerHTML = `
+                <select name="fanlar[]" class="form-control form-input">
+                    <option value="">Fan tanlang...</option>
+                    <?php foreach ($fanlar_list as $f): ?>
+                        <option value="<?= $f['id'] ?>"><?= $f['nomi'] ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.parentElement.remove(); count--;">✕</button>
+            `;
+            document.getElementById("fan-container").appendChild(div);
+            count++;
+        };
+    </script>
+
+    <?php require "Includes/footer.php"; ?>
+    <script src="add.js"></script>
 </body>
+</html>
