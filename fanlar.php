@@ -2,10 +2,7 @@
 session_start();
 require "database.php";
 
-<<<<<<< HEAD
 // ================= ADD FAN =================
-=======
->>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
 if (isset($_POST['add_fan'])) {
 
     $nomi = trim($_POST['nomi']);
@@ -22,13 +19,9 @@ if (isset($_POST['add_fan'])) {
     }
 }
 
-<<<<<<< HEAD
 // ================= DELETE FAN =================
 if (isset($_GET['delete'])) {
 
-=======
-if (isset($_GET['delete'])) {
->>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
     $id = (int)$_GET['delete'];
 
     $stmt = $pdo->prepare("DELETE FROM fanlar WHERE id=?");
@@ -38,7 +31,6 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
-<<<<<<< HEAD
 // ================= SEARCH =================
 $q = $_GET['q'] ?? '';
 
@@ -49,9 +41,6 @@ if (!empty($q)) {
     $stmt = $pdo->query("SELECT * FROM fanlar ORDER BY id DESC");
 }
 
-=======
-$stmt = $pdo->query("SELECT * FROM fanlar ORDER BY id DESC");
->>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
 $fanlar = $stmt->fetchAll();
 ?>
 
@@ -60,18 +49,11 @@ $fanlar = $stmt->fetchAll();
 <body>
     <?php include "Includes/navbar.php"; ?>
 
-<<<<<<< HEAD
     <div class="container bg-light shadow p-4" style="min-height: 100vh;">
 
         <h3 class="mb-4">📖 Fanlar</h3>
 
         <!-- ================= ADD FAN ================= -->
-=======
-    <div class="container bg-light shadow p-4">
-
-        <h3 class="mb-4 border-dark">📚 Fanlar</h3>
-
->>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
         <div class="card mb-4 shadow-sm">
             <div class="card-body">
 
@@ -92,7 +74,6 @@ $fanlar = $stmt->fetchAll();
             </div>
         </div>
 
-<<<<<<< HEAD
         <!-- ================= SEARCH ================= -->
         <form method="GET" class="mb-3">
             <input type="text" name="q" class="form-control"
@@ -101,15 +82,12 @@ $fanlar = $stmt->fetchAll();
         </form>
 
         <!-- ================= FAN LIST ================= -->
-=======
->>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
         <div class="row g-3">
 
             <?php foreach ($fanlar as $fan): ?>
 
                 <div class="col-md-4">
 
-<<<<<<< HEAD
                     <div class="card shadow-sm p-3">
 
                         <h5>📘 <?= htmlspecialchars($fan['nomi']) ?></h5>
@@ -129,19 +107,11 @@ $fanlar = $stmt->fetchAll();
                                 O‘chirish
                             </a>
 
+                            
+
                         </div>
 
                     </div>
-=======
-                    <a href="talabalar.php?fan_id=<?= $fan['id'] ?>"
-                        class="text-decoration-none">
-
-                        <div class="card shadow-sm p-3">
-                            <h5 class="mb-0">📘 <?= htmlspecialchars($fan['nomi']) ?></h5>
-                        </div>
-
-                    </a>
->>>>>>> 064bf9b61d4755624f2fd6c917b8621e8d12049e
 
                 </div>
 
