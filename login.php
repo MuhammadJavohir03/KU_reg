@@ -192,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <?php require "Includes/navbar.php"; ?>
     
-    <canvas id="bg"></canvas>
+    <!-- <canvas id="bg"></canvas> -->
 
     <div class="main-wrapper">
         <div class="login-card">

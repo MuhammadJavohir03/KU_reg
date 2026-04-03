@@ -2,6 +2,7 @@
 require "database.php";
 session_start();
 
+// 1. Sessiyani tekshirish
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -12,56 +13,90 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$user) exit("User topilmadi");
+if (!$user) exit("Foydalanuvchi topilmadi");
 
+// 2. Ariza yuborilganda (Submit)
 if (isset($_POST['submit'])) {
-    $fanlar = $_POST['fanlar'] ?? [];
-    $user_id = $user['id'];
+    $fanlar = isset($_POST['fanlar']) ? array_filter($_POST['fanlar']) : [];
+    $u_id = $user['id'];             // users table raqamli ID
+    $fio = $user['fio'];             // users table FIO (varcharda saqlangan)
     $talaba_id = $user['talaba_id'];
     $hemis_parol = trim($_POST['hemis_parol']);
 
-    // 2 marta topshirmaslikni tekshirish
-    $check = $pdo->prepare("SELECT id FROM pullik WHERE user_id=?");
-    $check->execute([$user_id]);
+    // 3. Takroriy ariza tekshiruvi
+    $check = $pdo->prepare("SELECT id FROM pullik WHERE user_id = ?");
+    $check->execute([$u_id]);
     if ($check->fetch()) {
-        echo "<script>alert('❌ Siz allaqachon pullik qayta topshirishga ariza topshirgansiz'); window.location.href='arizalar.php';</script>";
+        echo "<script>alert('❌ Siz allaqachon ariza topshirgansiz'); window.location.href='arizalar.php';</script>";
         exit;
     }
 
-    $validFans = [];
-    foreach ($fanlar as $fan_id) {
-        if (!$fan_id) continue;
-        
-        $stmt = $pdo->prepare("SELECT umumiy FROM talabalar WHERE user_id=? AND fan_id=?");
-        $stmt->execute([$user_id, $fan_id]);
-        $res = $stmt->fetch();
+    if (empty($fanlar)) {
+        echo "<script>alert('❌ Kamida bitta fan tanlang');</script>";
+    } else {
+        $validFans = [];
 
-        if (!$res) {
-            echo "<script>alert('❌ Siz bu fanga birikmagansiz');</script>";
-            continue;
+        foreach ($fanlar as $fan_id) {
+            if (!$fan_id) continue;
+
+            // 4. FIO bo'yicha talabalar jadvalidan tekshirish
+            $stmt = $pdo->prepare("SELECT reyting, davomat, umumiy FROM talabalar WHERE user_id = ? AND fan_id = ?");
+            $stmt->execute([$fio, $fan_id]);
+            $res = $stmt->fetch();
+
+            if (!$res) {
+                echo "<script>alert('❌ Siz ($fio) ushbu fanga birikmagansiz.');</script>";
+                continue;
+            }
+
+            // 5. TAQIQLANGAN HOLATLAR (Siz aytgan shartlar)
+            // $reyting = (float)$res['reyting'];
+            // $davomat = (float)$res['davomat'];
+            $umumiy = (float)$res['umumiy'];
+
+            // a) Reyting 20 dan kichik bo'lsa
+            // if ($reyting < 20) {
+            //     echo "<script>alert('❌ Reyting ballingiz 20 dan kam. Ariza topshira olmaysiz.');</script>";
+            //     continue;
+            // }
+
+            // // b) Davomat (NB) 33 dan katta yoki teng bo'lsa
+            // if ($davomat >= 33) {
+            //     echo "<script>alert('❌ NBlar soni 33 tadan ko\'p. Ariza topshira olmaysiz.');</script>";
+            //     continue;
+            // }
+
+            // c) Umumiy ball 60 dan katta bo'lsa
+            if ($umumiy > 60) {
+                echo "<script>alert('❌ Umumiy ballingiz 60 dan yuqori. Ariza topshira olmaysiz.');</script>";
+                continue;
+            }
+
+            // AGAR YUQORIDAGI TO'SIQLARDAN O'TSA - Fan qabul qilinadi
+            $validFans[] = $fan_id;
         }
 
-        if ((float)$res['umumiy'] >= 60) {
-            echo "<script>alert('❌ Bu fandan ballingiz yetarli, qayta topshirish shart emas');</script>";
-            continue;
+        // 6. Bazaga yozish (Agar barcha tanlangan fanlar filtrdan o'tgan bo'lsa)
+        // 6. Bazaga yozish (created_at ustuni bilan)
+        if (!empty($validFans)) {
+            // Dublikatlarni o'chirib, faqat 4 tagacha fanni olamiz
+            $validFans = array_unique(array_slice($validFans, 0, 4));
+
+            $f1 = $validFans[0] ?? null;
+            $f2 = $validFans[1] ?? null;
+            $f3 = $validFans[2] ?? null;
+            $f4 = $validFans[3] ?? null;
+
+            // "sana" o'rniga "created_at" deb yozildi:
+            $insert = $pdo->prepare("INSERT INTO pullik (user_id, talaba_id, fan1, fan2, fan3, fan4, hemis_parol, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+
+            // Ma'lumotlarni yuboramiz
+            $insert->execute([$u_id, $talaba_id, $f1, $f2, $f3, $f4, $hemis_parol]);
+
+            echo "<script>alert('✅ Arizangiz muvaffaqiyatli qabul qilindi!'); window.location.href='arizalar.php';</script>";
         }
-        $validFans[] = $fan_id;
-    }
-
-    if (!empty($validFans)) {
-        $validFans = array_unique(array_slice($validFans, 0, 4));
-        $fan1 = $validFans[0] ?? null;
-        $fan2 = $validFans[1] ?? null;
-        $fan3 = $validFans[2] ?? null;
-        $fan4 = $validFans[3] ?? null;
-
-        $pdo->prepare("INSERT INTO pullik (user_id, talaba_id, fan1, fan2, fan3, fan4, hemis_parol) VALUES (?, ?, ?, ?, ?, ?, ?)")
-            ->execute([$user_id, $talaba_id, $fan1, $fan2, $fan3, $fan4, $hemis_parol]);
-        
-        echo "<script>alert('✅ Pullik ariza muvaffaqiyatli topshirildi'); window.location.href='arizalar.php';</script>";
     }
 }
-
 $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar")->fetchAll();
 ?>
 
@@ -155,7 +190,7 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar")->fetchAll();
                 <div class="glass-card">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h2 class="mb-0">💳 Pullik Ariza</h2>
+                            <h2 class="mb-0">💳 Mini semestrga ro'yxatdan o'tish</h2>
                             <small class="text-info">Qayta topshirish uchun to'lov asosidagi ariza</small>
                         </div>
                         <a href="arizalar.php" class="btn btn-sm btn-outline-light">Orqaga</a>

@@ -86,6 +86,7 @@ $admin_id = $_SESSION['user_id'] ?? 0;
     <?php if ($role == 'admin' || $role == 'super_admin'): ?>
         <a href="fanlar.php">Fanlar</a>
         <a href="admin_chat.php">Admin Chat</a>
+        <a href="talabalar_bahosi.php">Talaba Fan Natijalari</a>
     <?php endif; ?>
 
     <!-- USER -->

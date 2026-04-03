@@ -126,7 +126,7 @@
                 <div class="icon-box free-icon">
                     <i class="bi bi-gift"></i> ✨
                 </div>
-                <h3>Bepul qayta topshirish</h3>
+                <h3>Bepul imkoniyatga ariza topshirish</h3>
                 <p>Belgilangan kvota doirasida imtihonni bepul qayta topshirish uchun ariza yuboring.</p>
                 <span class="btn-action btn-free">Tanlash</span>
             </a>
@@ -135,7 +135,7 @@
                 <div class="icon-box paid-icon">
                     <i class="bi bi-credit-card"></i> 💳
                 </div>
-                <h3>Pullik qayta topshirish</h3>
+                <h3>Mini semestrga ro'yxatdan o'tish</h3>
                 <p>Kvota tugagan yoki qo'shimcha imkoniyat uchun pullik qayta topshirishga ariza bering.</p>
                 <span class="btn-action btn-paid">Tanlash</span>
             </a>

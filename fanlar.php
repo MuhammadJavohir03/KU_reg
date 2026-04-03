@@ -218,14 +218,15 @@ $yonalishlar = $pdo->query("SELECT DISTINCT yonalish FROM fanlar")->fetchAll(PDO
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <span class="semester-badge"><?= $fan['semestr'] ?>-semestr</span>
+
                                 <div class="dropdown">
-                                    <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                    <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-three-dots-vertical"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                                         <li>
                                             <a class="dropdown-item text-danger" href="?delete=<?= $fan['id'] ?>"
-                                                onclick="return confirm('O‘chirishni tasdiqlaysizmi?')">
+                                                onclick="return confirm('Ushbu fanni o‘chirishni tasdiqlaysizmi?')">
                                                 <i class="bi bi-trash me-2"></i> O'chirish
                                             </a>
                                         </li>
@@ -250,6 +251,7 @@ $yonalishlar = $pdo->query("SELECT DISTINCT yonalish FROM fanlar")->fetchAll(PDO
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </body>
