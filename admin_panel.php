@@ -36,6 +36,7 @@ $admins = $stmt->fetchAll();
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "Includes/yuklash.php"; ?>
 <?php require "Includes/navbar.php"; ?>
 
 <div class="container mt-5 bg-white p-4 shadow">

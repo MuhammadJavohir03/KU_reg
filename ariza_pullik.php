@@ -181,6 +181,7 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar")->fetchAll();
 </style>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
     <canvas id="bg"></canvas>
 

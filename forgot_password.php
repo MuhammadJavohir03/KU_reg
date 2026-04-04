@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "Includes/yuklash.php"; ?>
 <?php require "Includes/navbar.php"; ?>
 
 <div class="container bg-white p-5 rounded-1 shadow mt-5">

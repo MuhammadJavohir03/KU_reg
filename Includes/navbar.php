@@ -67,7 +67,7 @@ $admin_id = $_SESSION['user_id'] ?? 0;
     </a>
 
 
-    <?php if ($role == 'admin'): ?>
+    <?php if ($role == 'admin' || $role == 'super_admin'): ?>
         <a href="test.php" class="<?= $current == 'test.php' ? 'active' : '' ?>">
             O'zlashtirish natijalari
         </a>
@@ -100,7 +100,7 @@ $admin_id = $_SESSION['user_id'] ?? 0;
         <a href="admin_panel.php">Admin Panel</a>
         <a href="forgot_password.php">Parolni tiklash</a>
         <a href="import.php">Import talaba</a>
-        <a href="test.php">O'zlashtirish natijalari</a>
+        <!-- <a href="test.php">O'zlashtirish natijalari</a> -->
     <?php endif; ?>
 
     <?php if ($role == null): ?>

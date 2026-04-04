@@ -1,8 +1,8 @@
 <?php
-// PHP mantiqiy qismi o'zgarishsiz qoladi
 session_start();
 require "database.php";
 
+// 1. Xabarni o'chirish mantiqi
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
     $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
@@ -31,12 +31,14 @@ if ($role === 'admin') {
     exit;
 }
 
+// Bo'limlarni olish
 $sections = $pdo->query("SELECT * FROM sections ORDER BY name")->fetchAll();
 if (!$sections) die("Bo‘limlar mavjud emas!");
 
-$section_id = isset($_GET['section_id']) ? (int)$_GET['section_id'] : (int)$sections[0]['id'];
+$section_id = isset($_GET['section_id']) ? (int)$_GET['section_id'] : null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// 2. Xabar yuborish mantiqi
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $section_id) {
     $message = htmlspecialchars(trim($_POST['message'] ?? ''));
     $file_path = null;
 
@@ -55,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!empty($message) || $file_path) {
+        // Yangi xabar is_read = 0 bilan tushadi
         $stmt = $pdo->prepare("INSERT INTO messages (section_id, user_id, message, attachment, is_read) VALUES (?, ?, ?, ?, 0)");
         $stmt->execute([$section_id, $user_id, $message, $file_path]);
     }
@@ -62,16 +65,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$stmt = $pdo->prepare("
-    SELECT m.*, u.email AS user_email, a.email AS admin_email
-    FROM messages m
-    LEFT JOIN users u ON m.user_id = u.id
-    LEFT JOIN users a ON m.admin_id = a.id
-    WHERE m.section_id = ? AND m.user_id = ?
-    ORDER BY m.created_at ASC
-");
-$stmt->execute([$section_id, $user_id]);
-$messages = $stmt->fetchAll();
+// 3. Xabarlarni olish va O'qilgan deb belgilash
+$messages = [];
+if ($section_id) {
+    $stmt = $pdo->prepare("
+        SELECT m.*, u.email AS user_email, a.email AS admin_email
+        FROM messages m
+        LEFT JOIN users u ON m.user_id = u.id
+        LEFT JOIN users a ON m.admin_id = a.id
+        WHERE m.section_id = ? AND m.user_id = ?
+        ORDER BY m.created_at ASC
+    ");
+    $stmt->execute([$section_id, $user_id]);
+    $messages = $stmt->fetchAll();
+
+    // Faqat admin yozgan xabarlarni "o'qilgan" qilish
+    $update_stmt = $pdo->prepare("UPDATE messages SET is_read = 1 WHERE section_id = ? AND user_id = ? AND admin_id IS NOT NULL AND is_read = 0");
+    $update_stmt->execute([$section_id, $user_id]);
+}
 ?>
 
 <?php require "Includes/header.php"; ?>
@@ -81,221 +92,143 @@ $messages = $stmt->fetchAll();
         --user-bubble: #dcf8c6;
         --admin-bubble: #ffffff;
         --chat-bg: #e5ddd5;
-        --accent: #25d366;
+        --accent: #00a884;
+        --sidebar-bg: #ffffff;
+        --text-main: #111b21;
+        --text-muted: #667781;
     }
 
-    body {
-        background: #f0f2f5;
-        font-family: 'Inter', sans-serif;
-    }
+    body { background: #f0f2f5; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
 
-    .chat-container {
-        max-width: 900px;
-        margin: 20px auto;
-        background: white;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        height: 85vh;
-    }
+    .chat-container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 0; display: flex; height: 90vh; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-    .chat-header {
-        padding: 15px 25px;
-        background: #075e54;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+    .chat-sidebar { width: 350px; border-right: 1px solid #ddd; display: flex; flex-direction: column; background: var(--sidebar-bg); }
+    .sidebar-header { padding: 15px 20px; background: #008069; color: white; font-weight: bold; font-size: 18px; }
+    
+    .section-list { overflow-y: auto; flex: 1; }
+    .section-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f2f5; text-decoration: none !important; color: var(--text-main); transition: 0.2s; }
+    .section-item:hover { background: #f5f6f7; }
 
-    .chat-box {
-        flex: 1;
-        padding: 20px;
-        background-color: var(--chat-bg);
-        background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* WhatsApp pattern */
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
+    /* AKTIV BO'LIM DIZAYNI (image_8f9b86.png yechimi) */
+    .section-item.active { background-color: #f0f2f5 !important; border-left: 4px solid #00a884; }
+    .section-item.active .fw-bold { color: #00a884 !important; }
 
-    .message {
-        max-width: 75%;
-        padding: 8px 12px;
-        border-radius: 10px;
-        position: relative;
-        font-size: 15px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
+    .unread-badge { background: #25d366; color: white; font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: bold; min-width: 20px; text-align: center; display: inline-block; }
+    .last-msg-text { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; display: block; }
 
-    .message.user {
-        align-self: flex-end;
-        background: var(--user-bubble);
-        border-top-right-radius: 2px;
-    }
+    .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--chat-bg); }
+    .chat-header { padding: 10px 20px; background: #008069; color: white; display: flex; align-items: center; gap: 15px; }
+    
+    .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
 
-    .message.admin {
-        align-self: flex-start;
-        background: var(--admin-bubble);
-        border-top-left-radius: 2px;
-    }
+    .message { max-width: 70%; padding: 8px 12px; border-radius: 8px; position: relative; font-size: 14.5px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    .message.user { align-self: flex-end; background: var(--user-bubble); border-top-right-radius: 2px; }
+    .message.admin { align-self: flex-start; background: var(--admin-bubble); border-top-left-radius: 2px; }
+    .msg-info { font-size: 10px; color: var(--text-muted); display: block; text-align: right; margin-top: 4px; }
 
-    .msg-info {
-        font-size: 11px;
-        color: #667781;
-        margin-top: 4px;
-        text-align: right;
-        display: block;
-    }
-
-    .attachment-box {
-        display: block;
-        background: rgba(0,0,0,0.05);
-        padding: 8px;
-        border-radius: 8px;
-        margin-top: 5px;
-        text-decoration: none;
-        color: #056162;
-        font-weight: 500;
-        font-size: 13px;
-    }
-
-    .chat-footer {
-        padding: 15px;
-        background: #f0f2f5;
-        border-top: 1px solid #ddd;
-    }
-
-    .input-area {
-        display: flex;
-        gap: 10px;
-        align-items: flex-end;
-    }
-
-    .message-input {
-        border-radius: 25px !important;
-        border: none !important;
-        padding: 12px 20px !important;
-        resize: none;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .file-input-label {
-        background: #e9edef;
-        padding: 10px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.3s;
-    }
-
-    .btn-send {
-        background: #00a884;
-        color: white;
-        border-radius: 50%;
-        width: 45px;
-        height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
+    .chat-footer { padding: 10px 15px; background: #f0f2f5; }
+    .input-area { display: flex; gap: 10px; align-items: center; background: white; padding: 5px 15px; border-radius: 25px; }
+    .message-input { border: none !important; box-shadow: none !important; padding: 8px 0; resize: none; }
+    .btn-send { color: #00a884; border: none; background: none; }
 
     @media (max-width: 768px) {
-        .chat-container { margin: 0; height: 92vh; border-radius: 0; }
-        .message { max-width: 85%; }
+        .chat-container { margin: 0; height: 100vh; }
+        .chat-sidebar { width: 100%; display: <?= $section_id ? 'none' : 'flex' ?>; }
+        .chat-main { display: <?= $section_id ? 'flex' : 'none' ?>; }
     }
 </style>
 
 <body>
     <?php require "Includes/navbar.php"; ?>
-    <canvas class="z-n1" id="bg"></canvas>
 
-    <div class="container py-3">
-        <div class="chat-container">
-            <div class="chat-header">
-                <div>
-                    <h6 class="mb-0">Muloqot markazi</h6>
-                    <small style="opacity: 0.8;">Sizga yordam berishdan mamnunmiz</small>
-                </div>
-                <select class="form-select form-select-sm w-auto" onchange="window.location.href='chat.php?section_id='+this.value;">
-                    <?php foreach ($sections as $sec): ?>
-                        <option value="<?= $sec['id'] ?>" <?= ($sec['id'] == $section_id) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($sec['name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+    <div class="chat-container">
+        <div class="chat-sidebar">
+            <div class="sidebar-header"><h1 class="h5 ms-4">Muloqotlar</h1></div>
+            <div class="section-list">
+                <?php foreach ($sections as $sec): 
+                    // Oxirgi xabar
+                    $stmt_last = $pdo->prepare("SELECT message, created_at, admin_id FROM messages WHERE section_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT 1");
+                    $stmt_last->execute([$sec['id'], $user_id]);
+                    $last_msg = $stmt_last->fetch();
+
+                    // O'qilmagan xabarlar (Faqat admin yozgan xabarlar foydalanuvchi uchun)
+                    $stmt_count = $pdo->prepare("SELECT COUNT(*) FROM messages WHERE section_id = ? AND user_id = ? AND admin_id IS NOT NULL AND is_read = 0");
+                    $stmt_count->execute([$sec['id'], $user_id]);
+                    $unread = $stmt_count->fetchColumn();
+                ?>
+                    <a href="chat.php?section_id=<?= $sec['id'] ?>" class="section-item <?= ($sec['id'] == $section_id) ? 'active' : '' ?>">
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="fw-bold text-truncate"><?= htmlspecialchars($sec['name']) ?></div>
+                            <small class="last-msg-text">
+                                <?= $last_msg ? ($last_msg['message'] ?: "📎 Fayl") : "Xabarlar yo'q" ?>
+                            </small>
+                        </div>
+                        <div style="text-align: right; margin-left: 10px;">
+                            <div style="font-size: 11px; color: var(--text-muted);">
+                                <?= $last_msg ? date('H:i', strtotime($last_msg['created_at'])) : '' ?>
+                            </div>
+                            <?php if ($unread > 0): ?>
+                                <span class="unread-badge"><?= $unread ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
             </div>
+        </div>
 
-            <div class="chat-box" id="chatBox">
-                <?php if (!empty($messages)): ?>
-                    <?php foreach ($messages as $msg): ?>
-                        <?php $is_admin = !is_null($msg['admin_id']); ?>
+        <div class="chat-main">
+            <?php if ($section_id): ?>
+                <div class="chat-header">
+                    <a href="chat.php" class="text-white ms-4 me-3 d-md-none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg></a>
+                    <div>
+                        <h6 class="mb-0">
+                            <?php foreach($sections as $s) if($s['id'] == $section_id) echo htmlspecialchars($s['name']); ?>
+                        </h6>
+                        <small style="opacity: 0.8;">Sizga yordam berishdan mamnunmiz</small>
+                    </div>
+                </div>
+
+                <div class="chat-box" id="chatBox">
+                    <?php foreach ($messages as $msg): 
+                        $is_admin = !is_null($msg['admin_id']); ?>
                         <div class="message <?= $is_admin ? 'admin' : 'user' ?>">
-                            <?php if ($is_admin): ?>
-                                <strong style="color: #075e54; font-size: 12px; display: block; margin-bottom: 2px;">
-                                    Admin (<?= htmlspecialchars(substr($msg['admin_email'], 0, 5)) ?>)
-                                </strong>
+                            <?php if($is_admin): ?>
+                                <strong style="color: #008069; font-size: 12px; display: block;">Admin</strong>
                             <?php endif; ?>
-
                             <div class="msg-text"><?= nl2br(htmlspecialchars($msg['message'])) ?></div>
-
                             <?php if ($msg['attachment']): ?>
-                                <a href="<?= htmlspecialchars($msg['attachment']) ?>" target="_blank" class="attachment-box">
-                                    📎 Faylni ko'rish
-                                </a>
+                                <a href="<?= htmlspecialchars($msg['attachment']) ?>" target="_blank" style="display:block; background:rgba(0,0,0,0.05); padding:5px; border-radius:5px; margin-top:5px; text-decoration:none; color:#008069; font-size:13px;">📎 Faylni ko'rish</a>
                             <?php endif; ?>
-
-                            <span class="msg-info">
-                                <?= date('H:i', strtotime($msg['created_at'])) ?>
-                            </span>
+                            <span class="msg-info"><?= date('H:i', strtotime($msg['created_at'])) ?></span>
                         </div>
                     <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="text-center mt-5 text-muted">
-                        <p>Hali xabarlar mavjud emas. Birinchi xabarni yuboring!</p>
-                    </div>
-                <?php endif; ?>
-            </div>
+                </div>
 
-            <div class="chat-footer">
-                <form method="POST" enctype="multipart/form-data" id="chatForm">
-                    <div class="input-area">
-                        <label class="file-input-label" title="Fayl biriktirish">
-                            <input type="file" name="attachment" style="display: none;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#667781" class="bi bi-paperclip" viewBox="0 0 16 16">
-                                <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
-                            </svg>
-                        </label>
-                        <textarea name="message" class="form-control message-input" placeholder="Xabar yozing..." rows="1"></textarea>
-                        <button class="btn-send" type="submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
-                                <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.001.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="chat-footer">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="input-area">
+                            <label style="cursor:pointer; margin-bottom:0;">
+                                <input type="file" name="attachment" style="display: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#667781" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/></svg>
+                            </label>
+                            <textarea name="message" class="form-control message-input" placeholder="Xabar yozing..." rows="1"></textarea>
+                            <button class="btn-send" type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.001.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z"/></svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            <?php else: ?>
+                <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1041/1041916.png" width="80" style="opacity: 0.2; margin-bottom: 20px;">
+                    <p>Xabarlarni ko'rish uchun bo'limni tanlang</p>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
     <script>
-        // Avtomatik pastga tushirish
         const chatBox = document.getElementById('chatBox');
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        // Fayl tanlanganda rangini o'zgartirish
-        document.querySelector('input[name="attachment"]').addEventListener('change', function() {
-            if (this.files.length > 0) {
-                document.querySelector('.file-input-label').style.background = '#25d366';
-                document.querySelector('.file-input-label svg').setAttribute('fill', 'white');
-            }
-        });
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
     </script>
 </body>
-<?php require "Includes/footer.php"; ?>

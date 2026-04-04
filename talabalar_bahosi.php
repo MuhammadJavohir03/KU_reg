@@ -1,161 +1,230 @@
 <?php
 require "database.php";
 
-// 1. Qidiruv uchun barcha talabalar ismlarini olish (lekin natijalarni emas)
-$studentsStmt = $pdo->query("SELECT DISTINCT user_id, guruh FROM talabalar ORDER BY user_id ASC");
-$students = $studentsStmt->fetchAll(PDO::FETCH_ASSOC);
+// Ma'lumotlarni yig'ish
+$stmt = $pdo->query("SELECT t.*, f.nomi as fan_nomi FROM talabalar t LEFT JOIN fanlar f ON t.fan_id = f.id");
+$all_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 2. Tanlangan talaba bormi?
-$selected_user = $_GET['user_id'] ?? null;
-$matrix = [];
-$fanlar = [];
+$js_registry = [];
+foreach ($all_data as $row) {
+    $uid = $row['user_id'];
+    $guruh = trim($row['guruh']);
+    
+    $onlyLetters = preg_replace('/[^a-zA-Z]/', '', $guruh);
+    $lastChar = strtoupper(substr($onlyLetters, -1));
+    $letterCount = strlen($onlyLetters);
 
-if ($selected_user) {
-    // Tanlangan talaba uchun barcha fanlar va natijalarni olish
-    $stmt = $pdo->prepare("
-        SELECT t.*, f.nomi as fan_nomi 
-        FROM talabalar t
-        LEFT JOIN fanlar f ON t.fan_id = f.id
-        WHERE t.user_id = ?
-    ");
-    $stmt->execute([$selected_user]);
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($lastChar === 'S') {
+        $talim_shakli = "Sirtqi";
+    } elseif ($lastChar === 'M') {
+        $talim_shakli = "Masofaviy";
+    } elseif ($letterCount === 2) {
+        $talim_shakli = "Kunduzgi";
+    } else {
+        $talim_shakli = "Boshqa";
+    }
 
-    // Ma'lumotlarni Matrix ko'rinishiga o'tkazish
-    foreach ($results as $res) {
-        $fanlar[$res['fan_id']] = $res['fan_nomi'];
-        $matrix[$res['user_id']]['results'][$res['fan_id']] = [
-            'r' => $res['reyting'],
-            'u' => $res['umumiy'],
-            'd' => $res['davomat']
+    if (!isset($js_registry[$uid])) {
+        $js_registry[$uid] = [
+            'guruh' => $guruh, 
+            'shakl' => $talim_shakli,
+            'results' => []
         ];
     }
+    
+    $js_registry[$uid]['results'][] = [
+        'fan' => $row['fan_nomi'],
+        'jn' => $row['joriy_nazorat'], 
+        'on' => $row['oraliq_nazorat'],
+        'r' => $row['reyting'], 
+        'yn' => $row['yakuniy_nazorat'], 
+        'u' => $row['umumiy'], 
+        'd' => $row['davomat']
+    ];
 }
 ?>
 
 <?php require "Includes/header.php"; ?>
 
-<body class="bg-[#F1F5F9] min-h-screen font-sans">
-    <?php require "Includes/navbar.php"; ?>
+<style>
+    #hemisModal {
+        display: none; position: fixed; z-index: 10000; left: 0; top: 0; 
+        width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); 
+        backdrop-filter: blur(3px); align-items: center; justify-content: center;
+    }
+    .modal-dialog {
+        background: white; width: 95%; max-width: 1100px; max-height: 85vh; 
+        border-radius: 6px; display: flex; flex-direction: column; position: relative;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: modalScale 0.2s ease-out;
+    }
+    @keyframes modalScale { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-header { background-color: #3498db; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 6px 6px 0 0; }
+    .modal-body { padding: 0; overflow-y: auto; background: #fff; }
+    .modal-table { width: 100%; border-collapse: collapse; }
+    .modal-table thead { background: #3498db; color: white; position: sticky; top: 0; z-index: 5; }
+    .modal-table th { padding: 12px 10px; font-size: 11px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1); }
+    .modal-table td { padding: 12px 10px; border-bottom: 1px solid #eee; font-size: 13px; }
+    .modal-footer { padding: 12px 20px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; border-radius: 0 0 6px 6px; }
+    
+    .search-container { margin-bottom: 20px; }
+    .search-input {
+        width: 100%; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05); font-size: 14px; outline: none;
+    }
+    .shakl-badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .kunduzgi { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .sirtqi { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+    .masofaviy { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+</style>
 
-    <div class="max-w-7xl mx-auto p-6">
-        
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8 flex flex-col md:flex-row items-center gap-4">
-            <div class="flex-1 relative w-full">
-                <span class="absolute left-4 top-3.5 text-slate-400">🔍</span>
-                <input type="text" id="mainSearch" placeholder="Talaba ismini yozing (masalan: ABDUFATTOYEVA...)" 
-                       class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm">
-                
-                <div id="searchResults" class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto hidden custom-scrollbar">
-                    <?php foreach ($students as $s): ?>
-                        <a href="?user_id=<?= urlencode($s['user_id']) ?>" class="block px-5 py-3 hover:bg-blue-50 text-sm text-slate-700 border-b border-slate-50 last:border-0 transition-colors">
-                            <span class="font-bold"><?= htmlspecialchars($s['user_id']) ?></span>
-                            <span class="text-[10px] text-slate-400 ml-2 uppercase tracking-tighter"><?= htmlspecialchars($s['guruh']) ?></span>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            
-            <?php if ($selected_user): ?>
-                <a href="talabalar_bahosi.php" class="px-6 py-3 bg-slate-100 text-slate-500 rounded-2xl text-sm font-bold hover:bg-red-50 hover:text-red-600 transition-all">Tozalash ✕</a>
-            <?php endif; ?>
+<body>
+    <?php require "Includes/yuklash.php"; ?>
+    <?php include "Includes/navbar.php"; ?>
+    <div class="p-6">
+        <div class="search-container">
+            <input type="text" id="mainSearch" placeholder="Talaba F.I.O yoki Guruhni yozing..." class="search-input" onkeyup="filterTable()">
         </div>
 
-        <?php if ($selected_user && !empty($matrix)): ?>
-            <div class="bg-white rounded-[2rem] shadow-xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-                <div class="p-8 border-b border-slate-50 bg-white">
-                    <h2 class="text-3xl font-black text-slate-900 tracking-tighter uppercase italic"><?= htmlspecialchars($selected_user) ?></h2>
-                    <p class="text-blue-600 font-bold text-xs mt-1 uppercase tracking-widest">Natijalar jadvali • <?= htmlspecialchars($results[0]['guruh']) ?></p>
-                </div>
+        <div class="bg-white rounded shadow-sm border overflow-hidden">
+            <table class="w-full text-left" id="mainTable">
+                <thead class="bg-gray-50 border-b">
+                    <tr class="text-[11px] font-bold text-gray-500 uppercase">
+                        <th class="p-4 text-center w-12">#</th>
+                        <th class="p-4">Talaba F.I.O / Guruh</th>
+                        <th class="p-4 text-center">Ta'lim shakli</th>
+                        <th class="p-4 text-center w-24">Batafsil</th>
+                    </tr>
+                </thead>
+                <tbody id="mainTableBody">
+                    <?php $i=1; foreach($js_registry as $name => $data): 
+                        $badgeClass = '';
+                        if($data['shakl'] == 'Kunduzgi') $badgeClass = 'kunduzgi';
+                        elseif($data['shakl'] == 'Sirtqi') $badgeClass = 'sirtqi';
+                        elseif($data['shakl'] == 'Masofaviy') $badgeClass = 'masofaviy';
+                    ?>
+                    <tr class="border-b hover:bg-gray-50 student-row">
+                        <td class="p-4 text-center text-gray-400 index-td"><?= $i++ ?></td>
+                        <td class="p-4">
+                            <div class="search-name" style="color: #1e293b; font-weight: 700; text-transform: uppercase;"><?= htmlspecialchars($name) ?></div>
+                            <div class="search-guruh" style="color: #2563eb; font-size: 11px; font-weight: 600;"><?= htmlspecialchars($data['guruh']) ?></div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="shakl-badge <?= $badgeClass ?>"><?= $data['shakl'] ?></span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="openHemisModal('<?= addslashes($name) ?>')" class="text-gray-500 hover:text-blue-600">
+                                <i class="fas fa-eye text-xl"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full border-collapse">
-                        <thead>
-                            <tr class="bg-blue-600 text-white">
-                                <th class="p-5 text-left border-r border-blue-500 min-w-[200px]">FANLAR</th>
-                                <?php foreach ($fanlar as $f_id => $f_nomi): ?>
-                                    <th colspan="3" class="p-3 text-center border-r border-blue-500 text-[10px] uppercase font-black tracking-tighter bg-blue-700">
-                                        <?= htmlspecialchars($f_nomi) ?>
-                                    </th>
-                                <?php endforeach; ?>
-                            </tr>
-                            <tr class="bg-blue-500 text-white text-[10px] font-bold">
-                                <th class="p-2 border-r border-blue-400">Holat</th>
-                                <?php foreach ($fanlar as $f): ?>
-                                    <th class="p-2 border-r border-blue-400 text-center w-12">R</th>
-                                    <th class="p-2 border-r border-blue-400 text-center w-12">U</th>
-                                    <th class="p-2 border-r border-blue-400 text-center w-12">D</th>
-                                <?php endforeach; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="hover:bg-slate-50">
-                                <td class="p-5 font-black text-slate-400 text-[10px] border-r border-slate-100 bg-slate-50 italic">BALLAR / %</td>
-                                <?php foreach ($fanlar as $f_id => $f_nomi): 
-                                    $res = $matrix[$selected_user]['results'][$f_id] ?? null;
-                                    $r = $res ? $res['r'] : '-';
-                                    $u = $res ? $res['u'] : '-';
-                                    $d = $res ? $res['d'] : '-';
-                                ?>
-                                    <td class="p-4 text-center border-r border-slate-100 font-bold <?= ($r != '-' && $r < 20) ? 'bg-red-50 text-red-500' : 'text-slate-600' ?>"><?= $r ?></td>
-                                    <td class="p-4 text-center border-r border-slate-100 font-black <?= ($u != '-' && $u < 60) ? 'bg-red-500 text-white' : 'bg-emerald-500 text-white' ?>"><?= $u ?></td>
-                                    <td class="p-4 text-center border-r border-slate-100 font-bold text-slate-400 <?= ($d != '-' && $d > 25) ? 'text-orange-500' : '' ?>"><?= $d ?>%</td>
-                                <?php endforeach; ?>
-                            </tr>
-                        </tbody>
-                    </table>
+    <div id="hemisModal" onclick="closeOutside(event)">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalName" style="margin:0; text-transform:uppercase; font-size:16px;"></h2>
+                    <div id="modalSub" style="font-size:11px; opacity:0.8; margin-top:3px;"></div>
                 </div>
-                
-                <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">R: Reyting | U: Umumiy | D: Davomat</p>
-                    <button onclick="window.print()" class="text-xs font-black text-blue-600 hover:underline uppercase">Hisobotni yuklash</button>
-                </div>
+                <span style="cursor:pointer; font-size:24px;" onclick="closeHemisModal()">&times;</span>
             </div>
-
-        <?php else: ?>
-            <div class="mt-20 text-center">
-                <div class="inline-block p-10 bg-white rounded-[3rem] shadow-sm border border-slate-200 mb-6">
-                    <span class="text-7xl opacity-20">🔎</span>
-                </div>
-                <h3 class="text-2xl font-black text-slate-800 tracking-tighter">TIZIM TAYYOR</h3>
-                <p class="text-slate-400 text-sm mt-2">Natijalarni ko'rish uchun yuqoridagi qidiruv maydoniga talaba ismini yozing.</p>
+            <div class="modal-body">
+                <table class="modal-table">
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th align="left">Fan nomi</th>
+                            <th>JN</th>
+                            <th>ON</th>
+                            <th>Reyting</th>
+                            <th>YN</th>
+                            <th>Umumiy</th>
+                            <th>Davomat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalTableBody"></tbody>
+                </table>
             </div>
-        <?php endif; ?>
+            <div class="modal-footer">
+                <button style="background:#e2e8f0; border:none; padding:8px 20px; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="closeHemisModal()">Yopish</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const mainSearch = document.getElementById('mainSearch');
-        const searchResults = document.getElementById('searchResults');
-        const items = searchResults.querySelectorAll('a');
+        const REGISTRY = <?= json_encode($js_registry) ?>;
 
-        mainSearch.addEventListener('focus', () => {
-            if (mainSearch.value.length > 0) searchResults.classList.remove('hidden');
-        });
+        function filterTable() {
+            const input = document.getElementById('mainSearch');
+            const filter = input.value.toUpperCase();
+            const rows = document.querySelectorAll('.student-row');
+            let counter = 1;
 
-        mainSearch.addEventListener('input', (e) => {
-            let val = e.target.value.toLowerCase();
-            if (val.length > 0) {
-                searchResults.classList.remove('hidden');
-                items.forEach(item => {
-                    let text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(val) ? 'block' : 'none';
-                });
-            } else {
-                searchResults.classList.add('hidden');
-            }
-        });
+            rows.forEach(row => {
+                const name = row.querySelector('.search-name').innerText.toUpperCase();
+                const guruh = row.querySelector('.search-guruh').innerText.toUpperCase();
+                if (name.includes(filter) || guruh.includes(filter)) {
+                    row.style.display = "";
+                    row.querySelector('.index-td').innerText = counter++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
 
-        // Tashqariga bosilganda yopish
-        document.addEventListener('click', (e) => {
-            if (!mainSearch.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.classList.add('hidden');
-            }
-        });
+        function openHemisModal(name) {
+            const data = REGISTRY[name];
+            if(!data) return;
+
+            document.getElementById('modalName').innerText = name;
+            document.getElementById('modalSub').innerText = "Guruh: " + data.guruh + " | Ta'lim: " + data.shakl;
+            
+            const tbody = document.getElementById('modalTableBody');
+            tbody.innerHTML = '';
+
+            data.results.forEach((res, index) => {
+                const u = parseInt(res.u) || 0;
+                const scoreClass = (u < 60) ? 'background:#fee2e2; color:#ef4444;' : '';
+
+                // Ketma-ketlik: JN -> ON -> Reyting -> YN -> Umumiy -> Davomat
+                tbody.innerHTML += `
+                    <tr>
+                        <td align="center" style="color:#94a3b8;">${index + 1}</td>
+                        <td>
+                            <div style="font-weight:700; color:#1e293b;">${res.fan}</div>
+                            <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase;">Majburiy</div>
+                        </td>
+                        <td align="center" style="color:#475569;">${res.jn || 0}</td>
+                        <td align="center" style="color:#475569;">${res.on || 0}</td>
+                        <td align="center" style="font-weight:700; color:#475569;">${res.r || 0}</td>
+                        <td align="center" style="color:#475569;">${res.yn || 0}</td>
+                        <td align="center">
+                            <div style="display:inline-block; padding:4px 10px; border-radius:4px; font-weight:800; border:1px solid #cbd5e1; min-width:50px; ${scoreClass}">
+                                ${u}
+                            </div>
+                        </td>
+                        <td align="center" style="font-weight:700; color:${parseInt(res.d) > 25 ? '#ef4444' : '#64748b'};">
+                            ${res.d}%
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('hemisModal').style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeHemisModal() {
+            document.getElementById('hemisModal').style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+
+        function closeOutside(e) {
+            if (e.target.id === "hemisModal") closeHemisModal();
+        }
     </script>
-
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
-        @media print { .no-print, input, .bg-slate-100 { display: none !important; } }
-    </style>
 </body>

@@ -76,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 <?php require 'Includes/header.php' ?>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php require 'Includes/navbar.php' ?>
 
     <div class="container" style="min-height: 100vh;">

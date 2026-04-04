@@ -100,6 +100,7 @@
 </style>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
 
     <div class="container-fluid container-lg py-4">

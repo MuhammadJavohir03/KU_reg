@@ -3,6 +3,7 @@
 <?php require "Includes/header.php"; ?>
 
 <body class="gradient-custom">
+    <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
     <canvas class="z-n1" id="bg"></canvas>
     <div class="container bg-white p-5 shadow" style="height: 100vh;">

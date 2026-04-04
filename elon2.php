@@ -1,6 +1,7 @@
 <?php require "Includes/header.php"; ?>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
 
     <div class="container">

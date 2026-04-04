@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_admin'])) {
 </head>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
 
     <a href="admin_panel.php" class="nav-link">Orqaga</a>
 

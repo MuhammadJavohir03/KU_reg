@@ -196,6 +196,7 @@ $rows = array_filter($rows, function ($r) use ($filter) {
 <?php include "Includes/header.php"; ?>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php include "Includes/navbar.php"; ?>
 
     <div class="p-4 bg-white">

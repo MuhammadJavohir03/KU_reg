@@ -125,12 +125,55 @@ foreach ($sections as $s) {
     }
 
     /* Chat struktura */
+    /* Chat struktura - Balandlikni to'g'irlash */
     .chat-container {
-        height: 75vh;
+        height: 70vh;
+        /* Balandlikni biroz kamaytirdik yoki o'z holicha qoldiring */
+        min-height: 500px;
+        /* Minimal balandlik beramiz */
         background: #fff;
         border-radius: 15px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         overflow: hidden;
+        display: flex;
+        /* Flexbox qo'shildi */
+    }
+
+    /* Ro'yxat qismi o'zidan ortiqcha joyni scroll qilishi uchun */
+    .user-sidebar {
+        border-right: 1px solid #eee;
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        /* Konteyner balandligini to'liq egallaydi */
+    }
+
+    .chat-main {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        height: 100%;
+        /* Balandlikni qat'iy ushlaydi */
+        overflow: hidden;
+    }
+
+    /* Xabarlar maydoni o'ziga tegishli joyni egallab, qolganini scroll qiladi */
+    .chat-messages {
+        flex: 1;
+        /* Inputni pastga itaradi */
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #fdfdfd;
+    }
+
+    /* Input qismi doim ko'rinib turishi uchun */
+    .chat-input-area {
+        padding: 15px;
+        border-top: 1px solid #eee;
+        background: white;
+        flex-shrink: 0;
+        /* Input qisqarib ketmasligi uchun */
     }
 
     .user-sidebar {
@@ -225,6 +268,7 @@ foreach ($sections as $s) {
 </style>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
 
     <div class="container-fluid py-4 px-4">
@@ -235,7 +279,7 @@ foreach ($sections as $s) {
                     <div class="d-flex align-items-center">
                         <div class="icon-box bg-primary text-white me-3"><i class="bi bi-people"></i></div>
                         <div>
-                            <p class="text-muted mb-0 small">Jami yozganlar</p>
+                            <p class="text-muted mb-0 small">Jami murojaat qilganlar</p>
                             <h4 class="mb-0 fw-bold"><?= $total_users_count ?> ta</h4>
                         </div>
                     </div>

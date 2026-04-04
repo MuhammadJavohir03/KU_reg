@@ -96,6 +96,7 @@
 </style>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
     <canvas class="z-n1" id="bg" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
 

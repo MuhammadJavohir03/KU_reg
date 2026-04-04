@@ -205,6 +205,7 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar ORDER BY nomi ASC")->fet
 </style>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
     <canvas id="bg"></canvas>
 

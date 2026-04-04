@@ -135,6 +135,7 @@ $yonalishlar = $pdo->query("SELECT DISTINCT yonalish FROM fanlar")->fetchAll(PDO
 </style>
 
 <body>
+    <?php require "Includes/yuklash.php"; ?>
     <?php include "Includes/navbar.php"; ?>
 
     <div class="container py-5">

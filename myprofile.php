@@ -62,7 +62,7 @@ if (isset($_POST['update'])) {
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         padding: 40px;
-        border: 1px solid rgba(0,0,0,0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .profile-header {
@@ -101,9 +101,16 @@ if (isset($_POST['update'])) {
         text-transform: uppercase;
         margin-top: 5px;
     }
-    
-    .badge-student { background: #dcfce7; color: #166534; }
-    .badge-admin { background: #fee2e2; color: #991b1b; }
+
+    .badge-student {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-admin {
+        background: #fee2e2;
+        color: #991b1b;
+    }
 
     .info-grid {
         display: grid;
@@ -177,74 +184,80 @@ if (isset($_POST['update'])) {
     }
 
     @media (max-width: 600px) {
-        .info-grid { grid-template-columns: 1fr; }
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
-<div class="profile-container">
-    <a href="index.php" class="text-decoration-none text-muted mb-4 d-inline-block">
-        <small>← Asosiy sahifaga qaytish</small>
-    </a>
+<body>
+    <?php require "Includes/yuklash.php"; ?>
 
-    <div class="profile-card">
-        <div class="profile-header">
-            <div class="profile-avatar-big">
-                <?= strtoupper(substr($user['email'] ?? 'U', 0, 1)) ?>
+    <div class="profile-container">
+        <a href="index.php" class="text-decoration-none text-muted mb-4 d-inline-block">
+            <small>← Asosiy sahifaga qaytish</small>
+        </a>
+
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar-big">
+                    <?= strtoupper(substr($user['email'] ?? 'U', 0, 1)) ?>
+                </div>
+                <div class="profile-title">
+                    <h2>Profil ma'lumotlari</h2>
+                    <span class="badge-role <?= ($user['role'] == 'user') ? 'badge-student' : 'badge-admin' ?>">
+                        <?= ($user['role'] == 'user') ? 'Talaba' : 'Admin' ?>
+                    </span>
+                </div>
             </div>
-            <div class="profile-title">
-                <h2>Profil ma'lumotlari</h2>
-                <span class="badge-role <?= ($user['role'] == 'user') ? 'badge-student' : 'badge-admin' ?>">
-                    <?= ($user['role'] == 'user') ? 'Talaba' : 'Admin' ?>
-                </span>
-            </div>
+
+            <?php if (isset($_GET['success'])): ?>
+                <div class="alert alert-success border-0 py-2" style="border-radius:10px; font-size:14px;">
+                    Parol muvaffaqiyatli yangilandi!
+                </div>
+            <?php endif; ?>
+
+            <form method="POST">
+                <div class="info-grid">
+                    <div class="form-group">
+                        <label>ID Raqam</label>
+                        <input class="form-control-custom" type="text" value="<?= $user['talaba_id'] ?>" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Manzil</label>
+                        <input class="form-control-custom" type="text" value="<?= $user['email'] ?>" disabled>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label>F.I.O</label>
+                    <input class="form-control-custom" type="text" value="<?= $user['fio'] ?>" disabled>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label>Kurs</label>
+                    <input class="form-control-custom" type="text" value="<?= $user['kurs'] ?>-kurs" disabled>
+                </div>
+
+                <hr style="opacity: 0.1; margin: 30px 0;">
+
+                <div class="form-group mb-4">
+                    <label style="color: var(--primary-color);">Xavfsizlik: Yangi parol</label>
+                    <input class="form-control-custom" type="password" name="password" placeholder="Parolni o'zgartirish uchun yozing...">
+                    <small class="text-muted d-block mt-2" style="font-size: 11px;">
+                        Agar parolni o'zgartirmoqchi bo'lmasangiz, bo'sh qoldiring.
+                    </small>
+                </div>
+
+                <button class="btn-save" name="update">
+                    O'zgarishlarni saqlash
+                </button>
+            </form>
+
+            <a href="logout.php" class="btn-logout">Tizimdan chiqish</a>
         </div>
-
-        <?php if(isset($_GET['success'])): ?>
-            <div class="alert alert-success border-0 py-2" style="border-radius:10px; font-size:14px;">
-                Parol muvaffaqiyatli yangilandi!
-            </div>
-        <?php endif; ?>
-
-        <form method="POST">
-            <div class="info-grid">
-                <div class="form-group">
-                    <label>ID Raqam</label>
-                    <input class="form-control-custom" type="text" value="<?= $user['talaba_id'] ?>" disabled>
-                </div>
-                <div class="form-group">
-                    <label>Email Manzil</label>
-                    <input class="form-control-custom" type="text" value="<?= $user['email'] ?>" disabled>
-                </div>
-            </div>
-
-            <div class="form-group mb-4">
-                <label>F.I.O</label>
-                <input class="form-control-custom" type="text" value="<?= $user['fio'] ?>" disabled>
-            </div>
-
-            <div class="form-group mb-4">
-                <label>Kurs</label>
-                <input class="form-control-custom" type="text" value="<?= $user['kurs'] ?>-kurs" disabled>
-            </div>
-
-            <hr style="opacity: 0.1; margin: 30px 0;">
-
-            <div class="form-group mb-4">
-                <label style="color: var(--primary-color);">Xavfsizlik: Yangi parol</label>
-                <input class="form-control-custom" type="password" name="password" placeholder="Parolni o'zgartirish uchun yozing...">
-                <small class="text-muted d-block mt-2" style="font-size: 11px;">
-                    Agar parolni o'zgartirmoqchi bo'lmasangiz, bo'sh qoldiring.
-                </small>
-            </div>
-
-            <button class="btn-save" name="update">
-                O'zgarishlarni saqlash
-            </button>
-        </form>
-
-        <a href="logout.php" class="btn-logout">Tizimdan chiqish</a>
     </div>
-</div>
 
 </body>
+
 </html>
