@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Talabalar";
 
 // Rollarni aniqlash
 $user_role = $_SESSION['role'] ?? 'user';

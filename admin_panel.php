@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Boshqaruv Paneli";
 
 // 🔐 Super Admin tekshiruvi
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {

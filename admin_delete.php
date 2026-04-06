@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Admin O'chirish";
 
 // 🔐 Faqat Super Admin o'chira olishi uchun xavfsizlik tekshiruvi
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {

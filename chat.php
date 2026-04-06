@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Muloqot"; // Sahifa sarlavhasi
 
 // 1. Xabarni o'chirish mantiqi
 if (isset($_GET['delete_id'])) {

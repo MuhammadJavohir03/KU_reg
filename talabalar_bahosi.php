@@ -1,6 +1,7 @@
 <?php
 require "database.php";
 session_start();
+$title = "Talabalar Bahosi";
 
 $stmt = $pdo->query("SELECT t.*, f.nomi as fan_nomi, f.semestr FROM talabalar t LEFT JOIN fanlar f ON t.fan_id = f.id");
 $all_data = $stmt->fetchAll(PDO::FETCH_ASSOC);

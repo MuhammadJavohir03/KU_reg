@@ -1,6 +1,7 @@
 <?php
 require "database.php";
 session_start();
+$title = "Natijalarim";
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");

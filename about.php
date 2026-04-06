@@ -1,5 +1,5 @@
 <?php session_start(); ?>
-<?php $title = "Registrator Ofisi | Kokand University"; ?>
+<?php $title = "Biz Haqimizda"; ?>
 <?php require "Includes/header.php"; ?>
 <?php require "atmosphere.php"; ?>
 

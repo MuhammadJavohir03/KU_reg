@@ -1,6 +1,7 @@
 <?php
 require "database.php";
 session_start();
+$title = "Bepul Ariza Topshirish";
 
 // 1. Sessiyani tekshirish
 if (!isset($_SESSION['user_id'])) {

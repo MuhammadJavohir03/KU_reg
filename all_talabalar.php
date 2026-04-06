@@ -1,6 +1,7 @@
 <?php
 session_start();
-require "database.php"; // Ma'lumotlar bazasiga ulanish
+require "database.php";
+$title = "Barcha Talabalar"; // Ma'lumotlar bazasiga ulanish
 
 $current_role = $_SESSION['role'] ?? 'user';
 

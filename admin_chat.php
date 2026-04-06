@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Admin Chat";
 
 
 // 1. Admin tekshiruvi

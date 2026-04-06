@@ -1,8 +1,8 @@
 <?php session_start(); ?>
 <?php $title = "Bosh Sahifa"; ?>
 <?php require "Includes/header.php"; ?>
-<?php require "atmosphere.php"; ?>
-
+<?php require "atmosphere.php"; 
+?>
 <style>
     /* Maxsus Zamonaviy Dizayn */
     :root {

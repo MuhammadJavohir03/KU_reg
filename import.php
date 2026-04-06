@@ -1,6 +1,7 @@
 <?php
 session_start();
-require "database.php"; ?>
+require "database.php"; 
+$title = "Import"; ?>
 
 <?php
 set_time_limit(0);

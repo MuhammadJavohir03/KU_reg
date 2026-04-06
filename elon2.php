@@ -1,5 +1,6 @@
 <?php require "Includes/header.php"; ?>
-<?php require "atmosphere.php"; ?>
+<?php require "atmosphere.php"; 
+$title = "Elon 2"; ?>
 
 <body>
     <?php require "Includes/yuklash.php"; ?>

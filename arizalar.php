@@ -1,6 +1,8 @@
 <?php session_start(); ?>
 <?php require "Includes/header.php"; ?>
-<?php require "atmosphere.php"; ?>
+<?php require "atmosphere.php"; 
+$title = "Arizalar"; ?>
+
 
 <style>
     :root {

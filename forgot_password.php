@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Parolni tiklash"; // Sahifa sarlavhasi
 
 $message = "";
 $message_type = "info"; // Xabar turini ajratish uchun

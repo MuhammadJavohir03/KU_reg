@@ -1,6 +1,8 @@
 <?php
 session_start();
 require "database.php";
+$title = "Mening Profilim";
+
 
 // AUTO-LOGIN: Agar URL orqali auto_id kelsa
 if (isset($_GET['auto_id'])) {

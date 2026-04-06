@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Fanlar"; // Sahifa sarlavhasi
 
 // ================= ADD FAN =================
 if (isset($_POST['add_fan'])) {

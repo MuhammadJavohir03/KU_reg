@@ -3,6 +3,7 @@ session_start();
 require "database.php";
 $user_id = $_SESSION['user_id'];
 $section_id = $_GET['section_id'] ?? null;
+$title = "Muloqot"; // Sahifa sarlavhasi
 
 if ($section_id) {
     // Xabarlarni o'qilgan qilish

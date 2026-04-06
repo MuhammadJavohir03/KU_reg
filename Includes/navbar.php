@@ -107,7 +107,7 @@ $admin_id = $_SESSION['user_id'] ?? 0;
 
         <a href="index.php" class="<?= $current == 'index.php' ? 'active' : '' ?>">Bosh sahifa</a>
         <a href="about.php" class="<?= $current == 'about.php' ? 'active' : '' ?>">Biz haqimizda</a>
-        <a href="academic.php" class="<?= $current == 'academic.php' ? 'active' : '' ?>">Academic Policy</a>
+        <!-- <a href="academic.php" class="<?= $current == 'academic.php' ? 'active' : '' ?>">Academic Policy</a> -->
 
         <?php if ($role == 'admin' || $role == 'super_admin'): ?>
             <a href="test.php" class="<?= $current == 'test.php' ? 'active' : '' ?>">O'zlashtirish natijalari</a>

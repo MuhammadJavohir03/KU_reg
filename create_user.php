@@ -1,5 +1,6 @@
 <?php
-require "database.php"; // PDO ulanish
+require "database.php";
+$title = "Foydalanuvchi Yaratish"; // PDO ulanish
 
 $success = '';
 $error = '';

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+$title = "Talabalar Natijalari";
 
 $yonalish = $_GET['yonalish'] ?? '';
 $guruh    = $_GET['guruh'] ?? '';
