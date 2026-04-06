@@ -8,12 +8,10 @@ if (session_status() === PHP_SESSION_NONE) {
 $current = basename($_SERVER['PHP_SELF']);
 $role = $_SESSION['role'] ?? null;
 
-// Foydalanuvchi ma'lumotlarini (FIO va Rasm) olish
 $fio = '-';
 $user_image = null;
 
 if (isset($_SESSION['user_id'])) {
-    // FIO va Image ni birga olamiz
     $stmt = $pdo->prepare("SELECT fio, image FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $userData = $stmt->fetch();
@@ -24,7 +22,6 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
-// Xabarlar uchun logikangiz (o'zgarishsiz qoldi)
 $section_id = $section_id ?? 0;
 $admin_id = $_SESSION['user_id'] ?? 0;
 ?>
@@ -32,14 +29,12 @@ $admin_id = $_SESSION['user_id'] ?? 0;
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-    /* Profil bloki konteyneri */
     .profile {
         padding: 15px;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         margin-top: auto;
     }
 
-    /* Profil havolasi - Flex-column orqali ustma-ust qilish */
     .profile-link {
         display: flex;
         flex-direction: column;
@@ -52,10 +47,8 @@ $admin_id = $_SESSION['user_id'] ?? 0;
         width: 100%;
     }
 
-    /* Rasm doirasi - o'lchami o'zgarmas qoladi */
     .profile-circle {
         width: 60px;
-        /* Biroq kattaroq qildik, ustma-ust tushganda chiroyli ko'rinadi */
         height: 60px;
         min-width: 60px;
         min-height: 60px;
@@ -75,7 +68,6 @@ $admin_id = $_SESSION['user_id'] ?? 0;
         object-fit: cover;
     }
 
-    /* FIO matni - 100% ko'rinishi uchun */
     .profile-text {
         color: white;
         font-size: 14px;
@@ -83,16 +75,9 @@ $admin_id = $_SESSION['user_id'] ?? 0;
         text-align: center;
         width: 100%;
         word-wrap: break-word;
-        /* Uzun so'zlarni ham bo'lib tushiradi */
         line-height: 1.4;
         display: block;
-        /* G'oyib bo'lmasligi uchun */
     }
-
-    /* Agar sidebar keng bo'lsa va yonma-yon qo'ymoqchi bo'lsangiz (ixtiyoriy) */
-    /* @media (min-width: 250px) {
-        .profile-link { flex-direction: row; text-align: left; }
-    } */
 </style>
 
 <body>
