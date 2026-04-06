@@ -212,7 +212,7 @@ $sections = $pdo->query("SELECT id, name FROM sections ORDER BY id DESC")->fetch
 
 <div class="container-fluid py-4 px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark m-0">Boshqaruv Paneli</h2>
+        <h2 class="fw-bold text-white m-0">Boshqaruv Paneli</h2>
         <?php if ($message): ?>
             <div class="alert alert-light border shadow-sm py-2 px-4 m-0" style="border-radius: 12px; font-size: 14px;"><?= $message ?></div>
         <?php endif; ?>
