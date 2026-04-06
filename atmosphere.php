@@ -9,7 +9,7 @@ $time_str = $now->format('H:i'); // 24 soatlik format [cite: 2026-04-06]
 
 // Ish vaqti: Dush-Jum, 08:30-18:00
 $is_working = ($day_of_week <= 5 && $time_str >= '08:30' && $time_str <= '18:00');
-$is_night = ($hour < 6 || $hour >= 19);
+$is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
 ?>
 
 <style>

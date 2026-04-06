@@ -127,7 +127,7 @@
         </div>
 
         <div class="text-center mb-5">
-            <h2 class="section-title">Ofis Rahbariyati</h2>
+            <h2 class="section-title text-white">Ofis Rahbariyati</h2>
             <div class="row justify-content-center">
                 <div class="col-lg-5">
                     <div class="staff-card shadow-sm p-4">
@@ -152,7 +152,7 @@
         </div>
 
         <div class="text-center mb-5">
-            <h2 class="section-title">Registrator Hero Bo'limi</h2>
+            <h2 class="section-title text-white">Registrator Hero Bo'limi</h2>
             <div class="row g-4">
                 <?php
                 $heroes = [
@@ -176,7 +176,7 @@
         </div>
 
         <div class="text-center">
-            <h2 class="section-title">Asosiy Shtab</h2>
+            <h2 class="section-title text-white">Asosiy Shtab</h2>
             <div class="row g-4 justify-content-center">
                 <?php
                 $shtab = [
