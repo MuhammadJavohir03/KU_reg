@@ -29,6 +29,9 @@ if (!isset($_SESSION['user_id'])) {
 $id = $_SESSION['user_id'];
 
 // 👤 User ma'lumotlarini olish
+// ... (avvalgi kodlar o'zgarishsiz qoladi)
+
+// 👤 User ma'lumotlarini olish
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -37,9 +40,26 @@ if (!$user) {
     exit("User topilmadi");
 }
 
+// Rollarni aniqlash
+$role = $user['role']; // 'superadmin', 'admin' yoki 'student' (yoki 'user')
+
+// 🧮 Kurs va Guruhni faqat talaba bo'lsa hisoblaymiz
+$is_student = ($role !== 'admin' && $role !== 'superadmin');
+
+if ($is_student) {
+    $guruh_full = $user['kurs'] ?? '';
+    $guruh_nomi = str_replace("-kurs", "", $guruh_full);
+
+    preg_match('/(\d{2})$/', $guruh_nomi, $matches);
+    $bitiruv_yili = isset($matches[1]) ? (int)$matches[1] : 26;
+    $hisoblangan_kurs = 26 - $bitiruv_yili;
+    if ($hisoblangan_kurs <= 0) $hisoblangan_kurs = 1;
+}
+// ... (update va delete kodlari o'zgarishsiz qoladi)
+
 // 🧮 Kurs va Guruhni hisoblash (2026-yil bo'yicha)
-$guruh_full = $user['kurs']; 
-$guruh_nomi = str_replace("-kurs", "", $guruh_full); 
+$guruh_full = $user['kurs'];
+$guruh_nomi = str_replace("-kurs", "", $guruh_full);
 
 preg_match('/(\d{2})$/', $guruh_nomi, $matches);
 $bitiruv_yili = isset($matches[1]) ? (int)$matches[1] : 26;
@@ -123,7 +143,8 @@ if (isset($_POST['update'])) {
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
         padding: 30px;
         width: 100%;
-        max-width: 500px; /* PC uchun optimal kenglik */
+        max-width: 500px;
+        /* PC uchun optimal kenglik */
         margin: auto;
     }
 
@@ -218,7 +239,10 @@ if (isset($_POST['update'])) {
             padding: 20px;
             border-radius: 20px;
         }
-        h2 { font-size: 1.2rem; }
+
+        h2 {
+            font-size: 1.2rem;
+        }
     }
 </style>
 
@@ -243,7 +267,7 @@ if (isset($_POST['update'])) {
             <h2 style="margin:0;"><?= $user['fio'] ?></h2>
             <div style="margin-top: 5px;">
                 <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700;">
-                    <?= ($user['role'] == 'admin') ? 'ADMINISTRATOR' : 'TALABA' ?>
+                    <?= ($user['role'] == 'admin' || $user['role'] == 'super_admin') ? 'ADMINISTRATOR' : 'TALABA' ?>
                 </span>
             </div>
         </div>
@@ -264,18 +288,20 @@ if (isset($_POST['update'])) {
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div>
-                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">ID RAQAM</label>
+                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;"><?= ($user['role'] == 'user') ? 'Talaba ID' : 'ID Raqam' ?></label>
                     <input class="form-control-custom" type="text" value="<?= $user['talaba_id'] ?>" disabled>
                 </div>
-                <div>
-                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">KURS</label>
-                    <input class="form-control-custom" type="text" value="<?= $hisoblangan_kurs ?>-kurs" disabled>
-                </div>
+                <?php if ($user['role'] == 'user'): ?>
+                    <div>
+                        <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">KURS</label>
+                        <input class="form-control-custom" type="text" value="<?= $hisoblangan_kurs ?>-kurs" disabled>
+                    </div>
+                <?php endif; ?>
             </div>
-
-            <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">GURUH</label>
-            <input class="form-control-custom" type="text" value="<?= $guruh_nomi ?>" disabled>
-
+            <?php if ($user['role'] == 'user'): ?>
+                <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">GURUH</label>
+                <input class="form-control-custom" type="text" value="<?= $guruh_nomi ?>" disabled>
+            <?php endif; ?>
             <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">EMAIL MANZIL</label>
             <input class="form-control-custom" type="text" value="<?= $user['email'] ?>" disabled>
 
