@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 ?>
 
 <?php require 'Includes/header.php' ?>
+<?php require "atmosphere.php"; ?>
 
 <body>
     <?php require "Includes/yuklash.php"; ?>

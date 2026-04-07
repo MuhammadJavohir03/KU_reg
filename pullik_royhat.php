@@ -55,6 +55,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     body { background: #f4f7fe; font-family: 'Plus Jakarta Sans', sans-serif; color: #2d3748; }
@@ -133,52 +134,55 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <th>Aloqa ma'lumotlari</th>
                             <th class="text-center">Guruh</th>
                             <th>HEMIS Parol</th>
-                            <th>Tanlangan fanlar</th>
+                            <th>Tanlangan fan</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($data)): ?>
+                        <?php 
+                        $counter = 1; // Shartdan tashqariga chiqarildi
+                        if (empty($data)): ?>
                             <tr>
                                 <td colspan="6" class="text-center py-5">
                                     <i class="bi bi-inbox text-light display-1"></i>
                                     <p class="text-muted mt-3">Ma'lumotlar topilmadi</p>
                                 </td>
                             </tr>
-                        <?php else: $i = 1; foreach ($data as $row): ?>
-                            <tr>
-                                <td class="text-center fw-bold text-muted"><?= $i++ ?></td>
-                                <td>
-                                    <div class="fw-bold text-dark"><?= htmlspecialchars($row['fio']) ?></div>
-                                    <div class="text-danger small fw-semibold">ID: <?= htmlspecialchars($row['talaba_id']) ?></div>
-                                </td>
-                                <td>
-                                    <div class="small"><i class="bi bi-envelope-fill me-1 text-muted"></i> <?= htmlspecialchars($row['email']) ?></div>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
-                                        <?= htmlspecialchars($row['guruh']) ?>
-                                    </span>
-                                </td>
-                                <td><code><?= htmlspecialchars($row['hemis_parol']) ?></code></td>
-                                <td>
-                                    <div class="d-flex flex-wrap gap-1" style="max-width: 350px;">
-                                        <?php for($j=1; $j<=4; $j++): 
-                                            $fname = "fan{$j}_full";
-                                            if(!empty(trim($row[$fname] ?? ''))): ?>
+                        <?php else: 
+                            foreach ($data as $row): 
+                                for ($j = 1; $j <= 4; $j++):
+                                    $fname = "fan{$j}_full";
+                                    if (!empty(trim($row[$fname] ?? ''))): ?>
+                                        <tr>
+                                            <td class="text-center fw-bold text-muted"><?= $counter++ ?></td>
+                                            <td>
+                                                <div class="fw-bold text-dark"><?= htmlspecialchars($row['fio']) ?></div>
+                                                <div class="text-danger small fw-semibold">ID: <?= htmlspecialchars($row['talaba_id']) ?></div>
+                                            </td>
+                                            <td>
+                                                <div class="small"><i class="bi bi-envelope-fill me-1 text-muted"></i> <?= htmlspecialchars($row['email']) ?></div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
+                                                    <?= htmlspecialchars($row['guruh']) ?>
+                                                </span>
+                                            </td>
+                                            <td><code><?= htmlspecialchars($row['hemis_parol']) ?></code></td>
+                                            <td>
                                                 <span class="fan-badge"><?= htmlspecialchars($row[$fname]) ?></span>
-                                            <?php endif; 
-                                        endfor; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php 
+                                    endif; 
+                                endfor;
+                            endforeach; 
+                        endif; ?>
                     </tbody>
                 </table>
             </div>
             
             <div class="mt-4 text-end">
                 <span class="text-muted small">
-                    Jami topilgan yozuvlar: <strong><?= count($data) ?></strong> ta
+                    Jami ko'rsatilayotgan fanlar soni: <strong><?= ($counter - 1) ?></strong> ta
                 </span>
             </div>
 

@@ -46,6 +46,7 @@ foreach ($all_data as $row) {
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     #hemisModal {

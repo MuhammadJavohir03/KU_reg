@@ -101,6 +101,7 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar")->fetchAll();
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }

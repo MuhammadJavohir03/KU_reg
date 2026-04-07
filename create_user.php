@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <body>
 

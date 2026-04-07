@@ -59,6 +59,7 @@ $yonalishlar = $pdo->query("SELECT DISTINCT yonalish FROM fanlar")->fetchAll(PDO
 ?>
 
 <?php include "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     :root {
@@ -73,7 +74,7 @@ $yonalishlar = $pdo->query("SELECT DISTINCT yonalish FROM fanlar")->fetchAll(PDO
 
     .page-title {
         font-weight: 800;
-        color: #2d3748;
+        color: #ffffff;
         letter-spacing: -1px;
     }
 

@@ -2,279 +2,234 @@
 session_start();
 require "database.php";
 
+// Rollarni aniqlash
+$user_role = $_SESSION['role'] ?? 'user';
+$is_super = ($user_role === 'super_admin');
+$is_admin = ($user_role === 'admin' || $user_role === 'super_admin');
+
 $fan_id = $_GET['id'] ?? $_GET['fan_id'] ?? null;
+if (!$fan_id) die("Fan tanlanmagan");
 
-if (!$fan_id) {
-    die("Fan tanlanmagan");
-}
-
-/* ================= FAN OLISH ================= */
+/* ================= FAN MA'LUMOTI ================= */
 $stmt = $pdo->prepare("SELECT * FROM fanlar WHERE id=?");
 $stmt->execute([$fan_id]);
 $fan = $stmt->fetch();
+if (!$fan) die("Fan topilmadi");
 
-if (!$fan) {
-    die("Fan topilmadi");
-}
-
-/* ================= DELETE ================= */
-if (isset($_GET['delete'])) {
-    $id = (int) $_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM talabalar WHERE id = ?");
-    $stmt->execute([$id]);
-    header("Location: talabalar.php?fan_id=$fan_id");
-    exit;
-}
-
-/* ================= ADD (Manual) ================= */
-if (isset($_POST['save'])) {
-    $fio = trim($_POST['fio']);
-
-    // usersdan topish (Talaba_id va guruhni avtomat olish uchun)
-    $stmt = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio=?");
-    $stmt->execute([$fio]);
-    $user = $stmt->fetch();
-
-    if (!$user) {
-        die("Bunday FIOga ega foydalanuvchi users jadvalida topilmadi!");
+/* ================= AMALLAR (SUPER ADMIN) ================= */
+if ($is_super) {
+    if (isset($_GET['delete'])) {
+        $id = (int) $_GET['delete'];
+        $pdo->prepare("DELETE FROM talabalar WHERE id = ?")->execute([$id]);
+        header("Location: talabalar.php?fan_id=$fan_id"); exit;
     }
 
-    $db_fio    = $user['fio']; // user_id o'rniga FIO ketadi
-    $talaba_id = $user['talaba_id'];
-    $guruh     = $user['guruh'];
+    if (isset($_POST['save'])) {
+        $fio = trim($_POST['fio']);
+        $stmt = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio=?");
+        $stmt->execute([$fio]);
+        $user = $stmt->fetch();
+        if ($user) {
+            $pdo->prepare("INSERT INTO talabalar (fan_id, user_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                ->execute([$fan_id, $user['fio'], $user['talaba_id'], $user['guruh'], $_POST['joriy_nazorat'], $_POST['oraliq_nazorat'], $_POST['reyting'], $_POST['yakuniy_nazorat'], $_POST['qayta_topshirish'], $_POST['umumiy'], $_POST['davomat']]);
+        }
+        header("Location: talabalar.php?fan_id=$fan_id"); exit;
+    }
 
-    $pdo->prepare("
-        INSERT INTO talabalar
-        (fan_id, user_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ")->execute([
-        $fan_id,
-        $db_fio,
-        $talaba_id,
-        $guruh,
-        $_POST['joriy_nazorat'],
-        $_POST['oraliq_nazorat'],
-        $_POST['reyting'],
-        $_POST['yakuniy_nazorat'],
-        $_POST['qayta_topshirish'],
-        $_POST['umumiy'],
-        $_POST['davomat']
-    ]);
-
-    header("Location: talabalar.php?fan_id=" . $fan_id);
-    exit;
+    if (isset($_POST['update'])) {
+        $pdo->prepare("UPDATE talabalar SET joriy_nazorat=?, oraliq_nazorat=?, reyting=?, yakuniy_nazorat=?, qayta_topshirish=?, umumiy=?, davomat=? WHERE id=? AND fan_id=?")
+            ->execute([$_POST['joriy_nazorat'], $_POST['oraliq_nazorat'], $_POST['reyting'], $_POST['yakuniy_nazorat'], $_POST['qayta_topshirish'], $_POST['umumiy'], $_POST['davomat'], $_POST['id'], $fan_id]);
+        header("Location: talabalar.php?fan_id=$fan_id"); exit;
+    }
 }
 
-/* ================= UPDATE ================= */
-if (isset($_POST['update'])) {
-    $pdo->prepare("
-        UPDATE talabalar SET
-            joriy_nazorat=?,
-            oraliq_nazorat=?,
-            reyting=?,
-            yakuniy_nazorat=?,
-            qayta_topshirish=?,
-            umumiy=?,
-            davomat=?
-        WHERE id=? AND fan_id=?
-    ")->execute([
-        $_POST['joriy_nazorat'],
-        $_POST['oraliq_nazorat'],
-        $_POST['reyting'],
-        $_POST['yakuniy_nazorat'],
-        $_POST['qayta_topshirish'],
-        $_POST['umumiy'],
-        $_POST['davomat'],
-        $_POST['id'],
-        $fan_id
-    ]);
-
-    header("Location: talabalar.php?fan_id=$fan_id");
-    exit;
-}
-
-/* ================= FILTER ================= */
-$filter = $_GET['filter'] ?? 'all';
-
-/* ================= IMPORT ================= */
-if (isset($_POST['import'])) {
+/* ================= IMPORT (ADMIN & SUPER) ================= */
+if ($is_admin && isset($_POST['import'])) {
     $file = $_FILES['file']['tmp_name'];
     $h = fopen($file, "r");
-    fgetcsv($h, 1000, ";"); // Header skip
-
+    fgetcsv($h, 1000, ";");
     while (($d = fgetcsv($h, 1000, ";")) !== FALSE) {
         if (count($d) < 8) continue;
         $csv_fio = trim($d[0]);
-
         $q = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio = ?");
         $q->execute([$csv_fio]);
         $user = $q->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user) continue;
-
-        $stmt = $pdo->prepare("
-            INSERT INTO talabalar 
-            (user_id, fan_id, talaba_id, guruh, 
-             joriy_nazorat, oraliq_nazorat, reyting, 
-             yakuniy_nazorat, qayta_topshirish, umumiy, davomat) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([
-            $user['fio'], // VARCHAR user_id
-            $fan_id,
-            $user['talaba_id'],
-            $user['guruh'],
-            (int)$d[1],
-            (int)$d[2],
-            (int)$d[3],
-            (int)$d[4],
-            (int)$d[5],
-            (int)$d[6],
-            (float)$d[7]
-        ]);
+        if ($user) {
+            $stmt = $pdo->prepare("INSERT INTO talabalar (user_id, fan_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$user['fio'], $fan_id, $user['talaba_id'], $user['guruh'], (int)$d[1], (int)$d[2], (int)$d[3], (int)$d[4], (int)$d[5], (int)$d[6], (float)$d[7]]);
+        }
     }
     fclose($h);
-    header("Location: talabalar.php?fan_id=$fan_id");
-    exit;
+    header("Location: talabalar.php?fan_id=$fan_id"); exit;
 }
 
-/* ================= EXPORT ================= */
-if (isset($_GET['export'])) {
-    header("Content-Type: text/csv; charset=utf-8");
-    header("Content-Disposition: attachment; filename=talabalar.csv");
-    $out = fopen("php://output", "w");
-    fputs($out, $bom = chr(0xEF) . chr(0xBB) . chr(0xBF)); // Excelda o'zbekcha harflar uchun
-
-    fputcsv($out, ["FIO", "Talaba ID", "Guruh", "Joriy", "Oraliq", "Reyting", "Yakuniy", "Qayta", "Umumiy", "Davomat"], ";");
-
-    // user_id endi FIO bo'lgani uchun JOIN o'zgardi
-    $sql = "SELECT * FROM talabalar WHERE fan_id=?";
-    if ($filter == 'fail') {
-        $sql .= " AND (davomat >= 33 OR reyting < 20)";
-    } elseif ($filter == 'pass') {
-        $sql .= " AND (davomat < 33 AND reyting >= 20)";
-    }
-
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$fan_id]);
-    while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        fputcsv($out, [
-            $r['user_id'], // Chunki user_id ichida FIO yozilgan
-            $r['talaba_id'],
-            $r['guruh'],
-            $r['joriy_nazorat'],
-            $r['oraliq_nazorat'],
-            $r['reyting'],
-            $r['yakuniy_nazorat'],
-            $r['qayta_topshirish'],
-            $r['umumiy'],
-            $r['davomat']
-        ], ";");
-    }
-    fclose($out);
-    exit;
-}
-
-/* ================= DATA GETTING ================= */
-// Talabalar jadvalidagi user_id ustunining o'zida FIO bor
+/* ================= MA'LUMOTLAR VA FILTR ================= */
+$filter = $_GET['filter'] ?? 'all';
 $stmt = $pdo->prepare("SELECT * FROM talabalar WHERE fan_id=?");
 $stmt->execute([$fan_id]);
 $rows = $stmt->fetchAll();
 
-/* ================= FILTER LOGIC ================= */
-$rows = array_filter($rows, function ($r) use ($filter) {
-    $davomat = (float)$r['davomat'];
-    $reyting = (float)$r['reyting'];
-    $isFail = ($davomat >= 33 || $reyting < 20);
+$rows_data = [];
+foreach ($rows as $r) {
+    $davomat_fail = ($r['davomat'] >= 33);
+    $reyting_fail = ($r['reyting'] < 20);
+    $umumiy_fail = ($r['umumiy'] < 60);
+    $isFail = ($davomat_fail || $reyting_fail || $umumiy_fail);
 
-    if ($filter == 'fail') return $isFail;
-    if ($filter == 'pass') return !$isFail;
-    return true;
-});
+    if ($filter == 'fail' && !$isFail) continue;
+    if ($filter == 'pass' && $isFail) continue;
+
+    $r['davomat_fail'] = $davomat_fail;
+    $r['reyting_fail'] = $reyting_fail;
+    $r['umumiy_fail'] = $umumiy_fail;
+    $r['row_fail'] = $isFail;
+    $rows_data[] = $r;
+}
+
+if (isset($_GET['export'])) {
+    header("Content-Type: text/csv; charset=utf-8");
+    header("Content-Disposition: attachment; filename=talabalar.csv");
+    $out = fopen("php://output", "w");
+    fputs($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
+    fputcsv($out, ["FIO", "ID", "Guruh", "Joriy", "Oraliq", "Reyting", "Yakuniy", "Qayta", "Umumiy", "Davomat"], ";");
+    foreach($rows_data as $r) {
+        fputcsv($out, [$r['user_id'], $r['talaba_id'], $r['guruh'], $r['joriy_nazorat'], $r['oraliq_nazorat'], $r['reyting'], $r['yakuniy_nazorat'], $r['qayta_topshirish'], $r['umumiy'], $r['davomat']], ";");
+    }
+    fclose($out); exit;
+}
 ?>
 
 <?php include "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
+<style>
+    body { background: #f8fafc; font-family: 'Inter', sans-serif; }
+    .glass-card { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 25px; border: none; }
+    .score-input { width: 60px; text-align: center; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px; font-size: 14px; }
+    .score-input[readonly] { background: transparent; border-color: transparent; font-weight: 700; pointer-events: none; }
+    
+    .row-fail { background-color: #fff1f2 !important; }
+    .cell-fail { background-color: #fecaca !important; border-color: #ef4444 !important; color: #b91c1c !important; font-weight: bold; }
+    
+    .table thead th { background: #1e293b; color: white; font-size: 11px; text-transform: uppercase; }
+    .btn-modern { border-radius: 8px; font-weight: 600; transition: 0.3s; }
+
+    /* Rasmga moslashtirilgan filtr tugmalari dizayni */
+    .filter-group { background: #ffffff; border-radius: 10px; padding: 4px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+    .btn-filter { border: none; padding: 6px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: 0.2s; }
+    .btn-filter.active { background: #1e293b !important; color: white !important; }
+    .btn-filter.text-danger:hover { background: #fff1f2; }
+    .btn-filter.text-success:hover { background: #f0fdf4; }
+</style>
 
 <body>
     <?php require "Includes/yuklash.php"; ?>
     <?php include "Includes/navbar.php"; ?>
 
-    <div class="p-4 bg-white">
-        <a class="btn btn-danger mb-3" href="fanlar.php"><- Orqaga</a>
-                <h3>📘 <?= htmlspecialchars($fan['nomi']) ?> - Fanidan Talabalar</h3>
-
-                <div class="mb-3">
-                    <a href="?fan_id=<?= $fan_id ?>" class="btn btn-secondary">Hamma</a>
-                    <a href="?fan_id=<?= $fan_id ?>&filter=fail" class="btn btn-danger">O‘tolmagan</a>
-                    <a href="?fan_id=<?= $fan_id ?>&filter=pass" class="btn btn-success">O‘tgan</a>
+    <div class="container-fluid py-4 px-4">
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <a href="fanlar.php" class="btn btn-sm btn-outline-secondary mb-2">← Orqaga</a>
+                    <h3 class="fw-bold text-dark m-0">📘 <?= htmlspecialchars($fan['nomi']) ?></h3>
                 </div>
+                <div class="filter-group d-flex shadow-sm">
+                    <a href="?fan_id=<?= $fan_id ?>" 
+                       class="btn-filter <?= $filter=='all'?'active':'text-dark' ?>">Hamma</a>
+                    <a href="?fan_id=<?= $fan_id ?>&filter=fail" 
+                       class="btn-filter text-danger <?= $filter=='fail'?'active':'' ?>">O'tolmagan</a>
+                    <a href="?fan_id=<?= $fan_id ?>&filter=pass" 
+                       class="btn-filter text-success <?= $filter=='pass'?'active':'' ?>">O'tgan</a>
+                </div>
+            </div>
 
-                <form method="POST" enctype="multipart/form-data" class="mb-3 border p-2">
-                    <input type="file" name="file" required>
-                    <button name="import" class="btn btn-primary">Import (CSV)</button>
-                    <a href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&export=1" class="btn btn-warning">Export (CSV)</a>
-                </form>
+            <?php if ($is_admin): ?>
+            <div class="row g-3 mb-4 align-items-end">
+                <div class="col-md-5">
+                    <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
+                        <label class="small fw-bold d-block mb-2">CSV IMPORT</label>
+                        <div class="input-group input-group-sm">
+                            <input type="file" name="file" class="form-control" required>
+                            <button name="import" class="btn btn-primary">Yuklash</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-7 text-end pt-4">
+                    <a href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&export=1" class="btn btn-outline-dark btn-sm btn-modern">📥 Export CSV</a>
+                    <?php if ($is_super): ?>
+                        <button class="btn btn-dark btn-sm btn-modern ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#addBox">+ Qo'shish</button>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
 
-                <form method="POST" class="border p-3 mb-4 bg-light">
-                    <h5>Yangi talaba qo'shish</h5>
-                    <input name="fio" class="form-control mb-2" placeholder="FIO (Users jadvalida bo'lishi shart)" required>
-                    <div class="row">
-                        <div class="col"><input name="joriy_nazorat" class="form-control" placeholder="Joriy"></div>
-                        <div class="col"><input name="oraliq_nazorat" class="form-control" placeholder="Oraliq"></div>
-                        <div class="col"><input name="reyting" class="form-control" placeholder="Reyting"></div>
+            <?php if ($is_super): ?>
+            <div class="collapse mb-4" id="addBox">
+                <form method="POST" class="p-3 border rounded-3 bg-white shadow-sm">
+                    <div class="row g-2">
+                        <div class="col-md-3"><input name="fio" class="form-control form-control-sm" placeholder="F.I.O" required></div>
+                        <div class="col"><input name="joriy_nazorat" class="form-control form-control-sm" placeholder="Joriy"></div>
+                        <div class="col"><input name="oraliq_nazorat" class="form-control_sm" placeholder="Oraliq"></div>
+                        <div class="col"><input name="reyting" class="form-control form-control-sm" placeholder="Reyting"></div>
+                        <div class="col-md-2"><button name="save" class="btn btn-success btn-sm w-100">Saqlash</button></div>
                     </div>
-                    <div class="row mt-2">
-                        <div class="col"><input name="yakuniy_nazorat" class="form-control" placeholder="Yakuniy"></div>
-                        <div class="col"><input name="qayta_topshirish" class="form-control" placeholder="Qayta"></div>
-                        <div class="col"><input name="umumiy" class="form-control" placeholder="Umumiy"></div>
-                    </div>
-                    <input name="davomat" class="form-control mt-2" placeholder="Davomat">
-                    <button name="save" class="btn btn-success mt-3 w-100">💾 Saqlash</button>
                 </form>
+            </div>
+            <?php endif; ?>
 
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
+            <div class="table-responsive rounded-3 border">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th>No</th>
-                            <th>FIO</th>
-                            <th>Talaba ID</th>
-                            <th>Guruh</th>
-                            <th>Joriy</th>
-                            <th>Oraliq</th>
-                            <th>Reyting</th>
-                            <th>Yakuniy</th>
-                            <th>Qayta</th>
-                            <th>Umumiy</th>
-                            <th>Davomat</th>
-                            <th>Action</th>
+                            <th class="ps-3">No</th>
+                            <th>F.I.O / Guruh</th>
+                            <th class="text-center">Joriy</th>
+                            <th class="text-center">Oraliq</th>
+                            <th class="text-center">Reyting</th>
+                            <th class="text-center">Yakuniy</th>
+                            <th class="text-center">Qayta</th>
+                            <th class="text-center">Umumiy</th>
+                            <th class="text-center">Davomat</th>
+                            <?php if($is_super): ?><th class="text-end pe-3">Amallar</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $i = 1;
-                        foreach ($rows as $r): ?>
-                            <?php $isFail = ($r['davomat'] >= 33 || $r['reyting'] < 20); ?>
+                        <?php $i = 1; foreach ($rows_data as $r): ?>
+                        <tr class="<?= $r['row_fail'] ? 'row-fail' : '' ?>">
+                            <td class="ps-3 text-muted small"><?= $i++ ?></td>
+                            <td>
+                                <div class="fw-bold d-block"><?= htmlspecialchars($r['user_id']) ?></div>
+                                <span class="small text-muted">ID: <?= $r['talaba_id'] ?> | <?= $r['guruh'] ?></span>
+                            </td>
                             <form method="POST">
-                                <tr class="<?= $isFail ? 'table-danger' : '' ?>">
-                                    <td><?= $i++ ?></td>
-                                    <td><?= htmlspecialchars($r['user_id']) ?></td>
-                                    <td><?= $r['talaba_id'] ?></td>
-                                    <td><?= $r['guruh'] ?></td>
-                                    <td><input name="joriy_nazorat" class="form-control form-control-sm" value="<?= $r['joriy_nazorat'] ?>"></td>
-                                    <td><input name="oraliq_nazorat" class="form-control form-control-sm" value="<?= $r['oraliq_nazorat'] ?>"></td>
-                                    <td><input name="reyting" class="form-control form-control-sm" value="<?= $r['reyting'] ?>"></td>
-                                    <td><input name="yakuniy_nazorat" class="form-control form-control-sm" value="<?= $r['yakuniy_nazorat'] ?>"></td>
-                                    <td><input name="qayta_topshirish" class="form-control form-control-sm" value="<?= $r['qayta_topshirish'] ?>"></td>
-                                    <td><input name="umumiy" class="form-control form-control-sm" value="<?= $r['umumiy'] ?>"></td>
-                                    <td><input name="davomat" class="form-control form-control-sm" value="<?= $r['davomat'] ?>"></td>
-                                    <td>
-                                        <input type="hidden" name="id" value="<?= $r['id'] ?>">
-                                        <button name="update" class="btn btn-success btn-sm">Saqlash</button>
-                                        <a href="?delete=<?= $r['id'] ?>&fan_id=<?= $fan_id ?>" class="btn btn-danger btn-sm" onclick="return confirm('Ochiqmi?')">O'chirish</a>
-                                    </td>
-                                </tr>
+                                <input type="hidden" name="id" value="<?= $r['id'] ?>">
+                                <td class="text-center"><input name="joriy_nazorat" class="score-input" value="<?= $r['joriy_nazorat'] ?>" <?= !$is_super?'readonly':'' ?>></td>
+                                <td class="text-center"><input name="oraliq_nazorat" class="score-input" value="<?= $r['oraliq_nazorat'] ?>" <?= !$is_super?'readonly':'' ?>></td>
+                                <td class="text-center">
+                                    <input name="reyting" class="score-input <?= $r['reyting_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['reyting'] ?>" <?= !$is_super?'readonly':'' ?>>
+                                </td>
+                                <td class="text-center"><input name="yakuniy_nazorat" class="score-input" value="<?= $r['yakuniy_nazorat'] ?>" <?= !$is_super?'readonly':'' ?>></td>
+                                <td class="text-center"><input name="qayta_topshirish" class="score-input" value="<?= $r['qayta_topshirish'] ?>" <?= !$is_super?'readonly':'' ?>></td>
+                                <td class="text-center">
+                                    <input name="umumiy" class="score-input <?= $r['umumiy_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['umumiy'] ?>" <?= !$is_super?'readonly':'' ?>>
+                                </td>
+                                <td class="text-center">
+                                    <input name="davomat" class="score-input <?= $r['davomat_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['davomat'] ?>" <?= !$is_super?'readonly':'' ?>>
+                                </td>
+                                
+                                <?php if($is_super): ?>
+                                <td class="text-end pe-3">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button name="update" class="btn btn-sm btn-success">OK</button>
+                                        <a href="?delete=<?= $r['id'] ?>&fan_id=<?= $fan_id ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('O\'chirilsinmi?')">🗑️</a>
+                                    </div>
+                                </td>
+                                <?php endif; ?>
                             </form>
+                        </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+        </div>
     </div>
 </body>

@@ -1,53 +1,59 @@
-document.onreadystatechange = function () {
-    const percentText = document.getElementById("percent-text");
-    const loader = document.getElementById("loader-wrapper");
+(function () {
+    const percentEl = document.getElementById('percent-text');
+    const loaderWrapper = document.getElementById('loader-wrapper');
+    let currentPercent = 0;
+    let isFinished = false;
 
-    // Sahifadagi barcha muhim elementlarni olamiz (rasmlar, scriptlar va h.k.)
-    const resources = document.querySelectorAll('img, script, link[rel="stylesheet"]');
-    const totalResources = resources.length;
-    let loadedResources = 0;
+    // Sahifa scrollini to'xtatib turish
+    document.body.style.overflow = "hidden";
 
-    if (totalResources === 0) {
-        // Agar sahifa bo'm-bo'sh bo'lsa, srazu 100% qilamiz
-        updateProgress(100);
-    }
+    const updateProgress = () => {
+        if (isFinished) return;
 
-    function updateProgress(percent) {
-        percentText.innerText = Math.round(percent) + "%";
+        // Boshida tez, oxirida (90% dan keyin) sekinlashadi
+        let step = currentPercent < 70 ? Math.floor(Math.random() * 10) + 2 : Math.floor(Math.random() * 2) + 1;
+        currentPercent += step;
 
-        if (percent >= 100) {
-            setTimeout(() => {
-                loader.classList.add("loader-hidden");
-            }, 500);
+        if (currentPercent >= 97) {
+            currentPercent = 97; // 'load' eventini kutish nuqtasi
         }
-    }
 
-    // Har bir resurs yuklanganda hisoblagichni oshiramiz
-    resources.forEach((resource) => {
-        // Agar resurs allaqachon yuklangan bo'lsa (keshdan)
-        if (resource.complete) {
-            incrementLoader();
-        } else {
-            // Yuklanishni kutamiz
-            resource.addEventListener('load', incrementLoader);
-            resource.addEventListener('error', incrementLoader); // Xato bo'lsa ham davom etaveradi
+        if (percentEl) {
+            percentEl.innerText = currentPercent + "%";
         }
-    });
 
-    function incrementLoader() {
-        loadedResources++;
-        const percentage = (loadedResources / totalResources) * 100;
-        updateProgress(percentage);
-    }
-};
+        if (!isFinished) {
+            let delay = currentPercent > 80 ? 250 : 60;
+            setTimeout(updateProgress, delay);
+        }
+    };
 
-// Qo'shimcha xavfsizlik: Agar biror resurs qolib ketsa, 
-// sahifa to'liq yuklanganda baribir yopiladi
-window.onload = function () {
-    const loader = document.getElementById("loader-wrapper");
-    const percentText = document.getElementById("percent-text");
-    percentText.innerText = "100%";
-    setTimeout(() => {
-        loader.classList.add("loader-hidden");
-    }, 500);
-};
+    const hideLoader = () => {
+        if (isFinished) return;
+        isFinished = true;
+        
+        if (percentEl) percentEl.innerText = "100%";
+        
+        // 100% ni foydalanuvchi ko'rishi uchun 300ms kutamiz
+        setTimeout(() => {
+            if (loaderWrapper) {
+                loaderWrapper.style.opacity = "0";
+                // Blur effektini ham sekin yo'qotish
+                loaderWrapper.style.backdropFilter = "blur(0px) brightness(1)";
+                
+                setTimeout(() => {
+                    loaderWrapper.style.display = "none";
+                    document.body.style.overflow = "auto"; // Scrollni qaytarish
+                }, 600);
+            }
+        }, 300);
+    };
+
+    // Resurslar (rasmlar, css) to'liq yuklanganda
+    window.addEventListener('load', hideLoader);
+
+    // Favqulodda yopish (agar juda sekin bo'lsa - 8 soniya)
+    setTimeout(hideLoader, 8000);
+
+    updateProgress();
+})();

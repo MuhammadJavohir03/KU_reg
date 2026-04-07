@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_admin'])) {
 <head>
     <title>Admin biriktirish</title>
 </head>
+<?php require "atmosphere.php"; ?>
 
 <body>
     <?php require "Includes/yuklash.php"; ?>

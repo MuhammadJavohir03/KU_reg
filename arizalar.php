@@ -1,5 +1,6 @@
 <?php session_start(); ?>
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     :root {

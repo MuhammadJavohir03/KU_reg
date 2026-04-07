@@ -1,129 +1,165 @@
 <?php
 require "database.php";
+require "Includes/header.php";
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 $current = basename($_SERVER['PHP_SELF']);
 $role = $_SESSION['role'] ?? null;
-?>
 
-<!-- BOOTSTRAP -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-
-<?php
+// Foydalanuvchi ma'lumotlarini (FIO va Rasm) olish
 $fio = '-';
+$user_image = null;
 
 if (isset($_SESSION['user_id'])) {
-    $stmt = $pdo->prepare("SELECT fio FROM users WHERE id = ?");
+    // FIO va Image ni birga olamiz
+    $stmt = $pdo->prepare("SELECT fio, image FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
-    $fioData = $stmt->fetch();
+    $userData = $stmt->fetch();
 
-    if ($fioData && !empty($fioData['fio'])) {
-        $fio = $fioData['fio'];
+    if ($userData) {
+        $fio = !empty($userData['fio']) ? $userData['fio'] : '-';
+        $user_image = $userData['image'];
     }
 }
-$stmt = $pdo->prepare("
-    SELECT 
-        u.id, 
-        u.email,
-        u.fio,
-        COUNT(CASE WHEN m.is_read = 0 AND m.admin_id IS NULL THEN 1 END) AS unread
-    FROM messages m
-    JOIN users u ON m.user_id = u.id
-    WHERE m.section_id = ?
-      AND (m.admin_id IS NULL OR m.admin_id = ?)
-    GROUP BY u.id
-");
 
+// Xabarlar uchun logikangiz (o'zgarishsiz qoldi)
 $section_id = $section_id ?? 0;
 $admin_id = $_SESSION['user_id'] ?? 0;
 ?>
 
-<!-- MOBILE BUTTON -->
-<button id="toggleBtn">☰</button>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- SIDEBAR -->
-<div id="sidebar">
+<style>
+    /* Profil bloki konteyneri */
+    .profile {
+        padding: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: auto;
+    }
 
-    <!-- LOGO -->
-    <div class="text-center p-3 border-bottom">
-        <img src="Logos/logo2.png" width="120">
+    /* Profil havolasi - Flex-column orqali ustma-ust qilish */
+    .profile-link {
+        display: flex;
+        flex-direction: column;
+        /* Rasm tepada, FIO pastda */
+        align-items: center;
+        /* Markazga tekislash */
+        gap: 10px;
+        text-decoration: none;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    /* Rasm doirasi - o'lchami o'zgarmas qoladi */
+    .profile-circle {
+        width: 60px;
+        /* Biroq kattaroq qildik, ustma-ust tushganda chiroyli ko'rinadi */
+        height: 60px;
+        min-width: 60px;
+        min-height: 60px;
+        border-radius: 50%;
+        background: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        flex-shrink: 0;
+    }
+
+    .profile-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* FIO matni - 100% ko'rinishi uchun */
+    .profile-text {
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        word-wrap: break-word;
+        /* Uzun so'zlarni ham bo'lib tushiradi */
+        line-height: 1.4;
+        display: block;
+        /* G'oyib bo'lmasligi uchun */
+    }
+
+    /* Agar sidebar keng bo'lsa va yonma-yon qo'ymoqchi bo'lsangiz (ixtiyoriy) */
+    /* @media (min-width: 250px) {
+        .profile-link { flex-direction: row; text-align: left; }
+    } */
+</style>
+
+<body>
+    
+    <button id="toggleBtn">☰</button>
+
+    <div id="sidebar">
+
+        <div class="text-center p-3 border-bottom">
+            <img src="Logos/logo2.png" width="120">
+        </div>
+
+        <a href="index.php" class="<?= $current == 'index.php' ? 'active' : '' ?>">Bosh sahifa</a>
+        <a href="about.php" class="<?= $current == 'about.php' ? 'active' : '' ?>">Biz haqimizda</a>
+        <a href="academic.php" class="<?= $current == 'academic.php' ? 'active' : '' ?>">Academic Policy</a>
+
+        <?php if ($role == 'admin' || $role == 'super_admin'): ?>
+            <a href="test.php" class="<?= $current == 'test.php' ? 'active' : '' ?>">O'zlashtirish natijalari</a>
+            <button onclick="toggleSubmenu()">Arizalar <span>▼</span></button>
+            <div id="submenu" class="submenu">
+                <a href="bepul_royhat.php">Bepul ro'yhat</a>
+                <a href="pullik_royhat.php">Pullik ro'yhat</a>
+            </div>
+            <a href="fanlar.php">Fanlar</a>
+            <a href="admin_chat.php">Admin Chat</a>
+            <a href="talabalar_bahosi.php">Talaba Fan Natijalari</a>
+        <?php endif; ?>
+
+        <?php if ($role == 'user'): ?>
+            <a href="arizalar.php">Arizalarim</a>
+            <a href="chat.php">Chat</a>
+            <a href="natijalarim.php">Natijalarim</a>
+        <?php endif; ?>
+
+        <?php if ($role == 'super_admin'): ?>
+            <a href="admin_panel.php">Admin Panel</a>
+            <a href="forgot_password.php">Parolni tiklash</a>
+            <a href="import.php">Import talaba</a>
+            <a href="all_talabalar.php">Barcha talabalar</a>
+        <?php endif; ?>
+
+        <?php if ($role == null): ?>
+            <a href="login.php">Kirish</a>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <div class="profile">
+                <a href="myprofile.php" style="text-decoration:none;">
+                    <div class="profile-circle">
+                        <?php if (!empty($user_image) && file_exists("uploads/" . $user_image)): ?>
+                            <img src="uploads/<?= htmlspecialchars($user_image) ?>" alt="User">
+                        <?php else: ?>
+                            <?= strtoupper(substr($_SESSION['email'] ?? 'U', 0, 1)) ?>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="text-white profile-text" style="font-size: 14px;">
+                        <?= htmlspecialchars($fio) ?>
+                    </div>
+                </a>
+            </div>
+        <?php endif; ?>
+
     </div>
-
-    <!-- MENU -->
-    <a href="index.php" class="<?= $current == 'index.php' ? 'active' : '' ?>">
-        Bosh sahifa
-    </a>
-
-    <a href="about.php" class="<?= $current == 'about.php' ? 'active' : '' ?>">
-        Biz haqimizda
-    </a>
-
-    <a href="academic.php" class="<?= $current == 'academic.php' ? 'active' : '' ?>">
-        Academic Policy
-    </a>
+</body>
 
 
-    <?php if ($role == 'admin' || $role == 'super_admin'): ?>
-        <a href="test.php" class="<?= $current == 'test.php' ? 'active' : '' ?>">
-            O'zlashtirish natijalari
-        </a>
-        <button onclick="toggleSubmenu()">
-            Arizalar
-            <span>▼</span>
-        </button>
-
-        <div id="submenu" class="submenu">
-            <a href="bepul_royhat.php">Bepul ro'yhat</a>
-            <a href="pullik_royhat.php">Pullik ro'yhat</a>
-        </div>
-    <?php endif; ?>
-
-    <!-- ADMIN -->
-    <?php if ($role == 'admin' || $role == 'super_admin'): ?>
-        <a href="fanlar.php">Fanlar</a>
-        <a href="admin_chat.php">Admin Chat</a>
-        <a href="talabalar_bahosi.php">Talaba Fan Natijalari</a>
-    <?php endif; ?>
-
-    <!-- USER -->
-    <?php if ($role == 'user'): ?>
-        <a href="arizalar.php">Arizalarim</a>
-        <a href="chat.php">Chat</a>
-
-    <?php endif; ?>
-
-    <?php if ($role == 'super_admin'): ?>
-        <a href="admin_panel.php">Admin Panel</a>
-        <a href="forgot_password.php">Parolni tiklash</a>
-        <a href="import.php">Import talaba</a>
-        <!-- <a href="test.php">O'zlashtirish natijalari</a> -->
-    <?php endif; ?>
-
-    <?php if ($role == null): ?>
-        <a href="login.php">Kirish</a>
-    <?php endif; ?>
-
-    <!-- 🔥 PROFILE (QAYTARILDI) -->
-    <?php if (isset($_SESSION['user_id'])): ?>
-        <div class="profile">
-            <a href="myprofile.php" style="text-decoration:none;">
-                <div class="profile-circle">
-                    <?= strtoupper(substr($_SESSION['email'] ?? 'U', 0, 1)) ?>
-                </div>
-
-                <div class="text-white profile-text">
-                    <?= htmlspecialchars($fio) ?>
-                </div>
-
-            </a>
-        </div>
-    <?php endif; ?>
-
-</div>
 
 <main>
 
@@ -131,15 +167,12 @@ $admin_id = $_SESSION['user_id'] ?? 0;
         let sidebar = document.getElementById("sidebar");
         let toggleBtn = document.getElementById("toggleBtn");
 
-        // MOBILE OPEN/CLOSE
         toggleBtn.addEventListener("click", function() {
             sidebar.classList.toggle("show");
         });
 
-        // SUBMENU TOGGLE
         function toggleSubmenu() {
             let submenu = document.getElementById("submenu");
-
             if (submenu.style.display === "block") {
                 submenu.style.display = "none";
                 localStorage.setItem("submenu", "0");
@@ -149,10 +182,10 @@ $admin_id = $_SESSION['user_id'] ?? 0;
             }
         }
 
-        // KEEP STATE AFTER REFRESH
         window.onload = function() {
             if (localStorage.getItem("submenu") === "1") {
-                document.getElementById("submenu").style.display = "block";
+                let sub = document.getElementById("submenu");
+                if (sub) sub.style.display = "block";
             }
         };
     </script>

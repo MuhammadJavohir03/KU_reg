@@ -62,7 +62,7 @@ if (isset($_POST['submit'])) {
 
             // b) Davomat (NB) 33 dan katta yoki teng bo'lsa
             if ($davomat >= 33) {
-                echo "<script>alert('❌ NBlar soni 33 tadan ko\'p. Ariza topshira olmaysiz.');</script>";
+                echo "<script>alert('❌ NBlar Foizi 33% dan ko\'p. Ariza topshira olmaysiz.');</script>";
                 continue;
             }
 
@@ -103,6 +103,7 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar ORDER BY nomi ASC")->fet
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     body {

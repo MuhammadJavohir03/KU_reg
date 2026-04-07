@@ -1,4 +1,5 @@
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <body>
     <?php require "Includes/yuklash.php"; ?>

@@ -1,10 +1,24 @@
 <?php
+session_start();
 require "database.php";
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+
+// AUTO-LOGIN: Agar URL orqali auto_id kelsa
+if (isset($_GET['auto_id'])) {
+    $new_id = (int)$_GET['auto_id'];
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$new_id]);
+    $u = $stmt->fetch();
+
+    if ($u) {
+        $_SESSION['user_id'] = $u['id'];
+        $_SESSION['role']    = $u['role'];
+        $_SESSION['fio']     = $u['fio'];
+
+        header("Location: myprofile.php");
+        exit;
+    }
 }
 
-// 🔐 login check
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -12,7 +26,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $id = $_SESSION['user_id'];
 
-// 👤 user olish
+// 👤 User ma'lumotlarini olish
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -21,7 +35,27 @@ if (!$user) {
     exit("User topilmadi");
 }
 
-// ✏️ UPDATE (faqat password)
+// 🧮 Kurs va Guruhni hisoblash (2026-yil bo'yicha)
+$guruh_full = $user['kurs']; 
+$guruh_nomi = str_replace("-kurs", "", $guruh_full); 
+
+preg_match('/(\d{2})$/', $guruh_nomi, $matches);
+$bitiruv_yili = isset($matches[1]) ? (int)$matches[1] : 26;
+$hisoblangan_kurs = 26 - $bitiruv_yili;
+if ($hisoblangan_kurs <= 0) $hisoblangan_kurs = 1;
+
+// 🗑️ RASMNI O'CHIRISH
+if (isset($_POST['delete_photo'])) {
+    if (!empty($user['image']) && file_exists("uploads/" . $user['image'])) {
+        unlink("uploads/" . $user['image']);
+    }
+    $update = $pdo->prepare("UPDATE users SET image = NULL WHERE id = ?");
+    $update->execute([$id]);
+    header("Location: myprofile.php?success=2");
+    exit;
+}
+
+// ✏️ UPDATE (Password va Rasm yuklash)
 if (isset($_POST['update'])) {
     $password = htmlspecialchars(trim($_POST['password']));
     if (!empty($password)) {
@@ -29,235 +63,226 @@ if (isset($_POST['update'])) {
         $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
         $update->execute([$hash, $id]);
     }
+
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
+        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+        $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+
+        if (in_array($ext, $allowed)) {
+            if (!is_dir('uploads')) mkdir('uploads', 0777, true);
+            if (!empty($user['image']) && file_exists("uploads/" . $user['image'])) {
+                unlink("uploads/" . $user['image']);
+            }
+            $new_name = "profile_" . $id . "_" . time() . "." . $ext;
+            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], "uploads/" . $new_name)) {
+                $updateImg = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
+                $updateImg->execute([$new_name, $id]);
+            }
+        }
+    }
     header("Location: myprofile.php?success=1");
     exit;
 }
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     :root {
-        --primary-color: #3b82f6;
-        --bg-color: #f3f4f6;
-        --card-bg: #ffffff;
-        --text-main: #1f2937;
-        --text-muted: #6b7280;
+        --primary: #6366f1;
+        --danger: #f43f5e;
+        --glass: rgba(255, 255, 255, 0.8);
     }
 
     body {
-        background-color: var(--bg-color);
-        color: var(--text-main);
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        font-family: 'Inter', sans-serif;
         margin: 0;
-    }
-
-    .profile-container {
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
-
-    .profile-card {
-        background: var(--card-bg);
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        padding: 40px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .profile-header {
         display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
+        flex-direction: column;
     }
 
-    .profile-avatar-big {
-        width: 80px;
-        height: 80px;
-        background: var(--primary-color);
-        color: white;
-        border-radius: 20px;
+    /* 📱 PC va Tel uchun markazlashtirish */
+    .main-wrapper {
+        flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 32px;
-        font-weight: 700;
-        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+        padding: 20px;
     }
 
-    .profile-title h2 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
+    .profile-card {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+        width: 100%;
+        max-width: 500px; /* PC uchun optimal kenglik */
+        margin: auto;
     }
 
-    .badge-role {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        margin-top: 5px;
+    .avatar-wrapper {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 20px;
     }
 
-    .badge-student {
-        background: #dcfce7;
-        color: #166534;
+    .profile-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 30px;
+        object-fit: cover;
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 35px;
+        font-weight: bold;
+        border: 4px solid white;
+        overflow: hidden;
     }
 
-    .badge-admin {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-
-    .form-group label {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text-muted);
-        margin-bottom: 8px;
-        text-transform: uppercase;
+    .delete-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        z-index: 10;
+        background: white;
+        color: var(--danger);
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .form-control-custom {
         width: 100%;
-        padding: 12px 16px;
+        padding: 10px 15px;
         border-radius: 10px;
-        border: 1.5px solid #e5e7eb;
-        background-color: #fff;
-        transition: 0.2s;
-        font-size: 15px;
-    }
-
-    .form-control-custom:focus {
-        border-color: var(--primary-color);
-        outline: none;
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        border: 2px solid #e2e8f0;
+        background: white;
+        margin-bottom: 12px;
+        font-size: 14px;
+        box-sizing: border-box;
     }
 
     .form-control-custom:disabled {
-        background-color: #f9fafb;
-        color: #4b5563;
-        cursor: not-allowed;
-        border-style: dashed;
+        background: #f8fafc;
+        color: #475569;
     }
 
     .btn-save {
-        background: var(--primary-color);
+        background: var(--primary);
         color: white;
         border: none;
-        padding: 12px 25px;
+        width: 100%;
+        padding: 12px;
         border-radius: 10px;
         font-weight: 600;
-        width: 100%;
-        transition: 0.3s;
         cursor: pointer;
+        margin-top: 10px;
+        transition: 0.3s;
     }
 
     .btn-save:hover {
-        background: #2563eb;
-        transform: translateY(-2px);
+        opacity: 0.9;
+        transform: translateY(-1px);
     }
 
-    .btn-logout {
+    .upload-label {
         display: block;
         text-align: center;
-        text-decoration: none;
-        color: #ef4444;
-        font-size: 14px;
-        font-weight: 500;
-        margin-top: 20px;
-        transition: 0.2s;
+        margin-bottom: 15px;
+        cursor: pointer;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 600;
     }
 
-    .btn-logout:hover {
-        color: #b91c1c;
-    }
-
-    @media (max-width: 600px) {
-        .info-grid {
-            grid-template-columns: 1fr;
+    @media (max-width: 480px) {
+        .profile-card {
+            padding: 20px;
+            border-radius: 20px;
         }
+        h2 { font-size: 1.2rem; }
     }
 </style>
 
-<body>
-    <?php require "Includes/yuklash.php"; ?>
+<?php require "Includes/navbar.php"; ?>
 
-    <div class="profile-container">
-        <a href="index.php" class="text-decoration-none text-muted mb-4 d-inline-block">
-            <small>← Asosiy sahifaga qaytish</small>
-        </a>
-
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="profile-avatar-big">
-                    <?= strtoupper(substr($user['email'] ?? 'U', 0, 1)) ?>
-                </div>
-                <div class="profile-title">
-                    <h2>Profil ma'lumotlari</h2>
-                    <span class="badge-role <?= ($user['role'] == 'user') ? 'badge-student' : 'badge-admin' ?>">
-                        <?= ($user['role'] == 'user') ? 'Talaba' : 'Admin' ?>
-                    </span>
+<div class="main-wrapper">
+    <div class="profile-card">
+        <div class="text-center" style="text-align:center;">
+            <div class="avatar-wrapper">
+                <div class="profile-avatar">
+                    <?php if (!empty($user['image']) && file_exists("uploads/" . $user['image'])): ?>
+                        <img src="uploads/<?= $user['image'] ?>" class="profile-avatar">
+                        <form method="POST" style="margin:0;">
+                            <button type="submit" name="delete_photo" class="delete-btn">&times;</button>
+                        </form>
+                    <?php else: ?>
+                        <?= strtoupper(substr($user['email'], 0, 1)) ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <?php if (isset($_GET['success'])): ?>
-                <div class="alert alert-success border-0 py-2" style="border-radius:10px; font-size:14px;">
-                    Parol muvaffaqiyatli yangilandi!
-                </div>
-            <?php endif; ?>
-
-            <form method="POST">
-                <div class="info-grid">
-                    <div class="form-group">
-                        <label>ID Raqam</label>
-                        <input class="form-control-custom" type="text" value="<?= $user['talaba_id'] ?>" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Email Manzil</label>
-                        <input class="form-control-custom" type="text" value="<?= $user['email'] ?>" disabled>
-                    </div>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label>F.I.O</label>
-                    <input class="form-control-custom" type="text" value="<?= $user['fio'] ?>" disabled>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label>Kurs</label>
-                    <input class="form-control-custom" type="text" value="<?= $user['kurs'] ?>-kurs" disabled>
-                </div>
-
-                <hr style="opacity: 0.1; margin: 30px 0;">
-
-                <div class="form-group mb-4">
-                    <label style="color: var(--primary-color);">Xavfsizlik: Yangi parol</label>
-                    <input class="form-control-custom" type="password" name="password" placeholder="Parolni o'zgartirish uchun yozing...">
-                    <small class="text-muted d-block mt-2" style="font-size: 11px;">
-                        Agar parolni o'zgartirmoqchi bo'lmasangiz, bo'sh qoldiring.
-                    </small>
-                </div>
-
-                <button class="btn-save" name="update">
-                    O'zgarishlarni saqlash
-                </button>
-            </form>
-
-            <a href="logout.php" class="btn-logout">Tizimdan chiqish</a>
+            <h2 style="margin:0;"><?= $user['fio'] ?></h2>
+            <div style="margin-top: 5px;">
+                <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700;">
+                    <?= ($user['role'] == 'admin') ? 'ADMINISTRATOR' : 'TALABA' ?>
+                </span>
+            </div>
         </div>
+
+        <hr style="margin: 20px 0; opacity: 0.1;">
+
+        <?php if (isset($_GET['success'])): ?>
+            <div style="background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; text-align: center;">
+                <?= ($_GET['success'] == 1) ? "Muvaffaqiyatli yangilandi!" : "Rasm o'chirildi!" ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" enctype="multipart/form-data">
+            <label class="upload-label">
+                <span>📷 Profil rasmini o'zgartirish</span>
+                <input type="file" name="profile_image" hidden accept="image/*">
+            </label>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">ID RAQAM</label>
+                    <input class="form-control-custom" type="text" value="<?= $user['talaba_id'] ?>" disabled>
+                </div>
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">KURS</label>
+                    <input class="form-control-custom" type="text" value="<?= $hisoblangan_kurs ?>-kurs" disabled>
+                </div>
+            </div>
+
+            <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">GURUH</label>
+            <input class="form-control-custom" type="text" value="<?= $guruh_nomi ?>" disabled>
+
+            <label style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px;">EMAIL MANZIL</label>
+            <input class="form-control-custom" type="text" value="<?= $user['email'] ?>" disabled>
+
+            <label style="font-size:11px; font-weight:700; color:var(--primary); display:block; margin-bottom:4px;">YANGI PAROL (IXTIYORIY)</label>
+            <input class="form-control-custom" type="password" name="password" placeholder="********">
+
+            <button type="submit" name="update" class="btn-save">Saqlash</button>
+        </form>
+
+        <a href="logout.php" style="display:block; text-align:center; margin-top:15px; color:var(--danger); text-decoration:none; font-size:13px; font-weight:600;">Chiqish</a>
     </div>
-
-</body>
-
-</html>
+</div>

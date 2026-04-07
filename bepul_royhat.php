@@ -144,6 +144,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         border-radius: 5px;
     }
 </style>
+<?php require "atmosphere.php"; ?>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
@@ -157,7 +158,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="fw-bold text-dark mb-1"><i class="bi bi-clipboard-check text-primary me-2"></i> Bepul Ro‘yxat</h2>
-                    <p class="text-muted small">Tizimdagi barcha arizalar va biriktirilgan fanlar</p>
+                    <p class="text-muted small">Tizimdagi barcha arizalar va biriktirilgan fanlar (alohida qatorlarda)</p>
                 </div>
             </div>
 
@@ -189,7 +190,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <th>Talaba ma'lumotlari</th>
                             <th>Email & Guruh</th>
                             <th>HEMIS Parol</th>
-                            <th>Tanlangan fanlar</th>
+                            <th>Tanlangan fan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -197,29 +198,32 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <tr>
                                 <td colspan="5" class="text-center py-5 text-muted">Ma'lumot topilmadi</td>
                             </tr>
-                            <?php else: $i = 1;
-                            foreach ($data as $row): ?>
-                                <tr>
-                                    <td class="text-center fw-bold text-muted"><?= $i++ ?></td>
-                                    <td>
-                                        <div class="fw-bold"><?= htmlspecialchars($row['fio']) ?></div>
-                                        <div class="small text-primary">ID: <?= htmlspecialchars($row['talaba_id']) ?></div>
-                                    </td>
-                                    <td>
-                                        <div class="small"><i class="bi bi-envelope"></i> <?= htmlspecialchars($row['email']) ?></div>
-                                        <span class="badge bg-light text-dark border mt-1"><?= htmlspecialchars($row['guruh']) ?></span>
-                                    </td>
-                                    <td><code><?= htmlspecialchars($row['hemis_parol']) ?></code></td>
-                                    <td>
-                                        <?php for ($j = 1; $j <= 4; $j++):
-                                            $fname = "fan{$j}_full";
-                                            if (!empty(trim($row[$fname] ?? ''))): ?>
+                        <?php else: 
+                            $counter = 1;
+                            foreach ($data as $row): 
+                                // 1-dan 4-gacha bo'lgan fanlarni tekshiramiz va har biri uchun alohida <tr> chiqaramiz
+                                for ($j = 1; $j <= 4; $j++):
+                                    $fname = "fan{$j}_full";
+                                    if (!empty(trim($row[$fname] ?? ''))): ?>
+                                        <tr>
+                                            <td class="text-center fw-bold text-muted"><?= $counter++ ?></td>
+                                            <td>
+                                                <div class="fw-bold"><?= htmlspecialchars($row['fio']) ?></div>
+                                                <div class="small text-primary">ID: <?= htmlspecialchars($row['talaba_id']) ?></div>
+                                            </td>
+                                            <td>
+                                                <div class="small"><i class="bi bi-envelope"></i> <?= htmlspecialchars($row['email']) ?></div>
+                                                <span class="badge bg-light text-dark border mt-1"><?= htmlspecialchars($row['guruh']) ?></span>
+                                            </td>
+                                            <td><code><?= htmlspecialchars($row['hemis_parol']) ?></code></td>
+                                            <td>
                                                 <span class="fan-badge"><?= htmlspecialchars($row[$fname]) ?></span>
-                                        <?php endif;
-                                        endfor; ?>
-                                    </td>
-                                </tr>
-                        <?php endforeach;
+                                            </td>
+                                        </tr>
+                                    <?php 
+                                    endif;
+                                endfor;
+                            endforeach;
                         endif; ?>
                     </tbody>
                 </table>
@@ -230,5 +234,4 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <?php require "Includes/footer.php"; ?>
 </body>
-
 </html>

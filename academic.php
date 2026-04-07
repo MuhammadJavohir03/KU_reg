@@ -1,6 +1,7 @@
 <?php session_start(); ?>
 <?php $title = "Akademik Siyosat | Kokand University"; ?>
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     :root {
@@ -96,6 +97,7 @@
         width: 40px; height: 40px; border-radius: 50%;
         background: var(--primary-red); color: white; border: none;
         display: none; z-index: 1000;
+        opacity: 50%;
     }
 </style>
 
@@ -210,7 +212,7 @@
         </div>
     </div>
 
-    <button onclick="topFunction()" id="topBtn"><i class="bi bi-arrow-up-short h4"></i></button>
+    <button onclick="topFunction()" id="topBtn"><i class="bi opacity-75 bi-arrow-up-short h4">Up</i></button>
 
     <script>
         // Scroll logic for Top Button

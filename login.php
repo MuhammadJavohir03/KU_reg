@@ -13,8 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Barcha maydonlar to‘ldirilishi kerak!";
     } elseif (!preg_match('/@kumail\.uz$/', $email) && !preg_match('/@kokanduni\.uz$/', $email)) {
         $error = "Email faqat @kumail.uz yoki @kokanduni.uz bilan tugashi kerak.";
-    } elseif (!preg_match('/^\d{12}$/', $talaba_id)) {
-        $error = "Talaba ID 12 raqamdan iborat bo'lishi kerak.";
+    } elseif (!preg_match('/^[a-zA-Z0-9]{8}$|^[a-zA-Z0-9]{12}$/', $talaba_id)) {
+        $error = "Talaba ID 8 yoki 12 ta belgidan (raqam va harf) iborat bo'lishi kerak.";
     } else {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email=:email AND talaba_id=:talaba_id LIMIT 1");
         $stmt->execute([
@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
@@ -56,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     body {
         margin: 0;
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background: #f8fafc;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -302,7 +302,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="input-wrapper">
                         <label>Talaba ID</label>
-                        <input type="text" name="talaba_id" class="input-style" placeholder="12 xonali ID raqam" required maxlength="12">
+                        <input type="text"
+                            name="talaba_id"
+                            class="input-style"
+                            placeholder="Masalan: 25B19125"
+                            required
+                            maxlength="12">
                     </div>
 
                     <button type="submit" class="btn-submit">Kirish</button>

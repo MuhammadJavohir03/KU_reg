@@ -52,24 +52,20 @@ if ($yonalish && $guruh && $semestr) {
                 foreach ($active_subjects as $sub) {
                     $id = $sub['id'];
                     
-                    // Reyting tekshiruvi
-                    if ($row["r_$id"] < 20 && $row["r_$id"] !== null) {
+                    if (isset($row["r_$id"]) && $row["r_$id"] < 20 && $row["r_$id"] !== null) {
                         $r_bad = true;
                         $is_failed = true;
                     }
-                    // Umumiy ball tekshiruvi
-                    if ($row["u_$id"] < 60 && $row["u_$id"] !== null) {
+                    if (isset($row["u_$id"]) && $row["u_$id"] < 60 && $row["u_$id"] !== null) {
                         $u_bad = true;
                         $is_failed = true;
                     }
-                    // Davomat tekshiruvi
-                    if ($row["d_$id"] >= 33) {
+                    if (isset($row["d_$id"]) && $row["d_$id"] >= 33) {
                         $d_bad = true;
                         $is_failed = true;
                     }
                 }
 
-                // Statistika uchun sanash
                 if ($r_bad) $r_fail_count++;
                 if ($u_bad) $u_fail_count++;
                 if ($d_bad) $d_fail_count++;
@@ -94,15 +90,16 @@ if (isset($_GET['export_csv']) && !empty($students_data)) {
     header('Content-Disposition: attachment; filename=hisobot.csv');
     $output = fopen('php://output', 'w');
     fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-    $header = ['Talaba F.I.O'];
+    $header = ['№', 'Talaba F.I.O'];
     foreach ($active_subjects as $f) {
         $header[] = $f['nomi'] . " (R)";
         $header[] = $f['nomi'] . " (U)";
         $header[] = $f['nomi'] . " (D)";
     }
     fputcsv($output, $header, ";");
+    $counter = 1;
     foreach ($students_data as $s) {
-        $line = [$s['fio']];
+        $line = [$counter++, $s['fio']];
         foreach ($active_subjects as $f) {
             $id = $f['id'];
             $line[] = $s["r_$id"] ?? 0;
@@ -119,7 +116,6 @@ $pass_count = $total_count - $failed_count;
 $pass_percent = $total_count > 0 ? round(($pass_count / $total_count) * 100) : 0;
 $fail_percent = $total_count > 0 ? round(($failed_count / $total_count) * 100) : 0;
 
-// Yangi foizlar
 $r_fail_percent = $total_count > 0 ? round(($r_fail_count / $total_count) * 100) : 0;
 $u_fail_percent = $total_count > 0 ? round(($u_fail_count / $total_count) * 100) : 0;
 $d_fail_percent = $total_count > 0 ? round(($d_fail_count / $total_count) * 100) : 0;
@@ -130,6 +126,7 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
 ?>
 
 <?php include "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 <style>
     :root {
         --soft-border: #eef2f7;
@@ -145,6 +142,8 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
     .fail-text { color: #e74c3c !important; font-weight: 600; background-color: #ff00001f !important; }
     .fio-col { text-align: left; padding-left: 20px !important; width: 300px; color: #2c3e50 !important; }
     .progress { height: 6px; border-radius: 10px; background-color: #f0f0f0; }
+    .table-danger-soft { background-color: #fff5f5 !important; }
+    .no-col { width: 50px; text-align: center; background-color: #f8f9fb; font-weight: bold; }
 </style>
 
 <body>
@@ -184,9 +183,9 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="small fw-bold text-muted mb-1">Qidirish</label>
+                    <label class="small fw-bold text-muted mb-1">Qidirish (Live)</label>
                     <div class="input-group">
-                        <input type="text" name="search" class="form-control shadow-none" placeholder="Ism bo'yicha..." value="<?= htmlspecialchars($search) ?>">
+                        <input type="text" name="search" id="searchInput" class="form-control shadow-none" placeholder="Ism bo'yicha..." value="<?= htmlspecialchars($search) ?>" autocomplete="off">
                         <button class="btn btn-primary px-3" type="submit">🔍</button>
                     </div>
                 </div>
@@ -279,6 +278,7 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                     <table class="table text-center align-middle mb-0">
                         <thead>
                             <tr>
+                                <th rowspan="2" class="no-col align-middle">No</th>
                                 <th rowspan="2" class="fio-col align-middle">Talaba Ismi</th>
                                 <?php foreach ($active_subjects as $subject): ?>
                                     <th colspan="3"><?= htmlspecialchars($subject['nomi']) ?></th>
@@ -291,13 +291,14 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($students_data as $s): ?>
+                            <?php $i = 1; foreach ($students_data as $s): ?>
                                 <tr class="<?= $s['is_failed'] ? 'table-danger-soft' : '' ?>">
+                                    <td class="no-col"><?= $i++ ?></td>
                                     <td class="fio-col"><div class="fw-bold"><?= htmlspecialchars($s['fio']) ?></div></td>
                                     <?php foreach ($active_subjects as $sub): $id = $sub['id']; ?>
-                                        <td class="<?= ($s["r_$id"] < 20 && $s["r_$id"] !== null) ? 'fail-text' : '' ?>"><?= $s["r_$id"] ?? '-' ?></td>
-                                        <td class="<?= ($s["u_$id"] < 60 && $s["u_$id"] !== null) ? 'fail-text' : '' ?>"><?= $s["u_$id"] ?? '-' ?></td>
-                                        <td class="<?= ($s["d_$id"] >= 33) ? 'fail-text' : '' ?>"><?= isset($s["d_$id"]) ? $s["d_$id"] . '%' : '-' ?></td>
+                                        <td class="<?= (isset($s["r_$id"]) && $s["r_$id"] < 20 && $s["r_$id"] !== null) ? 'fail-text' : '' ?>"><?= $s["r_$id"] ?? '-' ?></td>
+                                        <td class="<?= (isset($s["u_$id"]) && $s["u_$id"] < 60 && $s["u_$id"] !== null) ? 'fail-text' : '' ?>"><?= $s["u_$id"] ?? '-' ?></td>
+                                        <td class="<?= (isset($s["d_$id"]) && $s["d_$id"] >= 33) ? 'fail-text' : '' ?>"><?= isset($s["d_$id"]) ? $s["d_$id"] . '%' : '-' ?></td>
                                     <?php endforeach; ?>
                                 </tr>
                             <?php endforeach; ?>
@@ -313,6 +314,9 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
     </div>
 
     <script>
+        const filterForm = document.getElementById('filterForm');
+        const searchInput = document.getElementById('searchInput');
+
         document.querySelectorAll('.select-auto').forEach(el => {
             el.addEventListener('input', (e) => {
                 const listId = el.getAttribute('list');
@@ -320,16 +324,32 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                     const options = document.getElementById(listId).options;
                     for (let i = 0; i < options.length; i++) {
                         if (options[i].value === el.value) {
-                            document.getElementById('filterForm').submit();
+                            filterForm.submit();
                             break;
                         }
                     }
                 }
             });
             if (el.tagName === 'SELECT') {
-                el.addEventListener('change', () => document.getElementById('filterForm').submit());
+                el.addEventListener('change', () => filterForm.submit());
             }
         });
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(() => {
+                filterForm.submit();
+            }, 500); 
+        });
+
+        window.onload = () => {
+            if(searchInput.value !== "") {
+                searchInput.focus();
+                const val = searchInput.value;
+                searchInput.value = '';
+                searchInput.value = val;
+            }
+        };
     </script>
 </body>
 </html>

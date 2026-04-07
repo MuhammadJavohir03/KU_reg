@@ -1,6 +1,7 @@
 <?php session_start(); ?>
 <?php $title = "Registrator Ofisi | Kokand University"; ?>
 <?php require "Includes/header.php"; ?>
+<?php require "atmosphere.php"; ?>
 
 <style>
     :root {
