@@ -190,12 +190,14 @@ foreach ($sections as $s) {
     }
 
     .sidebar-header {
+        background-color: #eef2f7!important;
         flex-shrink: 0;
         padding: 20px;
         border-bottom: 1px solid #f1f5f9;
     }
 
     .user-list-wrapper {
+        background-color: #eef2f7!important;
         padding: 10px;
         overflow-y: auto;
         flex-grow: 1;
@@ -596,4 +598,4 @@ foreach ($sections as $s) {
     </script>
 </body>
 
-</html>s
+</html>

@@ -233,9 +233,6 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar ORDER BY nomi ASC")->fet
 
                                 <label class="form-label">Guruh</label>
                                 <div class="form-control-static"><?= $user['guruh'] ?></div>
-
-                                <label class="form-label">Hemis Parol (Tasdiqlash uchun)</label>
-                                <input type="password" name="hemis_parol" class="form-control form-input" placeholder="Parolni kiriting" required>
                             </div>
 
                             <div class="col-md-7 ps-md-4 mt-4 mt-md-0">

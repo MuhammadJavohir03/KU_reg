@@ -211,8 +211,8 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar")->fetchAll();
                                 <label class="form-label">Guruh</label>
                                 <div class="form-control-static"><?= $user['guruh'] ?></div>
 
-                                <label class="form-label">Hemis Parol</label>
-                                <input type="password" name="hemis_parol" class="form-control form-input" placeholder="Tasdiqlash uchun parol" required>
+                                <!-- <label class="form-label">Hemis Parol</label>
+                                <input type="password" name="hemis_parol" class="form-control form-input" placeholder="Tasdiqlash uchun parol" required> -->
                             </div>
 
                             <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
@@ -232,9 +232,9 @@ $fanlar_list = $pdo->query("SELECT id, nomi FROM fanlar")->fetchAll();
                                     <i class="bi bi-plus-circle"></i> + Yana fan qo‘shish
                                 </button>
 
-                                <div class="alert alert-warning mt-3 py-2 px-3" style="background: rgba(243, 156, 18, 0.1); border: 1px solid rgba(243, 156, 18, 0.2); color: #f39c12; font-size: 0.8rem;">
+                                <!-- <div class="alert alert-warning mt-3 py-2 px-3" style="background: rgba(243, 156, 18, 0.1); border: 1px solid rgba(243, 156, 18, 0.2); color: #f39c12; font-size: 0.8rem;">
                                     <i class="bi bi-exclamation-triangle"></i> Eslatma: Ariza yuborilgach, to'lov kvitansiyasini shaxsiy kabinetingizdan olishingiz mumkin.
-                                </div>
+                                </div> -->
 
                                 <button name="submit" type="submit" class="btn btn-submit">
                                     Arizani saqlash va yuborish
