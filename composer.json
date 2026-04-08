@@ -1,0 +1,12 @@
+{
+    "name": "javohir/ku_tayyor",
+    "authors": [
+        {
+            "name": "MuhammadJavohir03",
+            "email": "javohir8386@gmail.com"
+        }
+    ],
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.5"
+    }
+}

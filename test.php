@@ -8,6 +8,7 @@ $guruh    = $_GET['guruh'] ?? '';
 $semestr  = $_GET['semestr'] ?? '';
 $search   = $_GET['search'] ?? '';
 $status   = $_GET['status'] ?? 'all';
+$fan = $_GET['fan'] ?? '';
 
 // Pagination sozlamalari
 $limit = 100;
@@ -25,10 +26,10 @@ $u_fail_count = 0;
 $d_fail_count = 0;
 
 try {
-    // FAQAT yo'nalish tanlangan bo'lsa ma'lumotlarni yuklaymiz
     if ($yonalish) {
-        // 1. Dinamik fanlarni aniqlash (Yo'nalish bo'yicha qat'iy filtr)
-        $sub_sql = "SELECT DISTINCT f.id, f.nomi FROM fanlar f JOIN talabalar t ON f.id = t.fan_id WHERE f.yonalish = ?";
+        $sub_sql = "SELECT DISTINCT f.id, f.nomi FROM fanlar f 
+                    JOIN talabalar t ON f.id = t.fan_id 
+                    WHERE f.yonalish = ?";
         $sub_params = [$yonalish];
 
         if ($semestr) {
@@ -38,6 +39,10 @@ try {
         if ($guruh) {
             $sub_sql .= " AND t.guruh = ?";
             $sub_params[] = $guruh;
+        }
+        if ($fan) {
+            $sub_sql .= " AND f.nomi = ?";
+            $sub_params[] = $fan;
         }
 
         $sub_stmt = $pdo->prepare($sub_sql);
@@ -298,6 +303,13 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                     </datalist>
                 </div>
                 <div class="col-md-2">
+                    <label class="small fw-bold text-muted mb-1">Fan Nomi</label>
+                    <input list="fan_list" name="fan" class="form-control select-auto shadow-none" placeholder="Tanlang" value="<?= htmlspecialchars($fan) ?>">
+                    <datalist id="fan_list">
+                        <?php foreach ($active_subjects as $r): ?><option value="<?= $r['nomi'] ?>"><?php endforeach; ?>
+                    </datalist>
+                </div>
+                <div class="col-md-2">
                     <label class="small fw-bold text-muted mb-1">Holat</label>
                     <select name="status" class="form-select select-auto shadow-none">
                         <option value="all" <?= $status == 'all' ? 'selected' : '' ?>>Hamma talabalar</option>
@@ -446,7 +458,7 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                                     <?php foreach ($active_subjects as $sub): $id = $sub['id']; ?>
                                         <td class="<?= (isset($s["r_$id"]) && $s["r_$id"] < 20 && $s["r_$id"] !== null) ? 'fail-text' : '' ?>"><?= $s["r_$id"] ?? '-' ?></td>
                                         <td class="<?= (isset($s["u_$id"]) && $s["u_$id"] < 60 && $s["u_$id"] !== null) ? 'fail-text' : '' ?>"><?= $s["u_$id"] ?? '-' ?></td>
-                                        <td class="<?= (isset($s["d_$id"]) && $s["d_$id"] >= 33) ? 'fail-text' : '' ?>"><?= isset($s["d_$id"]) ? $s["d_$id"] . '%' : '-' ?></td>
+                                        <td class="<?= (isset($s["d_$id"]) && $s["d_$id"] >= 33) ? 'fail-text' : '' ?>"><?= round($s["d_$id"] ?? 0) . '%' ?? '-' ?></td>
                                     <?php endforeach; ?>
                                 </tr>
                             <?php endforeach; ?>

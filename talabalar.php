@@ -3,6 +3,14 @@ session_start();
 require "database.php";
 $title = "Talabalar";
 
+// 1. Kutubxonalarni avtomatik yuklovchi faylni ulaymiz
+require_once __DIR__ . '/vendor/autoload.php';
+
+// 2. Excel bilan ishlovchi klassni chaqiramiz
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+// Endi sizning eski kodlaringiz davom etadi...
+
 // 1. AJAX uchun Talaba ID tekshirish qismi (Eng tepada bo'lishi shart)
 if (isset($_GET['check_id'])) {
     $id = trim($_GET['check_id']);
@@ -32,7 +40,8 @@ if ($is_super) {
     if (isset($_GET['delete'])) {
         $id = (int) $_GET['delete'];
         $pdo->prepare("DELETE FROM talabalar WHERE id = ?")->execute([$id]);
-        header("Location: talabalar.php?fan_id=$fan_id"); exit;
+        header("Location: talabalar.php?fan_id=$fan_id");
+        exit;
     }
 
     if (isset($_POST['save'])) {
@@ -40,51 +49,95 @@ if ($is_super) {
         $stmt = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE talaba_id=?");
         $stmt->execute([$talaba_id]);
         $user = $stmt->fetch();
-        
+
         if ($user) {
             $pdo->prepare("INSERT INTO talabalar (fan_id, user_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 ->execute([
-                    $fan_id, 
-                    $user['fio'], 
-                    $user['talaba_id'], 
-                    $user['guruh'], 
-                    $_POST['joriy_nazorat'] ?: 0, 
-                    $_POST['oraliq_nazorat'] ?: 0, 
-                    $_POST['reyting'] ?: 0, 
-                    $_POST['yakuniy_nazorat'] ?: 0, 
-                    $_POST['qayta_topshirish'] ?: 0, 
-                    $_POST['umumiy'] ?: 0, 
+                    $fan_id,
+                    $user['fio'],
+                    $user['talaba_id'],
+                    $user['guruh'],
+                    $_POST['joriy_nazorat'] ?: 0,
+                    $_POST['oraliq_nazorat'] ?: 0,
+                    $_POST['reyting'] ?: 0,
+                    $_POST['yakuniy_nazorat'] ?: 0,
+                    $_POST['qayta_topshirish'] ?: 0,
+                    $_POST['umumiy'] ?: 0,
                     $_POST['davomat'] ?: 0
                 ]);
         }
-        header("Location: talabalar.php?fan_id=$fan_id"); exit;
+        header("Location: talabalar.php?fan_id=$fan_id");
+        exit;
     }
 
     if (isset($_POST['update'])) {
         $pdo->prepare("UPDATE talabalar SET joriy_nazorat=?, oraliq_nazorat=?, reyting=?, yakuniy_nazorat=?, qayta_topshirish=?, umumiy=?, davomat=? WHERE id=? AND fan_id=?")
             ->execute([$_POST['joriy_nazorat'], $_POST['oraliq_nazorat'], $_POST['reyting'], $_POST['yakuniy_nazorat'], $_POST['qayta_topshirish'], $_POST['umumiy'], $_POST['davomat'], $_POST['id'], $fan_id]);
-        header("Location: talabalar.php?fan_id=$fan_id"); exit;
+        header("Location: talabalar.php?fan_id=$fan_id");
+        exit;
     }
 }
 
 /* ================= IMPORT (ADMIN & SUPER) ================= */
 if ($is_admin && isset($_POST['import'])) {
     $file = $_FILES['file']['tmp_name'];
-    $h = fopen($file, "r");
-    fgetcsv($h, 1000, ";");
-    while (($d = fgetcsv($h, 1000, ";")) !== FALSE) {
-        if (count($d) < 8) continue;
-        $csv_fio = trim($d[0]);
-        $q = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio = ?");
-        $q->execute([$csv_fio]);
-        $user = $q->fetch(PDO::FETCH_ASSOC);
-        if ($user) {
-            $stmt = $pdo->prepare("INSERT INTO talabalar (user_id, fan_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$user['fio'], $fan_id, $user['talaba_id'], $user['guruh'], (int)$d[1], (int)$d[2], (int)$d[3], (int)$d[4], (int)$d[5], (int)$d[6], (float)$d[7]]);
+
+    try {
+        // Faylni avtomatik aniqlash va yuklash (Excel yoki CSV)
+        $spreadsheet = IOFactory::load($file);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $rows = $worksheet->toArray();
+
+        // Birinchi qator (Sarlavha) ni tashlab ketish
+        array_shift($rows);
+
+        foreach ($rows as $d) {
+            // $d[0] -> bu rasmda ko'ringan 0, 1, 2... tartib raqami. Shuni tashlab ketamiz.
+            // Shuning uchun ma'lumotlarni $d[1] dan boshlab olamiz.
+
+            if (empty($d[1])) continue; // Talaba ismi bo'sh bo'lsa o'tkazib yuboramiz
+
+            $csv_fio = trim($d[1]); // Talaba FIO (B ustuni)
+
+            // Userni bazadan qidirish
+            $q = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio = ?");
+            $q->execute([$csv_fio]);
+            $user = $q->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                $stmt = $pdo->prepare("INSERT INTO talabalar 
+                    (user_id, fan_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE 
+                    joriy_nazorat = VALUES(joriy_nazorat), 
+                    oraliq_nazorat = VALUES(oraliq_nazorat), 
+                    reyting = VALUES(reyting),
+                    yakuniy_nazorat = VALUES(yakuniy_nazorat),
+                    umumiy = VALUES(umumiy),
+                    davomat = VALUES(davomat)");
+
+                $stmt->execute([
+                    $user['fio'],
+                    $fan_id,
+                    $user['talaba_id'],
+                    $user['guruh'],
+                    (float)$d[2], // Joriy
+                    (float)$d[3], // Oraliq
+                    (float)$d[4], // Reyting
+                    (float)$d[5], // Yakuniy
+                    // AGAR tire bo'lsa 0 ga aylantiradi, aks holda son sifatida oladi
+                    ($d[6] == "'-'" || $d[6] == "-" || empty($d[6])) ? 0 : (int)$d[6],
+                    (float)$d[7], // Umumiy
+                    (float)$d[8]  // Davomat %
+                ]);
+            }
         }
+
+        header("Location: talabalar.php?fan_id=$fan_id&success=1");
+        exit;
+    } catch (Exception $e) {
+        die("Faylni o'qishda xatolik: " . $e->getMessage());
     }
-    fclose($h);
-    header("Location: talabalar.php?fan_id=$fan_id"); exit;
 }
 
 /* ================= MA'LUMOTLAR VA FILTR ================= */
@@ -116,34 +169,104 @@ if (isset($_GET['export'])) {
     $out = fopen("php://output", "w");
     fputs($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
     fputcsv($out, ["FIO", "ID", "Guruh", "Joriy", "Oraliq", "Reyting", "Yakuniy", "Qayta", "Umumiy", "Davomat"], ";");
-    foreach($rows_data as $r) {
+    foreach ($rows_data as $r) {
         fputcsv($out, [$r['user_id'], $r['talaba_id'], $r['guruh'], $r['joriy_nazorat'], $r['oraliq_nazorat'], $r['reyting'], $r['yakuniy_nazorat'], $r['qayta_topshirish'], $r['umumiy'], $r['davomat']], ";");
     }
-    fclose($out); exit;
+    fclose($out);
+    exit;
 }
 ?>
 
 <?php include "Includes/header.php"; ?>
 <?php require "atmosphere.php"; ?>
 <style>
-    body { background: #f8fafc; font-family: 'Inter', sans-serif; }
-    .glass-card { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 25px; border: none; }
-    .score-input { width: 60px; text-align: center; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px; font-size: 14px; }
-    .score-input[readonly] { background: transparent; border-color: transparent; font-weight: 700; pointer-events: none; }
-    
-    .row-fail { background-color: #fff1f2 !important; }
-    .cell-fail { background-color: #fecaca !important; border-color: #ef4444 !important; color: #b91c1c !important; font-weight: bold; }
-    
-    .table thead th { background: #1e293b; color: white; font-size: 11px; text-transform: uppercase; }
-    .btn-modern { border-radius: 8px; font-weight: 600; transition: 0.3s; }
+    body {
+        background: #f8fafc;
+        font-family: 'Inter', sans-serif;
+    }
 
-    .filter-group { background: #ffffff; border-radius: 10px; padding: 4px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-    .btn-filter { border: none; padding: 6px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; transition: 0.2s; }
-    .btn-filter.active { background: #1e293b !important; color: white !important; }
-    
+    .glass-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        border: none;
+    }
+
+    .score-input {
+        width: 60px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 4px;
+        font-size: 14px;
+    }
+
+    .score-input[readonly] {
+        background: transparent;
+        border-color: transparent;
+        font-weight: 700;
+        pointer-events: none;
+    }
+
+    .row-fail {
+        background-color: #fff1f2 !important;
+    }
+
+    .cell-fail {
+        background-color: #fecaca !important;
+        border-color: #ef4444 !important;
+        color: #b91c1c !important;
+        font-weight: bold;
+    }
+
+    .table thead th {
+        background: #1e293b;
+        color: white;
+        font-size: 11px;
+        text-transform: uppercase;
+    }
+
+    .btn-modern {
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .filter-group {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 4px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    }
+
+    .btn-filter {
+        border: none;
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .btn-filter.active {
+        background: #1e293b !important;
+        color: white !important;
+    }
+
     /* Yangi qo'shish qatori uchun stil */
-    .new-row-style { background-color: #f0fdf4 !important; border-left: 4px solid #22c55e !important; }
-    .id-search-input { border: 2px solid #0d6efd !important; font-weight: bold; background: #fff; }
+    .new-row-style {
+        background-color: #f0fdf4 !important;
+        border-left: 4px solid #22c55e !important;
+    }
+
+    .id-search-input {
+        border: 2px solid #0d6efd !important;
+        font-weight: bold;
+        background: #fff;
+    }
 </style>
 
 <body>
@@ -158,30 +281,30 @@ if (isset($_GET['export'])) {
                     <h3 class="fw-bold text-dark m-0">📘 <?= htmlspecialchars($fan['nomi']) ?></h3>
                 </div>
                 <div class="filter-group d-flex shadow-sm">
-                    <a href="?fan_id=<?= $fan_id ?>" class="btn-filter <?= $filter=='all'?'active':'text-dark' ?>">Hamma</a>
-                    <a href="?fan_id=<?= $fan_id ?>&filter=fail" class="btn-filter text-danger <?= $filter=='fail'?'active':'' ?>">O'tolmagan</a>
-                    <a href="?fan_id=<?= $fan_id ?>&filter=pass" class="btn-filter text-success <?= $filter=='pass'?'active':'' ?>">O'tgan</a>
+                    <a href="?fan_id=<?= $fan_id ?>" class="btn-filter <?= $filter == 'all' ? 'active' : 'text-dark' ?>">Hamma</a>
+                    <a href="?fan_id=<?= $fan_id ?>&filter=fail" class="btn-filter text-danger <?= $filter == 'fail' ? 'active' : '' ?>">O'tolmagan</a>
+                    <a href="?fan_id=<?= $fan_id ?>&filter=pass" class="btn-filter text-success <?= $filter == 'pass' ? 'active' : '' ?>">O'tgan</a>
                 </div>
             </div>
 
             <?php if ($is_admin): ?>
-            <div class="row g-3 mb-4 align-items-end">
-                <div class="col-md-5">
-                    <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
-                        <label class="small fw-bold d-block mb-2">CSV IMPORT</label>
-                        <div class="input-group input-group-sm">
-                            <input type="file" name="file" class="form-control" required>
-                            <button name="import" class="btn btn-primary">Yuklash</button>
-                        </div>
-                    </form>
+                <div class="row g-3 mb-4 align-items-end">
+                    <div class="col-md-5">
+                        <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
+                            <label class="small fw-bold d-block mb-2">CSV IMPORT</label>
+                            <div class="input-group input-group-sm">
+                                <input type="file" name="file" class="form-control" required>
+                                <button name="import" class="btn btn-primary">Yuklash</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-7 text-end pt-4">
+                        <a href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&export=1" class="btn btn-outline-dark btn-sm btn-modern">📥 Export CSV</a>
+                        <?php if ($is_super): ?>
+                            <button class="btn btn-dark btn-sm btn-modern ms-2" id="toggleAddBtn">+ Qatorda qo'shish</button>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="col-md-7 text-end pt-4">
-                    <a href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&export=1" class="btn btn-outline-dark btn-sm btn-modern">📥 Export CSV</a>
-                    <?php if ($is_super): ?>
-                        <button class="btn btn-dark btn-sm btn-modern ms-2" id="toggleAddBtn">+ Qatorda qo'shish</button>
-                    <?php endif; ?>
-                </div>
-            </div>
             <?php endif; ?>
 
             <div class="table-responsive rounded-3 border">
@@ -197,65 +320,69 @@ if (isset($_GET['export'])) {
                             <th class="text-center">Qayta</th>
                             <th class="text-center">Umumiy</th>
                             <th class="text-center">Davomat</th>
-                            <?php if($is_super): ?><th class="text-end pe-3">Amallar</th><?php endif; ?>
+                            <?php if ($is_super): ?><th class="text-end pe-3">Amallar</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if ($is_super): ?>
-                        <tr id="addRow" style="display: none;" class="new-row-style">
-                            <form method="POST" id="newStudentForm">
-                            <td class="ps-3 text-success fw-bold">Yangi</td>
-                            <td>
-                                <input type="text" name="talaba_id" id="id_checker" class="form-control form-control-sm id-search-input mb-1" placeholder="Talaba ID yozing..." required>
-                                <div id="fio_res" class="small fw-bold text-primary"></div>
-                            </td>
-                            <td class="text-center"><input name="joriy_nazorat" class="score-input add-field" value="0" disabled></td>
-                            <td class="text-center"><input name="oraliq_nazorat" class="score-input add-field" value="0" disabled></td>
-                            <td class="text-center"><input name="reyting" class="score-input add-field" value="0" disabled></td>
-                            <td class="text-center"><input name="yakuniy_nazorat" class="score-input add-field" value="0" disabled></td>
-                            <td class="text-center"><input name="qayta_topshirish" class="score-input add-field" value="0" disabled></td>
-                            <td class="text-center"><input name="umumiy" class="score-input add-field" value="0" disabled></td>
-                            <td class="text-center"><input name="davomat" class="score-input add-field" value="0" disabled></td>
-                            <td class="text-end pe-3">
-                                <button name="save" class="btn btn-sm btn-primary add-field" disabled>SAQLASH</button>
-                            </td>
-                            </form>
-                        </tr>
+                            <tr id="addRow" style="display: none;" class="new-row-style">
+                                <form method="POST" id="newStudentForm">
+                                    <td class="ps-3 text-success fw-bold">Yangi</td>
+                                    <td>
+                                        <input type="text" name="talaba_id" id="id_checker" class="form-control form-control-sm id-search-input mb-1" placeholder="Talaba ID yozing..." required>
+                                        <div id="fio_res" class="small fw-bold text-primary"></div>
+                                    </td>
+                                    <td class="text-center"><input name="joriy_nazorat" class="score-input add-field" value="0" disabled></td>
+                                    <td class="text-center"><input name="oraliq_nazorat" class="score-input add-field" value="0" disabled></td>
+                                    <td class="text-center"><input name="reyting" class="score-input add-field" value="0" disabled></td>
+                                    <td class="text-center"><input name="yakuniy_nazorat" class="score-input add-field" value="0" disabled></td>
+                                    <td class="text-center"><input name="qayta_topshirish" class="score-input add-field" value="0" disabled></td>
+                                    <td class="text-center"><input name="umumiy" class="score-input add-field" value="0" disabled></td>
+                                    <td class="text-center"><input name="davomat" class="score-input add-field" value="0" disabled></td>
+                                    <td class="text-end pe-3">
+                                        <button name="save" class="btn btn-sm btn-primary add-field" disabled>SAQLASH</button>
+                                    </td>
+                                </form>
+                            </tr>
                         <?php endif; ?>
 
-                        <?php $i = 1; foreach ($rows_data as $r): ?>
-                        <tr class="<?= $r['row_fail'] ? 'row-fail' : '' ?>">
-                            <td class="ps-3 text-muted small"><?= $i++ ?></td>
-                            <td>
-                                <div class="fw-bold d-block"><?= htmlspecialchars($r['user_id']) ?></div>
-                                <span class="small text-muted">ID: <?= $r['talaba_id'] ?> | <?= $r['guruh'] ?></span>
-                            </td>
-                            <form method="POST">
-                                <input type="hidden" name="id" value="<?= $r['id'] ?>">
-                                <td class="text-center"><input name="joriy_nazorat" class="score-input" value="<?= $r['joriy_nazorat'] ?>" <?= !$is_super?'readonly':'' ?>></td>
-                                <td class="text-center"><input name="oraliq_nazorat" class="score-input" value="<?= $r['oraliq_nazorat'] ?>" <?= !$is_super?'readonly':'' ?>></td>
-                                <td class="text-center">
-                                    <input name="reyting" class="score-input <?= $r['reyting_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['reyting'] ?>" <?= !$is_super?'readonly':'' ?>>
+                        <?php $i = 1;
+                        foreach ($rows_data as $r): ?>
+                            <tr class="<?= $r['row_fail'] ? 'row-fail' : '' ?>">
+                                <td class="ps-3 text-muted small"><?= $i++ ?></td>
+                                <td>
+                                    <div class="fw-bold d-block"><?= htmlspecialchars($r['user_id']) ?></div>
+                                    <span class="small text-muted">ID: <?= $r['talaba_id'] ?> | <?= $r['guruh'] ?></span>
                                 </td>
-                                <td class="text-center"><input name="yakuniy_nazorat" class="score-input" value="<?= $r['yakuniy_nazorat'] ?>" <?= !$is_super?'readonly':'' ?>></td>
-                                <td class="text-center"><input name="qayta_topshirish" class="score-input" value="<?= $r['qayta_topshirish'] ?>" <?= !$is_super?'readonly':'' ?>></td>
-                                <td class="text-center">
-                                    <input name="umumiy" class="score-input <?= $r['umumiy_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['umumiy'] ?>" <?= !$is_super?'readonly':'' ?>>
-                                </td>
-                                <td class="text-center">
-                                    <input name="davomat" class="score-input <?= $r['davomat_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['davomat'] ?>" <?= !$is_super?'readonly':'' ?>>
-                                </td>
-                                
-                                <?php if($is_super): ?>
-                                <td class="text-end pe-3">
-                                    <div class="d-flex gap-1 justify-content-end">
-                                        <button name="update" class="btn btn-sm btn-success">OK</button>
-                                        <a href="?delete=<?= $r['id'] ?>&fan_id=<?= $fan_id ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('O\'chirilsinmi?')">🗑️</a>
-                                    </div>
-                                </td>
-                                <?php endif; ?>
-                            </form>
-                        </tr>
+                                <form method="POST">
+                                    <input type="hidden" name="id" value="<?= $r['id'] ?>">
+                                    <td class="text-center"><input name="joriy_nazorat" class="score-input" value="<?= $r['joriy_nazorat'] ?>" <?= !$is_super ? 'readonly' : '' ?>></td>
+                                    <td class="text-center"><input name="oraliq_nazorat" class="score-input" value="<?= $r['oraliq_nazorat'] ?>" <?= !$is_super ? 'readonly' : '' ?>></td>
+                                    <td class="text-center">
+                                        <input name="reyting" class="score-input <?= $r['reyting_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['reyting'] ?>" <?= !$is_super ? 'readonly' : '' ?>>
+                                    </td>
+                                    <td class="text-center"><input name="yakuniy_nazorat" class="score-input" value="<?= $r['yakuniy_nazorat'] ?>" <?= !$is_super ? 'readonly' : '' ?>></td>
+                                    <td class="text-center"><input name="qayta_topshirish" class="score-input" value="<?= $r['qayta_topshirish'] ?>" <?= !$is_super ? 'readonly' : '' ?>></td>
+                                    <td class="text-center">
+                                        <input name="umumiy" class="score-input <?= $r['umumiy_fail'] ? 'cell-fail' : '' ?>" value="<?= $r['umumiy'] ?>" <?= !$is_super ? 'readonly' : '' ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input name="davomat"
+                                            class="score-input <?= $r['davomat_fail'] ? 'cell-fail' : '' ?>"
+                                            value="<?= round($r['davomat'], 2) ?>"
+                                            <?= !$is_super ? 'readonly' : '' ?>>
+                                    </td>
+
+                                    <?php if ($is_super): ?>
+                                        <td class="text-end pe-3">
+                                            <div class="d-flex gap-1 justify-content-end">
+                                                <button name="update" class="btn btn-sm btn-success">OK</button>
+                                                <a href="?delete=<?= $r['id'] ?>&fan_id=<?= $fan_id ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('O\'chirilsinmi?')">🗑️</a>
+                                            </div>
+                                        </td>
+                                    <?php endif; ?>
+                                </form>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -264,48 +391,49 @@ if (isset($_GET['export'])) {
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.getElementById('toggleAddBtn');
-        const addRow = document.getElementById('addRow');
-        const idInput = document.getElementById('id_checker');
-        const fioRes = document.getElementById('fio_res');
-        const scoreFields = document.querySelectorAll('.add-field');
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('toggleAddBtn');
+            const addRow = document.getElementById('addRow');
+            const idInput = document.getElementById('id_checker');
+            const fioRes = document.getElementById('fio_res');
+            const scoreFields = document.querySelectorAll('.add-field');
 
-        // 1. Qatorni ko'rsatish/yashirish
-        if(toggleBtn) {
-            toggleBtn.addEventListener('click', function() {
-                addRow.style.display = (addRow.style.display === 'none') ? 'table-row' : 'none';
-                idInput.focus();
-            });
-        }
+            // 1. Qatorni ko'rsatish/yashirish
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    addRow.style.display = (addRow.style.display === 'none') ? 'table-row' : 'none';
+                    idInput.focus();
+                });
+            }
 
-        // 2. ID bo'yicha talabani qidirish (Real-time AJAX)
-        if(idInput) {
-            idInput.addEventListener('input', function() {
-                const val = this.value.trim();
-                if(val.length >= 3) {
-                    // Xuddi shu faylga so'rov yuboramiz
-                    fetch(`talabalar.php?fan_id=<?= $fan_id ?>&check_id=${val}`)
-                    .then(res => res.text())
-                    .then(name => {
-                        if(name !== '') {
-                            fioRes.textContent = "✅ " + name;
-                            fioRes.style.color = "blue";
-                            // Baholarni ochish
-                            scoreFields.forEach(el => el.disabled = false);
-                        } else {
-                            fioRes.textContent = "❌ Talaba topilmadi";
-                            fioRes.style.color = "red";
-                            scoreFields.forEach(el => el.disabled = true);
-                        }
-                    });
-                } else {
-                    fioRes.textContent = "";
-                    scoreFields.forEach(el => el.disabled = true);
-                }
-            });
-        }
-    });
+            // 2. ID bo'yicha talabani qidirish (Real-time AJAX)
+            if (idInput) {
+                idInput.addEventListener('input', function() {
+                    const val = this.value.trim();
+                    if (val.length >= 3) {
+                        // Xuddi shu faylga so'rov yuboramiz
+                        fetch(`talabalar.php?fan_id=<?= $fan_id ?>&check_id=${val}`)
+                            .then(res => res.text())
+                            .then(name => {
+                                if (name !== '') {
+                                    fioRes.textContent = "✅ " + name;
+                                    fioRes.style.color = "blue";
+                                    // Baholarni ochish
+                                    scoreFields.forEach(el => el.disabled = false);
+                                } else {
+                                    fioRes.textContent = "❌ Talaba topilmadi";
+                                    fioRes.style.color = "red";
+                                    scoreFields.forEach(el => el.disabled = true);
+                                }
+                            });
+                    } else {
+                        fioRes.textContent = "";
+                        scoreFields.forEach(el => el.disabled = true);
+                    }
+                });
+            }
+        });
     </script>
 </body>
+
 </html>

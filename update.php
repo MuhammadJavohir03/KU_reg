@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 /**
  * 1. SERVER QISMI (PHP)
  */
