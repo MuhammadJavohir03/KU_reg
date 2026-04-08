@@ -20,9 +20,9 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
         margin: 0;
         min-height: 100vh;
         transition: background 3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: <?= $is_night 
-            ? 'radial-gradient(circle at 50% 0%, #00567a 0%, #0011a7 100%)' 
-            : 'radial-gradient(circle at 50% 0%, #38bdf8 0%, #818cf8 100%)' ?> !important;
+        background: <?= $is_night
+                        ? 'radial-gradient(circle at 50% 0%, #00567a 0%, #0011a7 100%)'
+                        : 'radial-gradient(circle at 50% 0%, #38bdf8 0%, #818cf8 100%)' ?> !important;
         background-attachment: fixed;
     }
 
@@ -41,7 +41,7 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
         border-radius: 30px;
         border: 0.5px solid rgba(255, 255, 255, 0.2);
         z-index: 100000;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
         transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         min-width: 180px;
         justify-content: space-between;
@@ -68,7 +68,8 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
         font-weight: 800;
         color: #fff;
         letter-spacing: 0.5px;
-        font-family: 'JetBrains Mono', monospace; /* Raqamlar sakramashi uchun */
+        font-family: 'JetBrains Mono', monospace;
+        /* Raqamlar sakramashi uchun */
     }
 
     .di-section-right {
@@ -108,8 +109,15 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
     }
 
     @keyframes di-pulse {
-        0% { transform: scale(1); opacity: 0.4; }
-        100% { transform: scale(2.5); opacity: 0; }
+        0% {
+            transform: scale(1);
+            opacity: 0.4;
+        }
+
+        100% {
+            transform: scale(2.5);
+            opacity: 0;
+        }
     }
 
     /* --- MOBIL MOSLASHUV (Aqlli) --- */
@@ -120,13 +128,20 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
             padding: 3px 5px;
             transform: translateX(-50%) scale(0.9);
         }
+
         .di-status-text {
             font-size: 10px;
         }
+
         /* Mobilda matnni qisqartirish */
-        .di-status-text span { display: none; }
-        .di-status-text::after { content: '<?= $is_working ? "ISHDA" : "DAMDA" ?>'; }
-        
+        .di-status-text span {
+            display: none;
+        }
+
+        .di-status-text::after {
+            content: '<?= $is_working ? "ISHDA" : "DAMDA" ?>';
+        }
+
         .dynamic-island:hover {
             min-width: 160px;
             padding: 3px 8px;
@@ -135,8 +150,11 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
 
     /* --- BARGLAR TIZIMI --- */
     .leaf-p {
-        position: fixed; top: -20px; z-index: -1;
-        width: 15px; height: 10px;
+        position: fixed;
+        top: -20px;
+        z-index: -1;
+        width: 15px;
+        height: 10px;
         background: <?= $is_night ? '#4a5568' : '#2d6a4f' ?>;
         border-radius: 100% 0 100% 0;
         opacity: 0.5;
@@ -144,12 +162,87 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
     }
 
     @keyframes leafFall {
-        0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-        10% { opacity: 0.5; }
-        100% { transform: translateY(110vh) rotate(720deg) translateX(100px); opacity: 0; }
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: translateY(110vh) rotate(720deg) translateX(100px);
+            opacity: 0;
+        }
     }
+
+    .test-mode-container {
+        width: 100%;
+        overflow: hidden;
+        /* Tashqariga chiqib ketgan qismini yashiradi */
+        background: rgba(255, 255, 255, 0.1);
+        /* Glassmorphism effekti */
+        backdrop-filter: blur(5px);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 0;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .test-mode-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        white-space: nowrap;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        animation: moveLeftToRight 15s linear infinite;
+        /* Harakat tezligi: 15 soniya */
+    }
+
+    .test-mode-content h3 {
+        margin: 0;
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-size: 1.2rem;
+    }
+
+    .spin-icon {
+        font-size: 1.5rem;
+        color: #ffd700;
+        /* Oltin rangli tishli g'ildirak */
+        animation: spin 3s linear infinite;
+    }
+
+    /* Chapdan kirib o'ngdan chiqish animatsiyasi */
+    @keyframes moveLeftToRight {
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(100vw);
+        }
+    }
+
+    /* Belgi aylanishi uchun animatsiya */
+    @keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
 </style>
-<div class="mt-5 text-white ms-5"><h3>Sayt Test rejimida ishlamoqda</h3></div>
+<div class="test-mode-container">
+    <div class="test-mode-content">
+        <i class="bi bi-gear-fill spin-icon"></i>
+        <h3>Sayt Test rejimida ishlamoqda</h3>
+    </div>
+</div>
 <div id="leaf-field"></div>
 
 <div class="dynamic-island">
