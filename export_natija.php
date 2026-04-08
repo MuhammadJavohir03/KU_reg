@@ -39,7 +39,7 @@ $main_stmt = $pdo->prepare($sql);
 $main_stmt->execute($params);
 $students = $main_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$filename = "Natijalar_Semestrli_" . date('Y-m-d') . ".xls";
+$filename = "O'zlashtirish_Natijalari_" . date('Y-m-d') . ".xls";
 header("Content-Type: application/vnd.ms-excel; charset=utf-8");
 header("Content-Disposition: attachment; filename=\"$filename\"");
 

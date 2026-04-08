@@ -12,6 +12,8 @@ $is_working = ($day_of_week <= 5 && $time_str >= '08:30' && $time_str <= '18:00'
 $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
 ?>
 
+<?php require_once "auth_check.php"; ?>
+
 <style>
     /* --- ASOSIY FON VA ATMOSFERA --- */
     body {

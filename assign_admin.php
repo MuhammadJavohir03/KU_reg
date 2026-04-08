@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "database.php";
+require "Includes/header.php";
 $title = "Admin Biriktirish";
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'super_admin') {
