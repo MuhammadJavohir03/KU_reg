@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // 1 soat soniyalarda (3600 soniya)
-$timeout_duration = 3600;
+$timeout_duration = 1800;
 
 // Oxirgi faollik vaqtini tekshiramiz
 if (isset($_SESSION['last_activity'])) {
