@@ -8,12 +8,41 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// --- 1. O'CHIRISH MANTIQI ---
+if (isset($_GET['delete_id']) && isset($_GET['column'])) {
+    $del_id = (int)$_GET['delete_id'];
+    $column = $_GET['column'];
+
+    // Xavfsizlik uchun faqat ruxsat berilgan ustunlarni tekshiramiz
+    $allowed_columns = ['fan1', 'fan2', 'fan3', 'fan4'];
+    if (in_array($column, $allowed_columns)) {
+        // Ustunni NULL (bo'sh) qilib qo'yamiz
+        $del_stmt = $pdo->prepare("UPDATE bepul SET $column = NULL WHERE id = ?");
+        $del_stmt->execute([$del_id]);
+
+        // Agar hamma fanlar NULL bo'lib qolsa, qatorni butunlay o'chirib yuborsangiz ham bo'ladi (ixtiyoriy)
+        $check_stmt = $pdo->prepare("SELECT fan1, fan2, fan3, fan4 FROM bepul WHERE id = ?");
+        $check_stmt->execute([$del_id]);
+        $res = $check_stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$res['fan1'] && !$res['fan2'] && !$res['fan3'] && !$res['fan4']) {
+            $pdo->prepare("DELETE FROM bepul WHERE id = ?")->execute([$del_id]);
+        }
+
+        header("Location: bepul_royhat.php?msg=deleted");
+        exit;
+    }
+}
+
 $q = $_GET['q'] ?? '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+$limit = 100; // Har sahifada 100 ta yozuv
+$offset = ($page - 1) * $limit;
+
 $where = "";
 $params = [];
 
 if (!empty($q)) {
-    // Qidiruv mantiqi
     $where = "
     WHERE 
         u.fio LIKE ? OR
@@ -30,7 +59,18 @@ if (!empty($q)) {
     $params = array_fill(0, 9, $qParam);
 }
 
-// SQL so'rovni tayyorlash
+// --- 2. UMUMIY SONINI ANIQLASH (Pagination uchun) ---
+$countSql = "SELECT COUNT(*) FROM bepul b JOIN users u ON u.id = b.user_id 
+             LEFT JOIN fanlar f1 ON f1.id = b.fan1
+             LEFT JOIN fanlar f2 ON f2.id = b.fan2
+             LEFT JOIN fanlar f3 ON f3.id = b.fan3
+             LEFT JOIN fanlar f4 ON f4.id = b.fan4 $where";
+$countStmt = $pdo->prepare($countSql);
+$countStmt->execute($params);
+$total_rows = $countStmt->fetchColumn();
+$total_pages = ceil($total_rows / $limit);
+
+// --- 3. MA'LUMOTLARNI OLISH (LIMIT bilan) ---
 $sql = "
     SELECT 
         b.*,
@@ -39,7 +79,6 @@ $sql = "
         t2.reyting AS r2, t2.davomat AS d2,
         t3.reyting AS r3, t3.davomat AS d3,
         t4.reyting AS r4, t4.davomat AS d4,
-        -- Fanlar semestrini olish
         f1.semestr AS s1, f2.semestr AS s2, f3.semestr AS s3, f4.semestr AS s4,
         CONCAT(f1.nomi, ' (', b.fan1, ')') AS fan1_full,
         CONCAT(f2.nomi, ' (', b.fan2, ')') AS fan2_full,
@@ -57,6 +96,7 @@ $sql = "
     LEFT JOIN fanlar f4 ON f4.id = b.fan4
     $where
     ORDER BY b.id DESC
+    LIMIT $limit OFFSET $offset
 ";
 
 $stmt = $pdo->prepare($sql);
@@ -145,18 +185,9 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         transition: 0.3s;
     }
 
-    code {
-        background: #fff5f5;
-        color: #e53e3e;
-        padding: 4px 8px;
-        border-radius: 5px;
-    }
-
     .rating-badge {
         background: #f0fdf4;
-        /* Och yashil fon */
         color: #166534;
-        /* To'q yashil matn */
         padding: 3px 10px;
         border-radius: 6px;
         font-weight: 700;
@@ -168,9 +199,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     .attendance-badge {
         background: #fff1f2;
-        /* Och qizil fon */
         color: #9f1239;
-        /* To'q qizil matn */
         padding: 3px 10px;
         border-radius: 6px;
         font-weight: 700;
@@ -179,9 +208,22 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         display: block;
         width: 80px;
     }
-</style>
-<?php require "atmosphere.php"; ?>
 
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 3px;
+        border: none;
+        color: #4a5568;
+        font-weight: 600;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+
+<?php require "atmosphere.php"; ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <body>
@@ -194,7 +236,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="fw-bold text-dark mb-1"><i class="bi bi-clipboard-check text-primary me-2"></i> Bepul Ro‘yxat</h2>
-                    <p class="text-muted small">Tizimdagi barcha arizalar va biriktirilgan fanlar (alohida qatorlarda)</p>
+                    <p class="text-muted small">Jami yozuvlar: <b><?= $total_rows ?></b> ta</p>
                 </div>
             </div>
 
@@ -228,23 +270,22 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <th class="text-center">Natijalar</th>
                             <th>Semestr</th>
                             <th>Tanlangan fan</th>
+                            <th class="text-center">Amallar</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($data)): ?>
                             <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">Ma'lumot topilmadi</td>
+                                <td colspan="7" class="text-center py-5 text-muted">Ma'lumot topilmadi</td>
                             </tr>
                             <?php else:
-                            $counter = 1;
+                            $counter = $offset + 1;
                             foreach ($data as $row):
                                 for ($j = 1; $j <= 4; $j++):
                                     $fname = "fan{$j}_full";
-
-                                    // DIQQAT! SQL'dagi aliaslarga mos ravishda r1, r2 yoki d1, d2 ni aniqlaymiz
                                     $r_alias = "r{$j}";
                                     $d_alias = "d{$j}";
-                                    $s_alias = "s{$j}"; // Fanga tegishli semestr aliassi
+                                    $s_alias = "s{$j}";
 
                                     if (!empty(trim($row[$fname] ?? ''))): ?>
                                         <tr>
@@ -263,7 +304,6 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                         <i class="bi bi-graph-up-arrow me-1"></i>
                                                         <?= (isset($row[$r_alias]) && $row[$r_alias] !== null) ? htmlspecialchars($row[$r_alias]) : '0' ?>
                                                     </span>
-
                                                     <span class="attendance-badge" title="Davomat">
                                                         <i class="bi bi-clock-history me-1"></i>
                                                         <?= (isset($row[$d_alias]) && $row[$d_alias] !== null) ? htmlspecialchars($row[$d_alias]) : '0' ?>
@@ -280,15 +320,45 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <i class="bi bi-book me-1"></i> <?= htmlspecialchars($row[$fname]) ?>
                                                 </span>
                                             </td>
+                                            <td class="text-center">
+                                                <a href="?delete_id=<?= $row['id'] ?>&column=fan<?= $j ?>"
+                                                    onclick="return confirm('Haqiqatan ham ushbu fanni ro‘yxatdan o‘chirmoqchimisiz?')"
+                                                    class="btn btn-outline-danger btn-sm border-0" title="Fanni o'chirish">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                </a>
+                                            </td>
                                         </tr>
-                        <?php
-                                    endif;
+                        <?php endif;
                                 endfor;
                             endforeach;
                         endif; ?>
                     </tbody>
                 </table>
             </div>
+
+            <?php if ($total_pages > 1): ?>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?page=<?= $page - 1 ?>&q=<?= urlencode($q) ?>"><i class="bi bi-chevron-left"></i></a>
+                        </li>
+
+                        <?php
+                        $start = max(1, $page - 2);
+                        $end = min($total_pages, $page + 2);
+
+                        for ($i = $start; $i <= $end; $i++): ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>&q=<?= urlencode($q) ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?page=<?= $page + 1 ?>&q=<?= urlencode($q) ?>"><i class="bi bi-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
 
         </div>
     </div>

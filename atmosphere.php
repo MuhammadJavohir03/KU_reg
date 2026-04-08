@@ -19,7 +19,7 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
         min-height: 100vh;
         transition: background 3s cubic-bezier(0.4, 0, 0.2, 1);
         background: <?= $is_night 
-            ? 'radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%)' 
+            ? 'radial-gradient(circle at 50% 0%, #00567a 0%, #0011a7 100%)' 
             : 'radial-gradient(circle at 50% 0%, #38bdf8 0%, #818cf8 100%)' ?> !important;
         background-attachment: fixed;
     }
@@ -147,7 +147,7 @@ $is_night = ($hour < 7 || $hour >= 18 || ($hour == 18 && $minute >= 30));
         100% { transform: translateY(110vh) rotate(720deg) translateX(100px); opacity: 0; }
     }
 </style>
-
+<div class="mt-5 text-white ms-5"><h3>Sayt Test rejimida ishlamoqda</h3></div>
 <div id="leaf-field"></div>
 
 <div class="dynamic-island">

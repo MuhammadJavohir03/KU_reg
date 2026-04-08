@@ -403,7 +403,9 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
             $export_params['export_csv'] = 1;
             $export_link = "?" . http_build_query($export_params);
             ?>
-            <a href="<?= $export_link ?>" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">📥 CSV Export (Tanlanganlar)</a>
+            <a href="export_natija.php?<?= http_build_query($_GET) ?>" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">
+                📥 Excel Export
+            </a>
         </div>
 
         <div class="custom-table-card shadow-sm mb-4">

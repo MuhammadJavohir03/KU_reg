@@ -30,7 +30,7 @@ if (isset($_SESSION['user_id'])) {
     :root {
         --sidebar-bg: #1e293b;
         --active-color: #3b82f6;
-        --hover-bg: rgba(255, 255, 255, 0.05);
+        --hover-bg: rgba(255, 255, 255, 0.36);
         --text-muted: #94a3b8;
     }
 
@@ -128,7 +128,7 @@ if (isset($_SESSION['user_id'])) {
     /* Submenu styling */
     .submenu {
         display: none;
-        background: rgba(0, 0, 0, 0.2);
+        /* background: rgba(0, 0, 0, 0.2); */
         padding-left: 15px;
     }
 
@@ -307,6 +307,7 @@ if (isset($_SESSION['user_id'])) {
                 <a href="admin_panel.php"><i class="bi bi-sliders"></i> Admin Panel</a>
                 <a href="import.php"><i class="bi bi-cloud-arrow-up"></i> Talaba Qo'shish yoki tahrirlash</a>
                 <a href="all_talabalar.php"><i class="bi bi-people"></i> Barcha talabalar</a>
+                <a href="update.php"><i class="bi bi-arrow-clockwise"></i> Update Talaba</a>
             <?php endif; ?>
 
             <?php if ($role == null): ?>
