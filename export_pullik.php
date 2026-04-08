@@ -27,20 +27,24 @@ if (!empty($q)) {
     $params = array_fill(0, 9, $qParam);
 }
 
-// Ma'lumotlarni olish (Nomi va Semestr bilan birga)
+// SQL: Fanlar bilan birga talabalar jadvalidan reyting ballarini ham olamiz
 $sql = "
     SELECT 
         u.fio, u.talaba_id, u.guruh,
-        f1.nomi AS fan1_nomi, f1.semestr AS s1,
-        f2.nomi AS fan2_nomi, f2.semestr AS s2,
-        f3.nomi AS fan3_nomi, f3.semestr AS s3,
-        f4.nomi AS fan4_nomi, f4.semestr AS s4
+        f1.nomi AS fan1_nomi, f1.semestr AS s1, t1.reyting AS r1,
+        f2.nomi AS fan2_nomi, f2.semestr AS s2, t2.reyting AS r2,
+        f3.nomi AS fan3_nomi, f3.semestr AS s3, t3.reyting AS r3,
+        f4.nomi AS fan4_nomi, f4.semestr AS s4, t4.reyting AS r4
     FROM pullik b
     JOIN users u ON u.id = b.user_id
     LEFT JOIN fanlar f1 ON f1.id = b.fan1
+    LEFT JOIN talabalar t1 ON t1.user_id = u.fio AND t1.fan_id = b.fan1
     LEFT JOIN fanlar f2 ON f2.id = b.fan2
+    LEFT JOIN talabalar t2 ON t2.user_id = u.fio AND t2.fan_id = b.fan2
     LEFT JOIN fanlar f3 ON f3.id = b.fan3
+    LEFT JOIN talabalar t3 ON t3.user_id = u.fio AND t3.fan_id = b.fan3
     LEFT JOIN fanlar f4 ON f4.id = b.fan4
+    LEFT JOIN talabalar t4 ON t4.user_id = u.fio AND t4.fan_id = b.fan4
     $where
     ORDER BY b.id DESC
 ";
@@ -53,9 +57,6 @@ $filename = "pullik_royhat_" . date('Y-m-d_H-i') . ".xls";
 
 header("Content-Type: application/vnd.ms-excel; charset=utf-8");
 header("Content-Disposition: attachment; filename=\"$filename\"");
-header("Expires: 0");
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header("Cache-Control: private", false);
 
 echo "\xEF\xBB\xBF"; // UTF-8 BOM
 ?>
@@ -67,6 +68,7 @@ echo "\xEF\xBB\xBF"; // UTF-8 BOM
             <th>Guruh</th>
             <th>Fan Nomi</th>
             <th>Semestr</th>
+            <th style="background-color: #e2efda;">Reyting Ball</th>
         </tr>
     </thead>
     <tbody>
@@ -75,6 +77,7 @@ echo "\xEF\xBB\xBF"; // UTF-8 BOM
             for ($i = 1; $i <= 4; $i++):
                 $fan_key = "fan{$i}_nomi";
                 $sem_key = "s{$i}";
+                $ball_key = "r{$i}";
 
                 if (!empty($row[$fan_key])):
             ?>
@@ -84,6 +87,7 @@ echo "\xEF\xBB\xBF"; // UTF-8 BOM
                         <td><?= htmlspecialchars($row['guruh']) ?></td>
                         <td><?= htmlspecialchars($row[$fan_key]) ?></td>
                         <td align="center"><?= !empty($row[$sem_key]) ? htmlspecialchars($row[$sem_key]) . "-semestr" : "-" ?></td>
+                        <td align="center" style="font-weight: bold;"><?= !empty($row[$ball_key]) ? htmlspecialchars($row[$ball_key]) : "0" ?></td>
                     </tr>
             <?php
                 endif;
