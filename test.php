@@ -351,6 +351,12 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
 
         <div class="row g-3 mb-4">
             <div class="col-md-4">
+                <div class="stat-card p-3 shadow-sm bg-primary text-white">
+                    <span class="text-white-50 small fw-bold">JAMI TALABALAR</span>
+                    <h2 class="mb-0 fw-bold"><?= $total_count ?></h2>
+                </div>
+            </div>
+            <div class="col-md-4">
                 <div class="stat-card p-3 d-flex align-items-center justify-content-between shadow-sm">
                     <div>
                         <span class="text-muted small fw-bold">MUVAFFAQIYATLI</span>
@@ -366,12 +372,6 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                         <h2 class="mb-0 text-danger fw-bold"><?= $failed_count ?></h2>
                     </div>
                     <div class="circle-stat border-danger text-danger"><?= $fail_percent ?>%</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card p-3 shadow-sm bg-primary text-white">
-                    <span class="text-white-50 small fw-bold">JAMI TALABALAR</span>
-                    <h2 class="mb-0 fw-bold"><?= $total_count ?></h2>
                 </div>
             </div>
         </div>

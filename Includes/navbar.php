@@ -128,7 +128,7 @@ if (isset($_SESSION['user_id'])) {
     /* Submenu styling */
     .submenu {
         display: none;
-        /* background: rgba(0, 0, 0, 0.2); */
+        background: rgba(0, 0, 0, 0.2);
         padding-left: 15px;
     }
 
@@ -222,8 +222,8 @@ if (isset($_SESSION['user_id'])) {
 
     @media (max-width: 992px) {
         body {
-        padding-left: 0 !important;
-    }
+            padding-left: 0 !important;
+        }
 
         #sidebar {
             left: -280px;
@@ -327,7 +327,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                     <div class="profile-info">
                         <span class="profile-name"><?= htmlspecialchars($fio) ?></span>
-                        <span class="profile-role"><?= str_replace('_', ' ', $role) ?></span>
+                        <span class="profile-role"><?= ($role === 'user') ? 'Talaba' : str_replace('_', ' ', $role) ?></span>
                     </div>
                 </a>
             </div>

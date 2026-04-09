@@ -337,6 +337,19 @@ if (isset($_GET['export'])) {
         font-weight: bold;
         background: #fff;
     }
+
+    .icon-box {
+        background: linear-gradient(135deg, #1e293b, #3b82f6);
+        color: white;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        font-size: 20px;
+    }
 </style>
 
 <body>
@@ -348,7 +361,12 @@ if (isset($_GET['export'])) {
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <a href="fanlar.php" class="btn btn-sm btn-outline-secondary mb-2">← Orqaga</a>
-                    <h3 class="fw-bold text-dark m-0">📘 <?= htmlspecialchars($fan['nomi']) ?></h3>
+                    <h3 class="fw-bold text-dark m-0 d-flex align-items-center">
+                        <span class="icon-box me-3">
+                            <i class="fas fa-graduation-cap"></i>
+                        </span>
+                        <?= htmlspecialchars($fan['nomi']) ?>
+                    </h3>
                 </div>
                 <div class="filter-group d-flex shadow-sm">
                     <a href="?fan_id=<?= $fan_id ?>" class="btn-filter <?= $filter == 'all' ? 'active' : 'text-dark' ?>">Hamma</a>
@@ -360,13 +378,7 @@ if (isset($_GET['export'])) {
             <?php if ($is_admin): ?>
                 <div class="row g-3 mb-4 align-items-end">
                     <div class="col-md-5">
-                        <!-- <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
-                            <label class="small fw-bold d-block mb-2">CSV IMPORT</label>
-                            <div class="input-group input-group-sm">
-                                <input type="file" name="file" class="form-control" required>
-                                <button name="import" class="btn btn-primary">Yuklash</button>
-                            </div>
-                        </form> -->
+                        <a href="?fan_id=<?= $fan_id ?>&export=1" class="btn btn-sm btn-outline-success shadow-sm">📤 Natijalarni CSV ga eksport qilish</a>
                     </div>
 
                     <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
@@ -377,6 +389,17 @@ if (isset($_GET['export'])) {
                         </div>
                         <small class="text-muted">Bir nechta faylni tanlashingiz mumkin (Ctrl tugmasini bosib turing)</small>
                     </form>
+                    <div class="col-md-12">
+                        <?php if (isset($_GET['success'])): ?>
+                            <div class="alert alert-success border-0 shadow-sm mb-0" role="alert" style="border-radius: 12px;">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>Muvaffaqiyat!</strong> <?= (int)$_GET['inserted'] ?> ta talaba muvaffaqiyatli qo'shildi, <?= (int)$_GET['skipped'] ?> ta talaba dublikat bo'lgani uchun o'tkazib yuborildi.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="col-md-7 text-end">
+                        talaba qo'shish uchun <button id="toggleAddBtn" class="btn btn-sm btn-outline-primary shadow-sm">+ Yangi Talaba</button>
+                    </div>
                 </div>
             <?php endif; ?>
             <?php if (isset($_GET['error']) && $_GET['error'] == 'duplicate'): ?>
