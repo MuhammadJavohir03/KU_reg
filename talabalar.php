@@ -24,7 +24,7 @@ $fan_id = $_GET['id'] ?? $_GET['fan_id'] ?? null;
 if (!$fan_id) die("Fan tanlanmagan");
 /* ================= MA'LUMOTLAR VA PAGINATSIYA ================= */
 
-$limit = 100;
+$limit = 50;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
@@ -161,75 +161,75 @@ if ($is_super) {
     }
 }
 
-/* ================= IMPORT (ADMIN & SUPER) ================= */
-/* ================= IMPORT (ADMIN & SUPER) ================= */
-if ($is_admin && isset($_POST['import'])) {
-    $file = $_FILES['file']['tmp_name'];
+/* ================= MULTIPLE IMPORT (ADMIN & SUPER) ================= */
+if ($is_admin && isset($_POST['import_multiple'])) {
+    $total_inserted = 0;
+    $total_skipped = 0;
+    $file_count = count($_FILES['files']['name']);
 
     try {
-        // Faylni avtomatik aniqlash va yuklash (Excel yoki CSV)
-        $spreadsheet = IOFactory::load($file);
-        $worksheet = $spreadsheet->getActiveSheet();
-        $rows = $worksheet->toArray();
+        for ($i = 0; $i < $file_count; $i++) {
+            if ($_FILES['files']['error'][$i] !== UPLOAD_ERR_OK) continue;
 
-        // Birinchi qator (Sarlavha) ni tashlab ketish
-        array_shift($rows);
+            $file_tmp = $_FILES['files']['tmp_name'][$i];
 
-        $inserted_count = 0;
-        $skipped_count = 0;
+            // Faylni yuklash
+            $spreadsheet = IOFactory::load($file_tmp);
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
 
-        foreach ($rows as $d) {
-            // $d[1] -> Talaba FIO (B ustuni)
-            if (empty($d[1])) continue;
+            // Sarlavhani olib tashlash
+            array_shift($rows);
 
-            $csv_fio = trim($d[1]);
+            foreach ($rows as $d) {
+                if (empty($d[1])) continue; // FIO bo'sh bo'lsa o'tkazish
 
-            // 1. Userni 'users' jadvalidan qidirish (ID va Guruhni olish uchun)
-            $q = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio = ?");
-            $q->execute([$csv_fio]);
-            $user = $q->fetch(PDO::FETCH_ASSOC);
+                $csv_fio = trim($d[1]);
 
-            if ($user) {
-                $t_id = $user['talaba_id'];
+                // 1. Userni qidirish
+                $q = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio = ?");
+                $q->execute([$csv_fio]);
+                $user = $q->fetch(PDO::FETCH_ASSOC);
 
-                // 2. DUBLIKATGA TEKSHIRISH (PHP orqali)
-                // Ushbu fan_id va talaba_id juftligi bazada bor-yo'qligini tekshiramiz
-                $check = $pdo->prepare("SELECT id FROM talabalar WHERE fan_id = ? AND talaba_id = ?");
-                $check->execute([$fan_id, $t_id]);
+                if ($user) {
+                    $t_id = $user['talaba_id'];
 
-                if ($check->fetch()) {
-                    // Agar talaba bu fanda allaqachon bo'lsa, uni o'tkazib yuboramiz
-                    $skipped_count++;
-                    continue;
+                    // 2. Dublikatni tekshirish (shu fanda bor-yo'qligi)
+                    $check = $pdo->prepare("SELECT id FROM talabalar WHERE fan_id = ? AND talaba_id = ?");
+                    $check->execute([$fan_id, $t_id]);
+
+                    if ($check->fetch()) {
+                        $total_skipped++;
+                        continue;
+                    }
+
+                    // 3. Bazaga kiritish
+                    $stmt = $pdo->prepare("INSERT INTO talabalar 
+                        (user_id, fan_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                    $stmt->execute([
+                        $user['fio'],
+                        $fan_id,
+                        $t_id,
+                        $user['guruh'],
+                        (float)($d[2] ?? 0),
+                        (float)($d[3] ?? 0),
+                        (float)($d[4] ?? 0),
+                        (float)($d[5] ?? 0),
+                        (($d[6] == "'-'" || $d[6] == "-" || empty($d[6])) ? 0 : (float)$d[6]),
+                        (float)($d[7] ?? 0),
+                        (float)($d[8] ?? 0)
+                    ]);
+                    $total_inserted++;
                 }
-
-                // 3. Agar dublikat bo'lmasa, bazaga qo'shamiz
-                $stmt = $pdo->prepare("INSERT INTO talabalar 
-                    (user_id, fan_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-                $stmt->execute([
-                    $user['fio'],
-                    $fan_id,
-                    $t_id,
-                    $user['guruh'],
-                    (float)($d[2] ?? 0), // Joriy
-                    (float)($d[3] ?? 0), // Oraliq
-                    (float)($d[4] ?? 0), // Reyting
-                    (float)($d[5] ?? 0), // Yakuniy
-                    (($d[6] == "'-'" || $d[6] == "-" || empty($d[6])) ? 0 : (float)$d[6]), // Qayta
-                    (float)($d[7] ?? 0), // Umumiy
-                    (float)($d[8] ?? 0)  // Davomat %
-                ]);
-                $inserted_count++;
             }
         }
 
-        // Natija bilan qaytamiz
-        header("Location: talabalar.php?fan_id=$fan_id&success=1&inserted=$inserted_count&skipped=$skipped_count");
+        header("Location: talabalar.php?fan_id=$fan_id&success=1&inserted=$total_inserted&skipped=$total_skipped");
         exit;
     } catch (Exception $e) {
-        die("Faylni o'qishda xatolik yuz berdi: " . $e->getMessage());
+        die("Fayllarni o'qishda xatolik: " . $e->getMessage());
     }
 }
 
@@ -360,20 +360,23 @@ if (isset($_GET['export'])) {
             <?php if ($is_admin): ?>
                 <div class="row g-3 mb-4 align-items-end">
                     <div class="col-md-5">
-                        <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
+                        <!-- <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
                             <label class="small fw-bold d-block mb-2">CSV IMPORT</label>
                             <div class="input-group input-group-sm">
                                 <input type="file" name="file" class="form-control" required>
                                 <button name="import" class="btn btn-primary">Yuklash</button>
                             </div>
-                        </form>
+                        </form> -->
                     </div>
-                    <div class="col-md-7 text-end pt-4">
-                        <a href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&export=1" class="btn btn-outline-dark btn-sm btn-modern">📥 Export CSV</a>
-                        <?php if ($is_super): ?>
-                            <button class="btn btn-dark btn-sm btn-modern ms-2" id="toggleAddBtn">+ Qatorda qo'shish</button>
-                        <?php endif; ?>
-                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" class="p-3 border rounded-3 bg-light">
+                        <label class="small fw-bold d-block mb-2">KO'P FAYLLI IMPORT (Excel/CSV)</label>
+                        <div class="input-group input-group-sm">
+                            <input type="file" name="files[]" class="form-control" multiple required>
+                            <button name="import_multiple" class="btn btn-primary">Natijalarni yuklash (ko'p)</button>
+                        </div>
+                        <small class="text-muted">Bir nechta faylni tanlashingiz mumkin (Ctrl tugmasini bosib turing)</small>
+                    </form>
                 </div>
             <?php endif; ?>
             <?php if (isset($_GET['error']) && $_GET['error'] == 'duplicate'): ?>
