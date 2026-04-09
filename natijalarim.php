@@ -214,6 +214,10 @@ foreach ($results as $res) {
                                 <div class="stat-label small">Reyting</div>
                                 <div class="fw-bold text-dark" id="v-reyting">0</div>
                             </div>
+                            <div class="col-4">
+                                <div class="stat-label small">Yakuniy</div>
+                                <div class="fw-bold text-dark" id="v-yakuniy">0</div>
+                            </div>
                         </div>
                     </div>
                     <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow-sm" data-bs-dismiss="modal">Yopish</button>
@@ -229,6 +233,7 @@ foreach ($results as $res) {
             document.getElementById('v-joriy').innerText = data.joriy_nazorat || 0;
             document.getElementById('v-oraliq').innerText = data.oraliq_nazorat || 0;
             document.getElementById('v-reyting').innerText = data.reyting || 0;
+            document.getElementById('v-yakuniy').innerText = data.yakuniy_nazorat || 0;
             document.getElementById('v-umumiy').innerText = data.umumiy || 0;
             new bootstrap.Modal(document.getElementById('infoModal')).show();
         }
