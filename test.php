@@ -260,17 +260,39 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
         font-weight: bold;
     }
 
-    .pagination .page-link {
-        border-radius: 8px;
-        margin: 0 3px;
-        color: #495057;
-        border: 1px solid var(--soft-border);
+    /* Paginatsiya umumiy dizayni */
+    .pagination {
+        gap: 8px;
+        /* Tugmalar orasida bo'shliq ochadi */
     }
 
-    .pagination .page-item.active .page-link {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-        color: #fff;
+    /* Standart (faol emas) tugmalar dizayni */
+
+    /* Tugma ustiga sichqoncha kelgandagi effekt (hover) */
+    .page-link:hover {
+        background-color: #f1f5f9;
+        /* Bir oz to'qroq oq fon */
+        color: #1a73e8;
+        /* Ko'k yozuv */
+        transform: translateY(-2px);
+        /* Tugmani bir oz yuqoriga ko'taradi */
+    }
+
+    /* Faol (hozirgi) sahifa tugmasi dizayni */
+    .page-item.active .page-link {
+        background-color: #1a73e8 !important;
+        /* To'q ko'k fon */
+        color: #ffffff !important;
+        /* Oq yozuv */
+        box-shadow: 0 6px 15px rgba(26, 115, 232, 0.3);
+        /* Ko'k rangli soya */
+    }
+
+    /* "disabled" (bloklangan, masalan "Oldingi" birinchi sahifada bo'lsa) tugmalar */
+    .page-item.disabled .page-link {
+        background-color: #e2e8f0;
+        color: #94a3b8;
+        box-shadow: none;
     }
 </style>
 
@@ -409,7 +431,7 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold text-dark mb-0">Natijalar (<?= $total_filtered ?> ta)</h5>
+            <h5 class="fw-bold text-white mb-0">Natijalar (<?= $total_filtered ?> ta)</h5>
             <?php
             $export_params = $_GET;
             $export_params['export_csv'] = 1;
@@ -434,7 +456,7 @@ $res_semestr = $pdo->query("SELECT DISTINCT semestr FROM fanlar WHERE semestr IS
                         <thead>
                             <tr>
                                 <th rowspan="2" class="no-col align-middle">No</th>
-                                <th rowspan="2" class="fio-col align-middle">Talaba Ismi</th>
+                                <th rowspan="2" class="fio-col text-white  align-middle">Talabalar FISH</th>
                                 <?php foreach ($active_subjects as $subject): ?>
                                     <th colspan="3"><?= htmlspecialchars($subject['nomi']) ?></th>
                                 <?php endforeach; ?>

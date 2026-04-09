@@ -285,7 +285,7 @@
         </div>
 
         <div class="row mb-5">
-            <div class="col-12 text-center mb-4">
+            <!-- <div class="col-12 text-center mb-4">
                 <h2 class="section-title">Talabalar uchun xizmatlar portali</h2>
             </div>
             <div class="col-12">
@@ -418,7 +418,7 @@
                     </div>
 
                 </div>
-            </div>
+            </div> -->
         </div>
 
     </div>

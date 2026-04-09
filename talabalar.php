@@ -3,22 +3,106 @@ session_start();
 require "database.php";
 $title = "Talabalar";
 
+if (isset($_GET['check_id'])) {
+    $id = trim($_GET['check_id']);
+    $stmt = $pdo->prepare("SELECT fio FROM users WHERE talaba_id = ?");
+    $stmt->execute([$id]);
+    $user = $stmt->fetch();
+
+    // Faqat ismni qaytaramiz va dasturni to'xtatamiz
+    echo $user ? htmlspecialchars($user['fio']) : '';
+    exit;
+}
+
 // 1. Kutubxonalarni avtomatik yuklovchi faylni ulaymiz
 require_once __DIR__ . '/vendor/autoload.php';
 
 // 2. Excel bilan ishlovchi klassni chaqiramiz
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
+$fan_id = $_GET['id'] ?? $_GET['fan_id'] ?? null;
+if (!$fan_id) die("Fan tanlanmagan");
+/* ================= MA'LUMOTLAR VA PAGINATSIYA ================= */
+
+$limit = 100;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+$offset = ($page - 1) * $limit;
+
+$filter = $_GET['filter'] ?? 'all';
+
+// 1. Jami talabalar sonini aniqlash (Paginatsiya uchun)
+$count_query = "SELECT COUNT(*) FROM talabalar WHERE fan_id = ?";
+$count_stmt = $pdo->prepare($count_query);
+$count_stmt->execute([$fan_id]);
+$total_items = $count_stmt->fetchColumn();
+$total_pages = ceil($total_items / $limit);
+
+// 2. Ma'lumotlarni LIMIT bilan olish
+$sql = "SELECT * FROM talabalar WHERE fan_id = ? ORDER BY id DESC LIMIT $limit OFFSET $offset";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$fan_id]);
+$rows = $stmt->fetchAll();
+
+$rows_data = [];
+foreach ($rows as $r) {
+    $davomat_fail = ($r['davomat'] >= 33);
+    $reyting_fail = ($r['reyting'] < 20);
+    $umumiy_fail = ($r['umumiy'] < 60);
+    $isFail = ($davomat_fail || $reyting_fail || $umumiy_fail);
+
+    // Filtrni qo'llash
+    if ($filter == 'fail' && !$isFail) continue;
+    if ($filter == 'pass' && $isFail) continue;
+
+    $r['davomat_fail'] = $davomat_fail;
+    $r['reyting_fail'] = $reyting_fail;
+    $r['umumiy_fail'] = $umumiy_fail;
+    $r['row_fail'] = $isFail;
+    $rows_data[] = $r;
+}
 // Endi sizning eski kodlaringiz davom etadi...
 
 // 1. AJAX uchun Talaba ID tekshirish qismi (Eng tepada bo'lishi shart)
-if (isset($_GET['check_id'])) {
-    $id = trim($_GET['check_id']);
-    $stmt = $pdo->prepare("SELECT fio FROM users WHERE talaba_id = ?");
-    $stmt->execute([$id]);
+if (isset($_POST['save'])) {
+    $talaba_id = trim($_POST['talaba_id']);
+
+    // --- TEKSHIRUV QISMI BOSHLANDI ---
+    // Ushbu fan_id ga ushbu talaba_id avval biriktirilganmi?
+    $check_sql = "SELECT COUNT(*) FROM talabalar WHERE fan_id = ? AND talaba_id = ?";
+    $check_stmt = $pdo->prepare($check_sql);
+    $check_stmt->execute([$fan_id, $talaba_id]);
+    $exists = $check_stmt->fetchColumn();
+
+    if ($exists > 0) {
+        // Agar talaba allaqachon bo'lsa, to'xtatamiz va xabar beramiz
+        header("Location: talabalar.php?fan_id=$fan_id&error=duplicate");
+        exit;
+    }
+    // --- TEKSHIRUV QISMI TUGADI ---
+
+    $stmt = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE talaba_id=?");
+    $stmt->execute([$talaba_id]);
     $user = $stmt->fetch();
-    echo $user ? $user['fio'] : '';
-    exit; // AJAX so'rovi bo'lsa, qolgan HTMLni yuklamaslik uchun
+
+    if ($user) {
+        $pdo->prepare("INSERT INTO talabalar (fan_id, user_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            ->execute([
+                $fan_id,
+                $user['fio'],
+                $user['talaba_id'],
+                $user['guruh'],
+                $_POST['joriy_nazorat'] ?: 0,
+                $_POST['oraliq_nazorat'] ?: 0,
+                $_POST['reyting'] ?: 0,
+                $_POST['yakuniy_nazorat'] ?: 0,
+                $_POST['qayta_topshirish'] ?: 0,
+                $_POST['umumiy'] ?: 0,
+                $_POST['davomat'] ?: 0
+            ]);
+    }
+    header("Location: talabalar.php?fan_id=$fan_id");
+    exit;
 }
 
 // Rollarni aniqlash
@@ -26,8 +110,7 @@ $user_role = $_SESSION['role'] ?? 'user';
 $is_super = ($user_role === 'super_admin');
 $is_admin = ($user_role === 'admin' || $user_role === 'super_admin');
 
-$fan_id = $_GET['id'] ?? $_GET['fan_id'] ?? null;
-if (!$fan_id) die("Fan tanlanmagan");
+
 
 /* ================= FAN MA'LUMOTI ================= */
 $stmt = $pdo->prepare("SELECT * FROM fanlar WHERE id=?");
@@ -79,6 +162,7 @@ if ($is_super) {
 }
 
 /* ================= IMPORT (ADMIN & SUPER) ================= */
+/* ================= IMPORT (ADMIN & SUPER) ================= */
 if ($is_admin && isset($_POST['import'])) {
     $file = $_FILES['file']['tmp_name'];
 
@@ -91,76 +175,62 @@ if ($is_admin && isset($_POST['import'])) {
         // Birinchi qator (Sarlavha) ni tashlab ketish
         array_shift($rows);
 
+        $inserted_count = 0;
+        $skipped_count = 0;
+
         foreach ($rows as $d) {
-            // $d[0] -> bu rasmda ko'ringan 0, 1, 2... tartib raqami. Shuni tashlab ketamiz.
-            // Shuning uchun ma'lumotlarni $d[1] dan boshlab olamiz.
+            // $d[1] -> Talaba FIO (B ustuni)
+            if (empty($d[1])) continue;
 
-            if (empty($d[1])) continue; // Talaba ismi bo'sh bo'lsa o'tkazib yuboramiz
+            $csv_fio = trim($d[1]);
 
-            $csv_fio = trim($d[1]); // Talaba FIO (B ustuni)
-
-            // Userni bazadan qidirish
+            // 1. Userni 'users' jadvalidan qidirish (ID va Guruhni olish uchun)
             $q = $pdo->prepare("SELECT fio, talaba_id, guruh FROM users WHERE fio = ?");
             $q->execute([$csv_fio]);
             $user = $q->fetch(PDO::FETCH_ASSOC);
 
             if ($user) {
+                $t_id = $user['talaba_id'];
+
+                // 2. DUBLIKATGA TEKSHIRISH (PHP orqali)
+                // Ushbu fan_id va talaba_id juftligi bazada bor-yo'qligini tekshiramiz
+                $check = $pdo->prepare("SELECT id FROM talabalar WHERE fan_id = ? AND talaba_id = ?");
+                $check->execute([$fan_id, $t_id]);
+
+                if ($check->fetch()) {
+                    // Agar talaba bu fanda allaqachon bo'lsa, uni o'tkazib yuboramiz
+                    $skipped_count++;
+                    continue;
+                }
+
+                // 3. Agar dublikat bo'lmasa, bazaga qo'shamiz
                 $stmt = $pdo->prepare("INSERT INTO talabalar 
                     (user_id, fan_id, talaba_id, guruh, joriy_nazorat, oraliq_nazorat, reyting, yakuniy_nazorat, qayta_topshirish, umumiy, davomat) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE 
-                    joriy_nazorat = VALUES(joriy_nazorat), 
-                    oraliq_nazorat = VALUES(oraliq_nazorat), 
-                    reyting = VALUES(reyting),
-                    yakuniy_nazorat = VALUES(yakuniy_nazorat),
-                    umumiy = VALUES(umumiy),
-                    davomat = VALUES(davomat)");
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                 $stmt->execute([
                     $user['fio'],
                     $fan_id,
-                    $user['talaba_id'],
+                    $t_id,
                     $user['guruh'],
-                    (float)$d[2], // Joriy
-                    (float)$d[3], // Oraliq
-                    (float)$d[4], // Reyting
-                    (float)$d[5], // Yakuniy
-                    // AGAR tire bo'lsa 0 ga aylantiradi, aks holda son sifatida oladi
-                    ($d[6] == "'-'" || $d[6] == "-" || empty($d[6])) ? 0 : (int)$d[6],
-                    (float)$d[7], // Umumiy
-                    (float)$d[8]  // Davomat %
+                    (float)($d[2] ?? 0), // Joriy
+                    (float)($d[3] ?? 0), // Oraliq
+                    (float)($d[4] ?? 0), // Reyting
+                    (float)($d[5] ?? 0), // Yakuniy
+                    (($d[6] == "'-'" || $d[6] == "-" || empty($d[6])) ? 0 : (float)$d[6]), // Qayta
+                    (float)($d[7] ?? 0), // Umumiy
+                    (float)($d[8] ?? 0)  // Davomat %
                 ]);
+                $inserted_count++;
             }
         }
 
-        header("Location: talabalar.php?fan_id=$fan_id&success=1");
+        // Natija bilan qaytamiz
+        header("Location: talabalar.php?fan_id=$fan_id&success=1&inserted=$inserted_count&skipped=$skipped_count");
         exit;
     } catch (Exception $e) {
-        die("Faylni o'qishda xatolik: " . $e->getMessage());
+        die("Faylni o'qishda xatolik yuz berdi: " . $e->getMessage());
     }
-}
-
-/* ================= MA'LUMOTLAR VA FILTR ================= */
-$filter = $_GET['filter'] ?? 'all';
-$stmt = $pdo->prepare("SELECT * FROM talabalar WHERE fan_id=? ORDER BY id DESC");
-$stmt->execute([$fan_id]);
-$rows = $stmt->fetchAll();
-
-$rows_data = [];
-foreach ($rows as $r) {
-    $davomat_fail = ($r['davomat'] >= 33);
-    $reyting_fail = ($r['reyting'] < 20);
-    $umumiy_fail = ($r['umumiy'] < 60);
-    $isFail = ($davomat_fail || $reyting_fail || $umumiy_fail);
-
-    if ($filter == 'fail' && !$isFail) continue;
-    if ($filter == 'pass' && $isFail) continue;
-
-    $r['davomat_fail'] = $davomat_fail;
-    $r['reyting_fail'] = $reyting_fail;
-    $r['umumiy_fail'] = $umumiy_fail;
-    $r['row_fail'] = $isFail;
-    $rows_data[] = $r;
 }
 
 if (isset($_GET['export'])) {
@@ -306,7 +376,12 @@ if (isset($_GET['export'])) {
                     </div>
                 </div>
             <?php endif; ?>
-
+            <?php if (isset($_GET['error']) && $_GET['error'] == 'duplicate'): ?>
+                <div class="alert alert-warning border-0 shadow-sm mb-4" role="alert" style="border-radius: 12px;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Diqqat!</strong> Ushbu talaba ushbu fan ro'yxatida allaqachon mavjud.
+                </div>
+            <?php endif; ?>
             <div class="table-responsive rounded-3 border">
                 <table class="table table-hover align-middle mb-0">
                     <thead>
@@ -346,7 +421,8 @@ if (isset($_GET['export'])) {
                             </tr>
                         <?php endif; ?>
 
-                        <?php $i = 1;
+                        <?php
+                        $i = $offset + 1;
                         foreach ($rows_data as $r): ?>
                             <tr class="<?= $r['row_fail'] ? 'row-fail' : '' ?>">
                                 <td class="ps-3 text-muted small"><?= $i++ ?></td>
@@ -389,6 +465,34 @@ if (isset($_GET['export'])) {
             </div>
         </div>
     </div>
+
+    <?php if ($total_pages > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link shadow-sm" href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&page=<?= $page - 1 ?>">Oldingi</a>
+                </li>
+
+                <?php
+                // Sahifalar juda ko'p bo'lsa, faqat ma'lum bir qismini ko'rsatish
+                $start = max(1, $page - 2);
+                $end = min($total_pages, $page + 2);
+
+                for ($p = $start; $p <= $end; $p++): ?>
+                    <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+                        <a class="page-link shadow-sm" href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&page=<?= $p ?>"><?= $p ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                    <a class="page-link shadow-sm" href="?fan_id=<?= $fan_id ?>&filter=<?= $filter ?>&page=<?= $page + 1 ?>">Keyingi</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="text-center text-muted small mt-2">
+            Jami: <?= $total_items ?> ta talabadan <?= $offset + 1 ?>-<?= min($offset + $limit, $total_items) ?> oraliqdagi ma'lumotlar.
+        </div>
+    <?php endif; ?>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

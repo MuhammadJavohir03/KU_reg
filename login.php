@@ -306,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text"
                             name="talaba_id"
                             class="input-style"
-                            placeholder="Masalan: 25B19125"
+                            placeholder="Masalan: 411..."
                             required
                             maxlength="12">
                     </div>
