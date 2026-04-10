@@ -14,6 +14,7 @@ if (isset($_GET['delete_id'])) {
             $stmt->execute([$delete_id]);
         }
     }
+    date_default_timezone_set('Asia/Tashkent');
     // Mobil brauzerlar uchun to'liq URL bilan redirection
     $redirect_url = "chat.php" . (isset($_GET['section_id']) ? "?section_id=" . (int)$_GET['section_id'] : "");
     header("Location: " . $redirect_url);
@@ -42,7 +43,7 @@ $section_id = isset($_GET['section_id']) ? (int)$_GET['section_id'] : null;
 // 2. Xabar yuborish mantiqi
 // 2. Xabar yuborish mantiqi
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $section_id) {
-    $message = htmlspecialchars(trim($_POST['message'] ?? ''));
+    $message = htmlspecialchars_decode(htmlspecialchars(trim($_POST['message'] ?? '')));
     $file_path = null;
 
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
@@ -120,7 +121,7 @@ if ($section_id) {
 
     .chat-container {
         max-width: 1400px;
-        margin: 10px auto;
+        margin: 20px auto;
         background: white;
         border-radius: 0;
         display: flex;
@@ -610,7 +611,21 @@ if ($section_id) {
                     </svg>
                 </div>
                 <h5 class="mb-0"><?= htmlspecialchars($partner['fio'] ?? 'Adminstrator') ?></h5>
-                <span class="badge bg-success mx-auto mt-1" style="width: fit-content;">Online</span>
+                <?php
+                // Hozirgi vaqtni olish (soat va daqiqa)
+                $current_time = date('H:i');
+
+                // Ish vaqti chegaralari
+                $start_time = '08:30';
+                $end_time = '18:30';
+
+                // Agar vaqt 08:30 dan katta yoki teng VA 18:30 dan kichik bo'lsa - Online, aks holda Offline
+                if ($current_time >= $start_time && $current_time <= $end_time) {
+                    echo '<span class="badge bg-success mx-auto mt-1" style="width: fit-content;">Online</span>';
+                } else {
+                    echo '<span class="badge bg-danger mx-auto mt-1" style="width: fit-content;">Offline</span>';
+                }
+                ?>
 
                 <div class="info-label">Roli</div>
                 <div class="info-value"><?= ucfirst(htmlspecialchars($partner['role'])) ?></div>

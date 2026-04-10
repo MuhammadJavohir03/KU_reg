@@ -3,7 +3,7 @@ session_start();
 require "database.php";
 $title = "Admin Chat";
 
-
+date_default_timezone_set('Asia/Tashkent');
 // 1. Admin tekshiruvi
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
@@ -96,7 +96,7 @@ if ($chat_user_id > 0) {
 
 // 7. Javob yozish
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $chat_user_id > 0) {
-    $reply = htmlspecialchars(trim($_POST['reply'] ?? ''));
+    $reply = htmlspecialchars_decode(htmlspecialchars(trim($_POST['reply'] ?? '')));
     $file_path = null;
 
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
@@ -479,6 +479,27 @@ foreach ($sections as $s) {
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
         border: 1px solid rgba(0, 0, 0, 0.05);
     }
+
+    .user-search-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .avatar-circle-sm {
+        flex-shrink: 0;
+    }
+
+    #globalResults {
+        position: absolute;
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        z-index: 9999;
+        /* Eng ustki qatlamda bo'lishi shart */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
 <body>
@@ -516,8 +537,13 @@ foreach ($sections as $s) {
             <div class="col-md-3 user-sidebar">
                 <div class="sidebar-header">
                     <div class="position-relative">
-                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                        <input type="text" id="userSearch" class="form-control ps-5 border-0 bg-light" style="border-radius:12px" placeholder="Qidirish...">
+                        <i class="bi bi-plus-circle-fill position-absolute top-50 start-0 translate-middle-y ms-3 text-primary" style="z-index: 10;"></i>
+                        <input type="text" id="globalUserSearch" class="form-control ps-5 border-0 bg-light"
+                            style="border-radius:12px" placeholder="Yangi talaba qidirish..." autocomplete="off">
+
+                        <div id="globalResults" class="position-absolute w-100 bg-white shadow rounded-3 mt-1 d-none"
+                            style="z-index: 9999; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; left: 0; top: 100%;">
+                        </div>
                     </div>
                 </div>
                 <div class="user-list-wrapper" id="userList">
@@ -712,7 +738,10 @@ foreach ($sections as $s) {
             </div>
         </div>
     </div>
-
+    <script>
+        // PHP-dagi $section_id ni JS-ga o'tkazamiz
+        const currentSectionId = "<?php echo isset($_GET['section_id']) ? $_GET['section_id'] : 'default'; ?>";
+    </script>
     <script>
         // 1. Ovozli obyektlarni e'lon qilish
         const sendSound = new Audio('assets/sounds/sent.mp3');
@@ -863,10 +892,71 @@ foreach ($sections as $s) {
             });
         });
 
-        // 7. AVTOMATIK YANGILASH (Har 3 soniyada)
         setInterval(() => {
             refreshAdminChat(true);
-        }, 1000);
+        }, 1000); // Har 1 soniyada yangilash
+
+        // Global qidiruv mantiqi
+        const globalInput = document.getElementById('globalUserSearch');
+        const globalResults = document.getElementById('globalResults');
+
+        if (globalInput) {
+            globalInput.addEventListener('input', function() {
+                let q = this.value.trim();
+
+                if (q.length < 2) {
+                    globalResults.classList.add('d-none');
+                    return;
+                }
+
+                fetch(`search_users.php?q=${encodeURIComponent(q)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        globalResults.innerHTML = '';
+
+                        if (Array.isArray(data) && data.length > 0) {
+                            data.forEach(user => {
+                                const item = document.createElement('div');
+                                item.className = 'search-item-row p-2 border-bottom';
+                                item.style.cursor = 'pointer';
+
+                                let avatar = user.image ?
+                                    `<img src="uploads/${user.image}" style="width:35px; height:35px; border-radius:50%; object-fit:cover;">` :
+                                    `<div style="width:35px; height:35px; border-radius:50%; background:#007bff; color:white; display:flex; align-items:center; justify-content:center; font-size:12px;">${getInitialsJS(user.fio)}</div>`;
+
+                                item.innerHTML = `
+                            <div style="display:flex; align-items:center;">
+                                ${avatar}
+                                <div style="margin-left:10px;">
+                                    <div style="font-weight:bold; font-size:13px; color:#333;">${user.fio}</div>
+                                    <div style="font-size:11px; color:#666;">ID: ${user.talaba_id || '---'} | ${user.guruh || ''}</div>
+                                </div>
+                            </div>
+                        `;
+
+                                item.onclick = function() {
+                                    // currentSectionId yuqoridagi PHP skriptdan keladi
+                                    window.location.href = `admin_chat.php?section_id=${currentSectionId}&user_id=${user.id}`;
+                                };
+
+                                globalResults.appendChild(item);
+                            });
+                            globalResults.classList.remove('d-none');
+                        } else {
+                            globalResults.innerHTML = '<div class="p-3 text-center text-muted" style="font-size:13px;">Talaba topilmadi</div>';
+                            globalResults.classList.remove('d-none');
+                        }
+                    })
+                    .catch(err => console.error("Qidiruv xatosi:", err));
+            });
+
+            // Tashqariga bosilganda natijalarni yopish
+            document.addEventListener('click', function(e) {
+                if (!globalInput.contains(e.target) && !globalResults.contains(e.target)) {
+                    globalResults.classList.add('d-none');
+                }
+            });
+        }
     </script>
 </body>
 
