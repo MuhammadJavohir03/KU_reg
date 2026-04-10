@@ -101,12 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $chat_user_id > 0) {
 
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = 'uploads/';
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
         $filename = time() . '_' . basename($_FILES['attachment']['name']);
         $target_file = $upload_dir . $filename;
-
         if (move_uploaded_file($_FILES['attachment']['tmp_name'], $target_file)) {
             $file_path = $target_file;
         }
@@ -115,6 +112,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $chat_user_id > 0) {
     if (!empty($reply) || !empty($file_path)) {
         $pdo->prepare("INSERT INTO messages (section_id, user_id, admin_id, message, attachment, is_read) VALUES (?, ?, ?, ?, ?, 1)")
             ->execute([$section_id, $chat_user_id, $admin_id, $reply, $file_path]);
+    }
+
+    // AJAX so'rovi bo'lsa, redirect qilmasdan chiqib ketamiz
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+        exit;
     }
 
     header("Location: admin_chat.php?section_id=$section_id&user_id=$chat_user_id");
@@ -190,14 +192,14 @@ foreach ($sections as $s) {
     }
 
     .sidebar-header {
-        background-color: #eef2f7!important;
+        background-color: #eef2f7 !important;
         flex-shrink: 0;
         padding: 20px;
         border-bottom: 1px solid #f1f5f9;
     }
 
     .user-list-wrapper {
-        background-color: #eef2f7!important;
+        background-color: #eef2f7 !important;
         padding: 10px;
         overflow-y: auto;
         flex-grow: 1;
@@ -406,6 +408,77 @@ foreach ($sections as $s) {
         transform: scale(1.05);
         opacity: 0.9;
     }
+
+    @keyframes iosSlideInRight {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes iosSlideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px) scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    /* Yangi xabarlar uchun klasslar */
+    .msg-group.admin.new-anim {
+        animation: iosSlideInRight 0.35s cubic-bezier(0.15, 0.85, 0.35, 1.2) both;
+    }
+
+    .msg-group:not(.admin).new-anim {
+        animation: iosSlideInLeft 0.35s cubic-bezier(0.15, 0.85, 0.35, 1.2) both;
+    }
+
+    /* Silliq skroll */
+    #chatBox {
+        scroll-behavior: smooth;
+    }
+
+    .chat-date-separator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 25px 0 15px 0;
+        position: relative;
+        clear: both;
+    }
+
+    .chat-date-separator::before {
+        content: "";
+        position: absolute;
+        width: 90%;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.06);
+        z-index: 1;
+    }
+
+    .chat-date-separator span {
+        background: #f8fafc;
+        /* Chat orqa foniga mos rang */
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        position: relative;
+        z-index: 2;
+        text-transform: uppercase;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
 </style>
 
 <body>
@@ -483,10 +556,67 @@ foreach ($sections as $s) {
                         </div>
                     <?php endif; ?>
 
-                    <?php foreach ($messages as $msg): $is_adm = !is_null($msg['admin_id']); ?>
+                    <?php
+                    $last_date = null; // Oxirgi sanani saqlash uchun
+
+                    // Oylarni o'zbekchaga o'girish uchun massiv
+                    $months_uz = [
+                        'January' => 'Yanvar',
+                        'February' => 'Fevral',
+                        'March' => 'Mart',
+                        'April' => 'Aprel',
+                        'May' => 'May',
+                        'June' => 'Iyun',
+                        'July' => 'Iyul',
+                        'August' => 'Avgust',
+                        'September' => 'Sentyabr',
+                        'October' => 'Oktyabr',
+                        'November' => 'Noyabr',
+                        'December' => 'Dekabr'
+                    ];
+
+                    foreach ($messages as $msg):
+                        // Xabar yozilgan kunni aniqlaymiz (masalan: 2026-04-10)
+                        $msg_full_time = strtotime($msg['created_at']);
+                        $msg_date = date('Y-m-d', $msg_full_time);
+
+                        // Agar oldingi xabar bilan sanasi farq qilsa, sana blokini chiqaramiz
+                        if ($msg_date !== $last_date):
+                            $last_date = $msg_date;
+                            $today = date('Y-m-d');
+                            $yesterday = date('Y-m-d', strtotime('-1 day'));
+
+                            if ($msg_date === $today) {
+                                $display_date = "Bugun";
+                            } elseif ($msg_date === $yesterday) {
+                                $display_date = "Kecha";
+                            } else {
+                                // Kun va oyni chiqaramiz (masalan: 10-Aprel)
+                                $day = date('d', $msg_full_time);
+                                $month = $months_uz[date('F', $msg_full_time)];
+                                $year = date('Y', $msg_full_time);
+
+                                $display_date = "$day-$month";
+                                // Agar yil joriy yildan farqli bo'lsa, yilni ham qo'shamiz
+                                if ($year !== date('Y')) {
+                                    $display_date .= ", $year-yil";
+                                }
+                            }
+                    ?>
+                            <div class="chat-date-separator">
+                                <span><?= $display_date ?></span>
+                            </div>
+                        <?php
+                        endif;
+
+                        // Admin yoki User ekanligini aniqlash (sizning kodingizdagi klasslar)
+                        $is_adm = !is_null($msg['admin_id']);
+                        ?>
+
                         <div class="msg-group <?= $is_adm ? 'admin' : '' ?>">
                             <div class="msg-bubble <?= $is_adm ? 'msg-admin-bg' : 'msg-user-bg' ?>">
                                 <?= nl2br(htmlspecialchars($msg['message'])) ?>
+
                                 <?php if (!empty($msg['attachment'])): ?>
                                     <div class="mt-2 border-top pt-2">
                                         <a href="<?= $msg['attachment'] ?>" target="_blank" class="text-decoration-none small <?= $is_adm ? 'text-white' : 'text-primary' ?> d-flex align-items-center gap-1">
@@ -494,13 +624,21 @@ foreach ($sections as $s) {
                                         </a>
                                     </div>
                                 <?php endif; ?>
-                                <small class="d-block mt-1 opacity-75" style="font-size:10px"><?= date('H:i', strtotime($msg['created_at'])) ?></small>
+
+                                <small class="d-block mt-1 opacity-75" style="font-size:10px">
+                                    <?= date('H:i', $msg_full_time) ?>
+                                </small>
                             </div>
-                            <?php if ($is_adm): ?>
+
+                            <?php if ($is_adm && isset($section_id)): // Faqat admin o'chirishi uchun 
+                            ?>
                                 <a href="?delete_id=<?= $msg['id'] ?>&section_id=<?= $section_id ?>&user_id=<?= $chat_user_id ?>"
-                                    class="text-danger ms-2 me-2 mb-1" onclick="return confirm('O\'chirish?')"><i class="bi bi-trash"></i></a>
+                                    class="text-danger ms-2 me-2 mb-1" onclick="return confirm('O\'chirish?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             <?php endif; ?>
                         </div>
+
                     <?php endforeach; ?>
                 </div>
 
@@ -576,18 +714,147 @@ foreach ($sections as $s) {
     </div>
 
     <script>
-        const cb = document.getElementById("chatBox");
-        if (cb) cb.scrollTop = cb.scrollHeight;
+        // 1. Ovozli obyektlarni e'lon qilish
+        const sendSound = new Audio('assets/sounds/sent.mp3');
+        const receiveSound = new Audio('assets/sounds/received.mp3');
 
-        document.getElementById('fileAttach').addEventListener('change', function() {
+        // 2. Elementlarni aniqlash
+        const chatBox = document.getElementById("chatBox");
+        const replyForm = document.querySelector('.chat-input-area form');
+        const replyInput = document.querySelector('.reply-input');
+        const fileAttach = document.getElementById('fileAttach');
+        const userList = document.getElementById('userList');
+
+        // 3. Skrollni doim pastga tushirish
+        function scrollToBottom() {
+            if (chatBox) {
+                chatBox.scrollTo({
+                    top: chatBox.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        // Sahifa yuklanganda skrollni tushirish
+        scrollToBottom();
+
+        // 4. Chat va Sidebar-ni yangilash funksiyasi
+        function refreshAdminChat(isAuto = false) {
+            fetch(window.location.href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newChatHtml = doc.getElementById('chatBox').innerHTML;
+                    const newUserListHtml = doc.getElementById('userList').innerHTML;
+
+                    // Chat oynasini tekshirish va yangilash
+                    if (chatBox.innerHTML.trim() !== newChatHtml.trim()) {
+                        chatBox.innerHTML = newChatHtml;
+
+                        // Agar avtomatik tekshiruvda yangi xabar kelsa (isAuto = true)
+                        if (isAuto) {
+                            const lastMsg = chatBox.lastElementChild;
+                            // Agar oxirgi xabar foydalanuvchidan bo'lsa (admin klassi yo'q bo'lsa)
+                            if (lastMsg && !lastMsg.classList.contains('admin')) {
+                                lastMsg.classList.add('new-anim'); // iPhone animatsiyasi
+                                receiveSound.play().catch(e => console.log("Ovoz bloklandi")); // Kelgan xabar ovozi
+                            }
+                        }
+                        scrollToBottom();
+                    }
+
+                    // Foydalanuvchilar ro'yxatini (Sidebar) miltillashsiz yangilash
+                    if (userList.innerHTML.trim() !== newUserListHtml.trim()) {
+                        userList.innerHTML = newUserListHtml;
+                    }
+                })
+                .catch(err => console.error("Yangilashda xatolik:", err));
+        }
+
+        // 5. Formani yuborish (AJAX + Animatsiya + Ovoz)
+        if (replyForm) {
+            replyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const text = replyInput.value.trim();
+                const hasFile = fileAttach.files.length > 0;
+
+                if (text === "" && !hasFile) return;
+
+                const formData = new FormData(this);
+
+                // --- OPTIMISTIC UI: Admin xabarini darhol chiqarish ---
+                const now = new Date();
+                const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+                const tempMsg = `
+                <div class="msg-group admin new-anim">
+                    <div class="msg-bubble msg-admin-bg">
+                        ${text.replace(/\n/g, '<br>')}
+                        ${hasFile ? '<div class="mt-2 small"><i>📎 Fayl yuborilmoqda...</i></div>' : ''}
+                        <small class="d-block mt-1 opacity-75" style="font-size:10px">${time}</small>
+                    </div>
+                </div>`;
+
+                chatBox.insertAdjacentHTML('beforeend', tempMsg);
+                scrollToBottom();
+
+                // Yuborish ovozini chalish
+                sendSound.play().catch(e => console.log("Ovoz bloklandi"));
+
+                // Inputlarni tozalash
+                replyInput.value = '';
+                replyInput.style.height = 'auto';
+                fileAttach.value = '';
+                document.getElementById('fileLabel').innerHTML = '<i class="bi bi-paperclip fs-5"></i>';
+
+                // Serverga yuborish
+                fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            refreshAdminChat(); // Server bilan sinxronlash
+                        }
+                    });
+            });
+        }
+
+        // 6. Tugmalar va Qo'shimcha funksiyalar
+        if (replyInput) {
+            // Enter bosilganda yuborish (Shift+Enter yangi qator)
+            replyInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    replyForm.dispatchEvent(new Event('submit'));
+                }
+            });
+
+            // Input balandligini matnga qarab o'zgartirish
+            replyInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+
+        // Fayl tanlanganda belgini yashil qilish
+        fileAttach.addEventListener('change', function() {
             const label = document.getElementById('fileLabel');
             if (this.files.length > 0) {
                 label.innerHTML = '<i class="bi bi-file-earmark-check-fill fs-5 text-success"></i>';
-            } else {
-                label.innerHTML = '<i class="bi bi-paperclip fs-5"></i>';
             }
         });
 
+        // Foydalanuvchilarni qidirish
         document.getElementById('userSearch').addEventListener('input', function() {
             let filter = this.value.toLowerCase();
             document.querySelectorAll('#userList .user-item').forEach(function(item) {
@@ -595,6 +862,11 @@ foreach ($sections as $s) {
                 item.style.display = text.includes(filter) ? 'flex' : 'none';
             });
         });
+
+        // 7. AVTOMATIK YANGILASH (Har 3 soniyada)
+        setInterval(() => {
+            refreshAdminChat(true);
+        }, 1000);
     </script>
 </body>
 

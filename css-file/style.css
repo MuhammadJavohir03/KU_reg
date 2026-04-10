@@ -590,3 +590,44 @@ body {
     opacity: 0;
     visibility: hidden;
 }
+
+/* Progress Bar */
+#global-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0;
+    background: linear-gradient(90deg, #0dcaf0, #007bff);
+    z-index: 9999;
+    transition: width 0.4s ease, opacity 0.4s ease;
+    opacity: 0;
+}
+
+/* Sahifa yuklanganda elementlarning silliq paydo bo'lishi */
+#main-wrapper {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fanlar ro'yxati uchun badge style */
+.semester-badge {
+    background: rgba(13, 202, 240, 0.1);
+    color: #0dcaf0;
+    border: 1px solid rgba(13, 202, 240, 0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}

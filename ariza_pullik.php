@@ -77,7 +77,7 @@ if (isset($_POST['submit'])) {
                 ':h_parol' => $hemis_parol
             ]);
 
-            echo "<script>alert('✅ Pullik arizangiz muvaffaqiyatli saqlandi!'); window.location.href='arizalar.php';</script>";
+            echo "<script>alert('✅ Pullik arizangiz muvaffaqiyatli saqlandi!'); window.location.href='ariza_pullik.php';</script>";
         }
     }
 }
@@ -162,13 +162,12 @@ if (isset($_POST['submit'])) {
                 <div class="glass-card">
                     <div class="mb-4 text-center">
                         <h2 class="text-white mb-1">💳 Mini semestrga ro'yxatdan o'tish</h2>
-                        <span class="badge bg-info text-dark">Pullik qayta topshirish</span>
                     </div>
 
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-5 border-end border-secondary pe-md-4">
-                                <label class="small opacity-75">Talaba ma'lumotlari</label>
+                                <label class="small text-white opacity-75">Talaba ma'lumotlari</label>
                                 <div class="form-control-static">ID: <?= $user['talaba_id'] ?></div>
                                 <div class="form-control-static"><?= $user['fio'] ?></div>
                                 <div class="form-control-static"><?= $user['guruh'] ?></div>
@@ -176,10 +175,14 @@ if (isset($_POST['submit'])) {
                                     <div class="submitted-box">
                                         <h6 class="text-info small fw-bold mb-2"><i class="bi bi-check-circle-fill"></i> Topshirilgan fanlar:</h6>
                                         <?php foreach ($submitted_fans as $sid):
-                                            $fn = $pdo->prepare("SELECT nomi FROM fanlar WHERE id = ?");
-                                            $fn->execute([$sid]); ?>
+                                            $fn = $pdo->prepare("SELECT nomi, semestr FROM fanlar WHERE id = ?");
+                                            $fn->execute([$sid]);
+                                            $fan = $fn->fetch(); ?>
                                             <div class="small mb-1 text-white opacity-90 border-bottom border-secondary pb-1">
-                                                ✅ <?= htmlspecialchars($fn->fetchColumn()) ?>
+                                                ✅ <?= htmlspecialchars($fan['nomi']) ?>
+                                                <span class="ms-2 badge rounded-pill" style="background-color: rgba(13, 202, 240, 0.15); color: #0dcaf0; border: 1px solid rgba(13, 202, 240, 0.3); font-weight: 500; font-size: 0.75rem;">
+                                                    <?= htmlspecialchars($fan['semestr']) ?>-semestr
+                                                </span>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -187,7 +190,7 @@ if (isset($_POST['submit'])) {
                             </div>
 
                             <div class="col-md-7 ps-md-4">
-                                <h5 class="mb-3">Qayta o'qiladigan fanlar (Maks 4 ta)</h5>
+                                <h5 class="text-white mb-3">Qayta o'qiladigan fanlar (Maks 4 ta)</h5>
                                 <div id="fan-container">
                                     <div class="fan-row mb-2">
                                         <select name="fanlar[]" class="form-control form-input" required>

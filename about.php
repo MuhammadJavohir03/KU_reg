@@ -33,7 +33,7 @@
 
     .staff-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
 
     .profile-img-container {
@@ -48,7 +48,7 @@
         height: 150px;
         object-fit: cover;
         border: 4px solid white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .profile-img-small {
@@ -56,7 +56,7 @@
         height: 120px;
         object-fit: cover;
         border: 3px solid white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .section-title {
@@ -96,7 +96,7 @@
     }
 </style>
 
-<body>
+<body id="main-content">
     <?php require "Includes/yuklash.php"; ?>
     <?php require "Includes/navbar.php"; ?>
     <canvas class="z-n1" id="bg" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
@@ -107,7 +107,7 @@
             <p class="lead text-muted mx-auto mb-4" style="max-width: 800px;">
                 Talabalarning o'quv jarayonida vujudga kelgan savollar, yordam va ko'rsatmalar bo'yicha ko'mak beruvchi asosiy bo'lim.
             </p>
-            
+
             <div class="row g-3 justify-content-center">
                 <div class="col-md-4">
                     <div class="contact-info border shadow-sm h-100">
@@ -136,11 +136,11 @@
                         </div>
                         <h4 class="fw-bold mb-1">Ikramov MuhammadYusuf</h4>
                         <p class="text-danger fw-semibold mb-3">Registrator ofisi boshlig'i</p>
-                        
+
                         <button class="btn btn-outline-danger btn-sm rounded-pill px-4" type="button" data-bs-toggle="collapse" data-bs-target="#bioMain">
                             Batafsil ma'lumot
                         </button>
-                        
+
                         <div class="collapse mt-3" id="bioMain">
                             <div class="card card-body border-0 bg-light small text-start">
                                 Muhammad Yusuf Ikramov shu kunga qadar Qo‘qon universitetining Iqtisodiyot va ta'lim fakulteti ish yurituvchisi, fakultet dekani muovini mas'ul vazifalarida ishlagan.
@@ -164,13 +164,13 @@
                     ["name" => "Begzodbek", "role" => "Hero Mutaxassis", "img" => "Toxirjonov_Donyor.jpg"]
                 ];
                 foreach ($heroes as $hero): ?>
-                <div class="col-6 col-md-4 col-lg-2">
-                    <div class="staff-card shadow-sm p-3">
-                        <img class="rounded-circle profile-img-small mb-3" src="Reg_office/<?= $hero['img'] ?>" alt="<?= $hero['name'] ?>">
-                        <h6 class="fw-bold mb-1 small"><?= $hero['name'] ?></h6>
-                        <span class="badge-role">Hero</span>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="staff-card shadow-sm p-3">
+                            <img class="rounded-circle profile-img-small mb-3" src="Reg_office/<?= $hero['img'] ?>" alt="<?= $hero['name'] ?>">
+                            <h6 class="fw-bold mb-1 small"><?= $hero['name'] ?></h6>
+                            <span class="badge-role">Hero</span>
+                        </div>
                     </div>
-                </div>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -189,13 +189,13 @@
                     ["name" => "Ermuhammedov Abdullajon", "img" => "placeholder.jpg"]
                 ];
                 foreach ($shtab as $member): ?>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="staff-card shadow-sm p-3">
-                        <img class="rounded-circle profile-img-small mb-3" src="Reg_office/<?= $member['img'] ?>" alt="<?= $member['name'] ?>" onerror="this.src='https://via.placeholder.com/150'">
-                        <h6 class="fw-bold mb-1 small"><?= $member['name'] ?></h6>
-                        <p class="text-muted extra-small mb-0">Asosiy shtab a'zosi</p>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="staff-card shadow-sm p-3">
+                            <img class="rounded-circle profile-img-small mb-3" src="Reg_office/<?= $member['img'] ?>" alt="<?= $member['name'] ?>" onerror="this.src='https://via.placeholder.com/150'">
+                            <h6 class="fw-bold mb-1 small"><?= $member['name'] ?></h6>
+                            <p class="text-muted extra-small mb-0">Asosiy shtab a'zosi</p>
+                        </div>
                     </div>
-                </div>
                 <?php endforeach; ?>
             </div>
         </div>

@@ -4,7 +4,10 @@ session_start();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
+
 }
+
+require "ajax_helper.php";
 
 $id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -48,7 +51,7 @@ if (isset($_POST['submit'])) {
                     VALUES (?, ?, ?, ?, ?, ?, NOW()) 
                     ON DUPLICATE KEY UPDATE fan1=VALUES(fan1), fan2=VALUES(fan2), fan3=VALUES(fan3), fan4=VALUES(fan4)";
             $pdo->prepare($sql)->execute([$u_id, $talaba_id, $f[0], $f[1], $f[2], $f[3]]);
-            echo "<script>alert('✅ Arizangiz qabul qilindi!'); window.location.href='arizalar.php';</script>";
+            echo "<script>alert('✅ Arizangiz qabul qilindi!'); window.location.href='ariza_bepul.php';</script>";
         } else {
             echo "<script>alert('❌ Jami fanlar 4 tadan oshmasligi kerak!');</script>";
         }
@@ -128,7 +131,7 @@ if (isset($_POST['submit'])) {
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-5 border-end border-secondary">
-                                <label class="small opacity-75">Talaba ma'lumotlari</label>
+                                <label class="small text-white opacity-75">Talaba ma'lumotlari</label>
                                 <div class="form-control-static"><?= $user['talaba_id'] ?> | <?= $user['fio'] ?></div>
                                 <div class="form-control-static"><?= $user['guruh'] ?></div>
 
@@ -136,9 +139,21 @@ if (isset($_POST['submit'])) {
                                     <div class="submitted-list mt-3">
                                         <h6 class="small text-success fw-bold">Topshirilgan fanlar:</h6>
                                         <?php foreach ($submitted_fans as $sid):
-                                            $fn = $pdo->prepare("SELECT nomi FROM fanlar WHERE id = ?");
-                                            $fn->execute([$sid]); ?>
-                                            <div class="small text-white opacity-75 border-bottom border-secondary py-1">✅ <?= htmlspecialchars($fn->fetchColumn()) ?></div>
+                                            // SQL so'rovida nomi va semstr ustunlarini tanlaymiz
+                                            $fn = $pdo->prepare("SELECT nomi, semestr FROM fanlar WHERE id = ?");
+                                            $fn->execute([$sid]);
+
+                                            // fetchColumn() o'rniga fetch() ishlatamiz, u massiv qaytaradi
+                                            $fan = $fn->fetch();
+
+                                            if ($fan): ?>
+                                                <div class="small text-white opacity-75 border-bottom border-secondary py-1">
+                                                    ✅ <?= htmlspecialchars($fan['nomi']) ?>
+                                                    <span class="ms-2 badge rounded-pill" style="background-color: rgba(13, 202, 240, 0.15); color: #0dcaf0; border: 1px solid rgba(13, 202, 240, 0.3); font-weight: 500; font-size: 0.75rem;">
+                                                        <?= htmlspecialchars($fan['semestr']) ?>-semestr
+                                                    </span>
+                                                </div>
+                                            <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php endif; ?>
