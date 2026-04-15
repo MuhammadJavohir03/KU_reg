@@ -29,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
 
+            // --- YANGI QATORLAR ---
+            $_SESSION['fio'] = $user['fio']; // Agar bazada ustun nomi 'fio' bo'lsa
+            $_SESSION['talaba_id'] = $user['talaba_id']; // Bazadagi 'talaba_id' ni sessiyaga yuklash
+            // -----------------------
+
             if ($user['role'] === 'admin') {
                 header("Location: admin_chat.php");
                 exit;
@@ -36,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: index.php");
                 exit;
             }
-        } else {
-            $error = "Email, Talaba ID yoki parol noto‘g‘ri.";
         }
     }
 }

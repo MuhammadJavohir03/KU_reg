@@ -283,6 +283,9 @@ if (isset($_SESSION['user_id'])) {
                 <a href="fanlar.php"><i class="bi bi-plus-circle"></i> Fanlar natijalari</a>
                 <a href="test.php" class="<?= $current == 'test.php' ? 'active' : '' ?>"><i class="bi bi-check2-square"></i> O'zlashtirish</a>
                 <a href="talabalar_bahosi.php"><i class="bi bi-person-badge"></i> Umumiy natijalar</a>
+                <a class="nav-link" href="bahorgi_maktab.php">
+                    <i class="bi bi-snow2"></i> Bahorgi maktab
+                </a>
 
                 <button onclick="toggleSubmenu()">
                     <i class="bi bi-file-earmark-text"></i> Arizalar
@@ -300,6 +303,7 @@ if (isset($_SESSION['user_id'])) {
                 <a href="arizalar.php"><i class="bi bi-journal-text"></i> Arizalarim</a>
                 <a href="chat.php"><i class="bi bi-chat-left-text"></i> Chat</a>
                 <a href="natijalarim.php"><i class="bi bi-trophy"></i> Natijalarim</a>
+                <a href="bepul_maktab.php">Bepul Maktab</a>
             <?php endif; ?>
 
             <?php if ($role == 'super_admin'): ?>

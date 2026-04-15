@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id'])) {
 
 }
 
-require "ajax_helper.php";
 
 $id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -137,7 +136,7 @@ if (isset($_POST['submit'])) {
 
                                 <?php if (!empty($submitted_fans)): ?>
                                     <div class="submitted-list mt-3">
-                                        <h6 class="small text-success fw-bold">Topshirilgan fanlar:</h6>
+                                        <h6 class="small text-success fw-bold">Ro'yhatdan o'tgan fanlar:</h6>
                                         <?php foreach ($submitted_fans as $sid):
                                             // SQL so'rovida nomi va semstr ustunlarini tanlaymiz
                                             $fn = $pdo->prepare("SELECT nomi, semestr FROM fanlar WHERE id = ?");

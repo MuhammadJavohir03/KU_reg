@@ -24,7 +24,7 @@ $fan_id = $_GET['id'] ?? $_GET['fan_id'] ?? null;
 if (!$fan_id) die("Fan tanlanmagan");
 /* ================= MA'LUMOTLAR VA PAGINATSIYA ================= */
 
-$limit = 50;
+$limit = 100;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
