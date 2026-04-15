@@ -29,9 +29,6 @@ if (!isset($_SESSION['user_id'])) {
 $id = $_SESSION['user_id'];
 
 // 👤 User ma'lumotlarini olish
-// ... (avvalgi kodlar o'zgarishsiz qoladi)
-
-// 👤 User ma'lumotlarini olish
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -78,32 +75,32 @@ if (isset($_POST['delete_photo'])) {
 }
 
 // ✏️ UPDATE (Password va Rasm yuklash)
-if (isset($_POST['update'])) {
-    $password = htmlspecialchars(trim($_POST['password']));
-    if (!empty($password)) {
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        $update = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-        $update->execute([$hash, $id]);
+if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
+    $max_size = 2 * 1024 * 1024; // 2 MB baytlarda
+    $file_size = $_FILES['profile_image']['size'];
+    $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+    $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+
+    // 1. Hajmni tekshirish
+    if ($file_size > $max_size) {
+        header("Location: myprofile.php?error=too_large");
+        exit;
     }
 
-    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
-        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-        $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+    // 2. Formatni tekshirish
+    if (in_array($ext, $allowed)) {
+        if (!is_dir('uploads')) mkdir('uploads', 0777, true);
 
-        if (in_array($ext, $allowed)) {
-            if (!is_dir('uploads')) mkdir('uploads', 0777, true);
-            if (!empty($user['image']) && file_exists("uploads/" . $user['image'])) {
-                unlink("uploads/" . $user['image']);
-            }
-            $new_name = "profile_" . $id . "_" . time() . "." . $ext;
-            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], "uploads/" . $new_name)) {
-                $updateImg = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
-                $updateImg->execute([$new_name, $id]);
-            }
+        if (!empty($user['image']) && file_exists("uploads/" . $user['image'])) {
+            unlink("uploads/" . $user['image']);
+        }
+
+        $new_name = "profile_" . $id . "_" . time() . "." . $ext;
+        if (move_uploaded_file($_FILES['profile_image']['tmp_name'], "uploads/" . $new_name)) {
+            $updateImg = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
+            $updateImg->execute([$new_name, $id]);
         }
     }
-    header("Location: myprofile.php?success=1");
-    exit;
 }
 ?>
 

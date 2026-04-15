@@ -17,4 +17,17 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
-<?php require_once "auth_check.php"; ?>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+    #nprogress-bar {
+        position: fixed;
+        top: 0; left: 0; width: 0%; height: 3px;
+        background: #0dcaf0; /* Text-info rangi */
+        z-index: 9999;
+        transition: width 0.4s ease;
+        box-shadow: 0 0 10px #0dcaf0;
+    }
+</style>
+
+<div id="nprogress-bar"></div>
